@@ -163,12 +163,12 @@ export default function DocumentsPage() {
   }, [selectedIndex]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Documents Management</h1>
-            <p className="text-slate-600 text-sm">Query and manage documents in your indices</p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Documents Management</h1>
+            <p className="text-slate-600 text-sm mt-1">Query and manage documents in your indices</p>
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
@@ -221,7 +221,7 @@ export default function DocumentsPage() {
             </Dialog>
           </div>
 
-        <Card>
+        <Card className="border-slate-200/60">
           <CardHeader>
             <CardTitle>Search Documents</CardTitle>
             <CardDescription>Search and manage documents in your indices</CardDescription>

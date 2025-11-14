@@ -50,7 +50,7 @@ export default function ClusterPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+      <div className="min-h-screen bg-white p-6">
         <div className="container mx-auto">
           <div className="text-center py-12">
             <RefreshCw className="h-8 w-8 animate-spin mx-auto text-blue-600" />
@@ -63,9 +63,9 @@ export default function ClusterPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+      <div className="min-h-screen bg-white p-6">
         <div className="container mx-auto">
-          <Card className="border-red-200 bg-red-50">
+          <Card className="border-red-200 bg-red-50/50">
             <CardHeader>
               <CardTitle className="text-red-900">Error</CardTitle>
             </CardHeader>
@@ -86,20 +86,20 @@ export default function ClusterPage() {
   const nodes = nodeStats ? Object.entries(nodeStats) : [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="container mx-auto px-6 py-8 space-y-6">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-6 py-8 space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Cluster Information</h1>
-            <p className="text-slate-600 text-sm">Monitor your Elasticsearch cluster health</p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Cluster Information</h1>
+            <p className="text-slate-600 text-sm mt-1">Monitor your Elasticsearch cluster health</p>
           </div>
-          <Button onClick={fetchData} variant="outline" className="gap-2">
+          <Button onClick={fetchData} variant="outline" className="gap-2 border-slate-200">
             <RefreshCw className="h-4 w-4" />
             Refresh
           </Button>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
+          <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Cluster Status</CardTitle>
               <Activity className="h-4 w-4 text-slate-600" />
@@ -113,7 +113,7 @@ export default function ClusterPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Nodes</CardTitle>
               <Server className="h-4 w-4 text-slate-600" />
@@ -126,7 +126,7 @@ export default function ClusterPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Shards</CardTitle>
               <HardDrive className="h-4 w-4 text-slate-600" />
@@ -139,7 +139,7 @@ export default function ClusterPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Shard Health</CardTitle>
               <CheckCircle2 className="h-4 w-4 text-slate-600" />

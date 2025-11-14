@@ -123,12 +123,12 @@ export default function IndicesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Indices Management</h1>
-            <p className="text-slate-600 text-sm">Manage your Elasticsearch indices</p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Indices Management</h1>
+            <p className="text-slate-600 text-sm mt-1">Manage your Elasticsearch indices</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -187,7 +187,7 @@ export default function IndicesPage() {
             </Dialog>
           </div>
 
-        <Card>
+        <Card className="border-slate-200/60">
           <CardHeader>
             <CardTitle>All Indices</CardTitle>
             <CardDescription>View and manage all indices in your cluster</CardDescription>
