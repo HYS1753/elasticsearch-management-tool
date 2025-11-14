@@ -26,8 +26,9 @@ export default function ClusterPage() {
       const healthData = await healthRes.json();
       const nodesData = await nodesRes.json();
 
-      if (healthData.success) {
-        setHealth(healthData.data);
+      // API에서 데이터를 직접 반환하므로 바로 설정
+      if (healthRes.ok) {
+        setHealth(healthData);
       } else {
         throw new Error(healthData.error?.message || 'Failed to fetch cluster health');
       }

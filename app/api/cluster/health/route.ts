@@ -4,7 +4,7 @@ import { clusterService } from '@/lib/services/cluster.service';
 export async function GET(request: NextRequest) {
   try {
     const health = await clusterService.getHealth();
-    return NextResponse.json({ success: true, data: health });
+    return NextResponse.json(health);
   } catch (error: any) {
     console.error('Error fetching cluster health:', error);
     return NextResponse.json(
