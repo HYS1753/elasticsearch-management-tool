@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Database, Activity, FileText, BookOpen, TrendingUp, ArrowRight, Search, Plus, Eye, BarChart3 } from 'lucide-react';
+import Image from 'next/image';
+import { Activity, FileText, BookOpen, TrendingUp, ArrowRight, Search, Plus, Eye, BarChart3, Database } from 'lucide-react';
 import { Button } from '@/components/button';
 import { Badge } from '@/components/badge';
 
@@ -9,8 +10,14 @@ export default function Home() {
       <div className="container mx-auto px-6 py-12 space-y-20">
         {/* Hero Section */}
         <div className="text-center space-y-6 py-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl shadow-blue-500/20 mb-2">
-            <Database className="h-8 w-8" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-xl mb-2">
+            <Image 
+              src="/es_logo.png" 
+              alt="Elasticsearch Logo" 
+              width={48} 
+              height={48}
+              className="object-contain"
+            />
           </div>
           <h1 className="text-5xl font-bold text-slate-900 tracking-tight">
             Elasticsearch Management
