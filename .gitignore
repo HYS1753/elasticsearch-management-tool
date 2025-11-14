@@ -1,0 +1,80 @@
+# ---------------------------
+# Node.js / Next.js 기본
+# ---------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 환경 변수
+.env
+.env.*
+!.env.example
+
+# Next.js 빌드 출력물
+.next/
+out/
+.next-static/
+.next/server/
+.next/cache/
+
+# ISR 캐시 (Next 13+)
+.cache/
+.vercel/output/
+
+# 빌드 산출물
+dist/
+build/
+
+# ---------------------------
+# OS / Editor 기본 설정
+# ---------------------------
+.DS_Store
+Thumbs.db
+
+# vscode
+.vscode/
+*.code-workspace
+
+# JetBrains
+.idea/
+
+# ---------------------------
+# Logs
+# ---------------------------
+logs/
+*.log
+*.log.*
+lerna-debug.log
+
+# ---------------------------
+# TypeScript
+# ---------------------------
+*.tsbuildinfo
+
+# ---------------------------
+# Vercel 관련
+# ---------------------------
+.vercel/
+
+# ---------------------------
+# Storybook, Cypress 등 (선택)
+# ---------------------------
+storybook-static/
+.cypress/
+coverage/
+
+# ---------------------------
+# Images / Upload temp
+# ---------------------------
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Next image cache
+public/images/.cache/
+
+# ---------------------------
+# Docker (선택)
+# ---------------------------
+docker-data/
