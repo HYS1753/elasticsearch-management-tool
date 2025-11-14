@@ -124,21 +124,20 @@ export default function IndicesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="border-b bg-white shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-slate-900">Indices Management</h1>
-              <p className="text-slate-600 text-sm">Manage your Elasticsearch indices</p>
-            </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create Index
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
+      <div className="container mx-auto px-6 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">Indices Management</h1>
+            <p className="text-slate-600 text-sm">Manage your Elasticsearch indices</p>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Create Index
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Create New Index</DialogTitle>
                   <DialogDescription>
@@ -187,10 +186,7 @@ export default function IndicesPage() {
               </DialogContent>
             </Dialog>
           </div>
-        </div>
-      </div>
 
-      <div className="container mx-auto px-6 py-8">
         <Card>
           <CardHeader>
             <CardTitle>All Indices</CardTitle>

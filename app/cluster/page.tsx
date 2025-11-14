@@ -87,22 +87,17 @@ export default function ClusterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="border-b bg-white shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-slate-900">Cluster Information</h1>
-              <p className="text-slate-600 text-sm">Monitor your Elasticsearch cluster health</p>
-            </div>
-            <Button onClick={fetchData} variant="outline" className="gap-2">
-              <RefreshCw className="h-4 w-4" />
-              Refresh
-            </Button>
-          </div>
-        </div>
-      </div>
-
       <div className="container mx-auto px-6 py-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">Cluster Information</h1>
+            <p className="text-slate-600 text-sm">Monitor your Elasticsearch cluster health</p>
+          </div>
+          <Button onClick={fetchData} variant="outline" className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
