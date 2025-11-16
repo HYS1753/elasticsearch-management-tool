@@ -8,8 +8,11 @@ import { Navigation } from '@/components/navigation';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Elasticsearch Management Tool',
+  title: 'Elasticsearch Management',
   description: 'Manage your Elasticsearch cluster with ease',
+  icons: {
+    icon: '/es_logo.png',
+  },
 };
 
 export default function RootLayout({
