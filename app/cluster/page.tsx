@@ -6,6 +6,13 @@ import { Badge } from '@/components/badge';
 import { Activity, Server, HardDrive, CheckCircle2, RefreshCw, ChevronDown, Boxes, Hexagon } from 'lucide-react';
 import { Button } from '@/components/button';
 import { formatBytes, formatNumber, getHealthColor } from '@/lib/utils';
+
+function getBarColor(percent: number) {
+  if (percent < 60) return '#2ECC71'; // Green
+  if (percent < 75) return '#F1C40F'; // Yellow
+  if (percent < 90) return '#E67E22'; // Orange
+  return '#E74C3C'; // Red
+}
 import type { ClusterStatus, NodeStatus } from '@/types';
 
 export default function ClusterPage() {
@@ -229,103 +236,166 @@ export default function ClusterPage() {
             <Card className="border-slate-200/60">
               <CardContent className="pt-6">
                 <div className="space-y-4">
-                  {nodes.map((node) => (
-                    <div key={node.id} className="border rounded-lg p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <div className="font-semibold text-slate-900">{node.name}</div>
-                          <div className="text-xs text-slate-500">ID: {node.id}</div>
-                          <div className="text-xs text-slate-500">Host: {node.host}</div>
-                          <div className="text-xs text-slate-500">Transport: {node.transport}</div>
-                          <div className="text-sm text-slate-600 mt-1">Roles: {node.roles.join(', ')}</div>
+                  {nodes.map((node) => {
+                    // Roles 2줄 넘으면 ... 처리
+                    const rolesStr = node.roles.join(', ');
+                    // 2줄 기준: 2 * 32 = 64글자(대략)
+                    const maxRolesLength = 80;
+                    let rolesDisplay = rolesStr;
+                    let rolesTruncated = false;
+                    if (rolesStr.length > maxRolesLength) {
+                      // 2줄 기준으로 자르고 ...
+                      let cutIdx = rolesStr.lastIndexOf(',', maxRolesLength);
+                      if (cutIdx === -1) cutIdx = maxRolesLength;
+                      rolesDisplay = rolesStr.slice(0, cutIdx) + ' ...';
+                      rolesTruncated = true;
+                    }
+                    return (
+                      <div key={node.id} className="border rounded-lg p-4">
+                        <div className="flex flex-row gap-6">
+                          <div className="flex flex-col justify-between w-[30%] min-w-[200px] pr-6">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-slate-900 text-base">{node.name}</span>
+                                {node.is_master_node && (
+                                  <Badge variant="default" className="ml-1">Master</Badge>
+                                )}
+                              </div>
+                              <div className="text-xs text-slate-500">ID: {node.id}</div>
+                              <div className="text-xs text-slate-500">Host: {node.host}</div>
+                              <div className="text-xs text-slate-500">Transport: {node.transport}</div>
+                              <div className="text-sm text-slate-600 mt-1">
+                                Roles:
+                                <span className="block group relative cursor-pointer whitespace-pre-line break-words max-h-[3.2em] overflow-hidden">
+                                  {rolesDisplay}
+                                  {rolesTruncated && (
+                                    <span className="absolute left-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                      {rolesStr}
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="mt-2">
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="text-slate-600">Documents</span>
+                                <span className="font-medium">{node.stats.docs_count.toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* Divider */}
+                          <div className="border-l border-slate-200 mx-2" />
+                          <div className="flex-1 w-[70%] grid grid-cols-2 grid-rows-3 gap-4">
+                            {/* 1Row: CPU, Storage */}
+                            <div>
+                              <div className="flex items-center justify-between text-sm mb-1">
+                                <span className="text-slate-600">CPU</span>
+                                <span className="group relative">
+                                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                                  <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    CPU 사용률입니다.<br />Current cpu loads: {node.stats.os_cpu_percent}%<br />1m avg cpu loads: {node.stats.os_cpu_load_average_1m}<br />5m avg cpu loads: {node.stats.os_cpu_load_average_5m}<br />15m avg cpu loads: {node.stats.os_cpu_load_average_15m}
+                                  </span>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium w-12 text-right">{node.stats.os_cpu_percent}%</span>
+                                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                                  <div className="h-full transition-all" style={{ width: `${node.stats.os_cpu_percent}%`, background: getBarColor(node.stats.os_cpu_percent) }} />
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center justify-between text-sm mb-1">
+                                <span className="text-slate-600">Storage</span>
+                                <span className="group relative">
+                                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                                  <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    파일 시스템(스토리지) 사용률입니다.<br />Used: {node.stats.fs_used}<br />Free: {node.stats.fs_free}<br />Total: {node.stats.fs_total}
+                                  </span>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium w-12 text-right">{node.stats.fs_used_percent}%</span>
+                                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                                  <div className="h-full transition-all" style={{ width: `${node.stats.fs_used_percent}%`, background: getBarColor(node.stats.fs_used_percent) }} />
+                                </div>
+                              </div>
+                            </div>
+                            {/* 2Row: Memory, JVM Heap */}
+                            <div>
+                              <div className="flex items-center justify-between text-sm mb-1">
+                                <span className="text-slate-600">Memory</span>
+                                <span className="group relative">
+                                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                                  <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    시스템 메모리 사용률입니다.<br />Total: {node.stats.os_mem_total}<br />Used: {node.stats.os_mem_used}<br />Free: {node.stats.os_mem_free}
+                                  </span>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium w-12 text-right">{node.stats.os_mem_used_percent}%</span>
+                                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                                  <div className="h-full transition-all" style={{ width: `${node.stats.os_mem_used_percent}%`, background: getBarColor(node.stats.os_mem_used_percent) }} />
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center justify-between text-sm mb-1">
+                                <span className="text-slate-600">JVM Heap</span>
+                                <span className="group relative">
+                                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                                  <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    JVM 힙 메모리 사용률입니다.<br />Used: {node.stats.jvm_heap_used}<br />Max: {node.stats.jvm_heap_max}
+                                  </span>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium w-12 text-right">{node.stats.jvm_heap_used_percent}%</span>
+                                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                                  <div className="h-full transition-all" style={{ width: `${node.stats.jvm_heap_used_percent}%`, background: getBarColor(node.stats.jvm_heap_used_percent) }} />
+                                </div>
+                              </div>
+                            </div>
+                            {/* 3Row: SearchActive, Indexing Pressure */}
+                            <div>
+                              <div className="flex items-center justify-between text-sm mb-1">
+                                <span className="text-slate-600">Search Active</span>
+                                <span className="group relative">
+                                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                                  <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    현재 활성화된 검색 작업 수입니다.<br />Threads: {node.stats.search_threads}<br />Queue: {node.stats.search_queue}<br />Rejected: {node.stats.search_rejected}<br />Completed: {node.stats.search_completed}
+                                  </span>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium w-12 text-right">{node.stats.search_active}</span>
+                                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                                  <div className="h-full transition-all" style={{ width: `${Math.min(node.stats.search_active, 100)}%`, background: getBarColor(Math.min(node.stats.search_active, 100)) }} />
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center justify-between text-sm mb-1">
+                                <span className="text-slate-600">Indexing Pressure</span>
+                                <span className="group relative">
+                                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                                  <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    인덱싱 압력(메모리 사용률)입니다.<br />Current: {node.stats.indexing_current_all}<br />Total: {node.stats.indexing_total_all}<br />Limit: {node.stats.indexing_limit}
+                                  </span>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium w-12 text-right">{node.stats.indexing_pressure_percent}%</span>
+                                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                                  <div className="h-full transition-all" style={{ width: `${node.stats.indexing_pressure_percent}%`, background: getBarColor(node.stats.indexing_pressure_percent) }} />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <Badge variant={node.is_master_node ? 'default' : 'outline'}>{node.is_master_node ? 'Master' : 'Active'}</Badge>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div>
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-slate-600">Documents</span>
-                            <span className="font-medium">{node.stats.docs_count.toLocaleString()}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-slate-600">Memory</span>
-                            <span className="font-medium">{node.stats.os_mem_used_percent}%</span>
-                            <span className="ml-1 group relative">
-                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                Total: {node.stats.os_mem_total}<br />Used: {node.stats.os_mem_used}<br />Free: {node.stats.os_mem_free}
-                              </span>
-                            </span>
-                          </div>
-                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-purple-600 transition-all" style={{ width: `${node.stats.os_mem_used_percent}%` }} />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-slate-600">JVM Heap</span>
-                            <span className="font-medium">{node.stats.jvm_heap_used_percent}%</span>
-                            <span className="ml-1 group relative">
-                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                Used: {node.stats.jvm_heap_used}<br />Max: {node.stats.jvm_heap_max}
-                              </span>
-                            </span>
-                          </div>
-                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-600 transition-all" style={{ width: `${node.stats.jvm_heap_used_percent}%` }} />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-slate-600">Filesystem</span>
-                            <span className="font-medium">{node.stats.fs_used_percent}%</span>
-                            <span className="ml-1 group relative">
-                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                Used: {node.stats.fs_used}<br />Free: {node.stats.fs_free}<br />Total: {node.stats.fs_total}
-                              </span>
-                            </span>
-                          </div>
-                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-orange-600 transition-all" style={{ width: `${node.stats.fs_used_percent}%` }} />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-slate-600">Indexing Pressure</span>
-                            <span className="font-medium">{node.stats.indexing_pressure_percent}%</span>
-                            <span className="ml-1 group relative">
-                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                Current: {node.stats.indexing_current_all}<br />Total: {node.stats.indexing_total_all}<br />Limit: {node.stats.indexing_limit}
-                              </span>
-                            </span>
-                          </div>
-                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-pink-600 transition-all" style={{ width: `${node.stats.indexing_pressure_percent}%` }} />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-slate-600">Search Active</span>
-                            <span className="font-medium">{node.stats.search_active}</span>
-                            <span className="ml-1 group relative">
-                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                Threads: {node.stats.search_threads}<br />Queue: {node.stats.search_queue}<br />Rejected: {node.stats.search_rejected}<br />Completed: {node.stats.search_completed}
-                              </span>
-                            </span>
-                          </div>
-                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-green-600 transition-all" style={{ width: `${Math.min(node.stats.search_active, 100)}%` }} />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

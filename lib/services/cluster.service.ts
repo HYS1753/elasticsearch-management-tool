@@ -1,5 +1,5 @@
 import { getElasticsearchClient } from '@/lib/elasticsearch/client';
-import type { ClusterStatus, NodeStats, ClusterStats } from '@/types/cluster';
+import type { ClusterStatus, NodeStatus, ClusterStats } from '@/types/cluster';
 
 export class ClusterService {
   private client = getElasticsearchClient();

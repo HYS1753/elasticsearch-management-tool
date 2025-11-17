@@ -42,6 +42,10 @@ export interface NodeStatus {
     docs_count: number;
     docs_deleted: number;
     docs_store_size: string;
+    os_cpu_percent: number;
+    os_cpu_load_average_1m: number;
+    os_cpu_load_average_5m: number;
+    os_cpu_load_average_15m: number;
     os_mem_total: string;
     os_mem_used: string;
     os_mem_used_percent: number;
