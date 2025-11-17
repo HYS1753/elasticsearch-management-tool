@@ -3,15 +3,15 @@ import { clusterService } from '@/lib/services/cluster.service';
 
 export async function GET(request: NextRequest) {
   try {
-    const clusterState = await clusterService.getClusterState();
-    return NextResponse.json(clusterState);
+    const clusterStatus = await clusterService.getClusterStatus();
+    return NextResponse.json(clusterStatus);
   } catch (error: any) {
-    console.error('Error fetching cluster state:', error);
+    console.error('Error fetching cluster status:', error);
     return NextResponse.json(
       {
         success: false,
         error: {
-          message: error.message || 'Failed to fetch cluster state',
+          message: error.message || 'Failed to fetch cluster status',
           details: error,
         },
       },

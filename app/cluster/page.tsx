@@ -6,10 +6,10 @@ import { Badge } from '@/components/badge';
 import { Activity, Server, HardDrive, CheckCircle2, RefreshCw, ChevronDown, Boxes, Hexagon } from 'lucide-react';
 import { Button } from '@/components/button';
 import { formatBytes, formatNumber, getHealthColor } from '@/lib/utils';
-import type { ClusterHealth, NodeStats } from '@/types';
+import type { ClusterStatus, NodeStats } from '@/types';
 
 export default function ClusterPage() {
-  const [clusterState, setClusterState] = useState<ClusterHealth | null>(null);
+  const [clusterStatus, setClusterStatus] = useState<ClusterStatus | null>(null);
   const [nodeStats, setNodeStats] = useState<Record<string, NodeStats> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export default function ClusterPage() {
     setError(null);
     try {
       const [clusterStateRes, nodesRes] = await Promise.all([
-        fetch('/api/cluster/cluster-state'),
+        fetch('/api/cluster/cluster-status'),
         fetch('/api/cluster/nodes'),
       ]);
 
@@ -29,9 +29,9 @@ export default function ClusterPage() {
 
       // API에서 데이터를 직접 반환하므로 바로 설정
       if (clusterStateRes.ok) {
-        setClusterState(clusterStateData);
+        setClusterStatus(clusterStateData);
       } else {
-        throw new Error(clusterStateData.error?.message || 'Failed to fetch cluster state');
+        throw new Error(clusterStateData.error?.message || 'Failed to fetch cluster status');
       }
 
       if (nodesData.success) {
@@ -83,7 +83,7 @@ export default function ClusterPage() {
     );
   }
 
-  if (!clusterState) return null;
+  if (!clusterStatus) return null;
 
   const nodes = nodeStats ? Object.entries(nodeStats) : [];
 
@@ -119,10 +119,10 @@ export default function ClusterPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
-                  <div className={`h-3 w-3 rounded-full ${getHealthColor(clusterState.status)}`} />
-                  <span className="text-2xl font-bold capitalize">{clusterState.status}</span>
+                  <div className={`h-3 w-3 rounded-full ${getHealthColor(clusterStatus.status)}`} />
+                  <span className="text-2xl font-bold capitalize">{clusterStatus.status}</span>
                 </div>
-                <p className="text-xs text-slate-600 mt-1">{clusterState.cluster_name}</p>
+                <p className="text-xs text-slate-600 mt-1">{clusterStatus.cluster_name}</p>
               </CardContent>
             </Card>
 
@@ -132,9 +132,9 @@ export default function ClusterPage() {
                 <Server className="h-4 w-4 text-slate-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{clusterState.number_of_nodes}</div>
+                <div className="text-2xl font-bold">{clusterStatus.number_of_nodes}</div>
                 <p className="text-xs text-slate-600 mt-1">
-                  {clusterState.number_of_data_nodes} data nodes
+                  {clusterStatus.number_of_data_nodes} data nodes
                 </p>
               </CardContent>
             </Card>
@@ -145,9 +145,9 @@ export default function ClusterPage() {
                 <HardDrive className="h-4 w-4 text-slate-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatNumber(clusterState.active_shards)}</div>
+                <div className="text-2xl font-bold">{formatNumber(clusterStatus.active_shards)}</div>
                 <p className="text-xs text-slate-600 mt-1">
-                  {formatNumber(clusterState.active_primary_shards)} primary
+                  {formatNumber(clusterStatus.active_primary_shards)} primary
                 </p>
               </CardContent>
             </Card>
@@ -159,7 +159,7 @@ export default function ClusterPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {clusterState.active_shards_percent_as_number.toFixed(1)}%
+                  {clusterStatus.active_shards_percent_as_number.toFixed(1)}%
                 </div>
                 <p className="text-xs text-slate-600 mt-1">Active shards</p>
               </CardContent>
@@ -189,27 +189,27 @@ export default function ClusterPage() {
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
                     <div className="text-sm text-slate-600 mb-1">Relocating Shards</div>
-                    <div className="text-lg font-semibold">{formatNumber(clusterState.relocating_shards)}</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterStatus.relocating_shards)}</div>
                   </div>
                   <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
                     <div className="text-sm text-slate-600 mb-1">Initializing Shards</div>
-                    <div className="text-lg font-semibold">{formatNumber(clusterState.initializing_shards)}</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterStatus.initializing_shards)}</div>
                   </div>
                   <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
                     <div className="text-sm text-slate-600 mb-1">Unassigned Shards</div>
-                    <div className="text-lg font-semibold">{formatNumber(clusterState.unassigned_shards)}</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterStatus.unassigned_shards)}</div>
                   </div>
                   <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
                     <div className="text-sm text-slate-600 mb-1">Pending Tasks</div>
-                    <div className="text-lg font-semibold">{formatNumber(clusterState.number_of_pending_tasks)}</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterStatus.number_of_pending_tasks)}</div>
                   </div>
                   <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
                     <div className="text-sm text-slate-600 mb-1">In-Flight Fetches</div>
-                    <div className="text-lg font-semibold">{formatNumber(clusterState.number_of_in_flight_fetch)}</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterStatus.number_of_in_flight_fetch)}</div>
                   </div>
                   <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
                     <div className="text-sm text-slate-600 mb-1">Delayed Shards</div>
-                    <div className="text-lg font-semibold">{formatNumber(clusterState.delayed_unassigned_shards)}</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterStatus.delayed_unassigned_shards)}</div>
                   </div>
                 </div>
               </div>

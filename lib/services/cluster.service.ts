@@ -1,12 +1,12 @@
 import { getElasticsearchClient } from '@/lib/elasticsearch/client';
-import type { ClusterHealth, NodeStats, ClusterStats } from '@/types/cluster';
+import type { ClusterStatus, NodeStats, ClusterStats } from '@/types/cluster';
 
 export class ClusterService {
   private client = getElasticsearchClient();
   private apiUrl = process.env.CLUSTER_API_URL;
 
-  async getClusterState(): Promise<ClusterHealth> {
-    const response = await fetch(`${this.apiUrl}/app/cluster/cluster-state`, {
+  async getClusterStatus(): Promise<ClusterStatus> {
+    const response = await fetch(`${this.apiUrl}/app/cluster/cluster-status`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -14,17 +14,17 @@ export class ClusterService {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch cluster state: ${response.statusText}`);
+      throw new Error(`Failed to fetch cluster status: ${response}`);
     }
 
     const result = await response.json();
     
     // API 응답 구조에서 data 추출
     if (result.code === '200' && result.data) {
-      return result.data as ClusterHealth;
+      return result.data as ClusterStatus;
     }
     
-    throw new Error(result.message || 'Failed to fetch cluster state');
+    throw new Error(result.message || 'Failed to fetch cluster status');
   }
 
   async getStats(): Promise<ClusterStats> {
