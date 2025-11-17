@@ -6,11 +6,11 @@ import { Badge } from '@/components/badge';
 import { Activity, Server, HardDrive, CheckCircle2, RefreshCw, ChevronDown, Boxes, Hexagon } from 'lucide-react';
 import { Button } from '@/components/button';
 import { formatBytes, formatNumber, getHealthColor } from '@/lib/utils';
-import type { ClusterStatus, NodeStats } from '@/types';
+import type { ClusterStatus, NodeStatus } from '@/types';
 
 export default function ClusterPage() {
   const [clusterStatus, setClusterStatus] = useState<ClusterStatus | null>(null);
-  const [nodeStats, setNodeStats] = useState<Record<string, NodeStats> | null>(null);
+  const [nodeStatus, setNodeStatus] = useState<NodeStatus[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isClusterDetailsOpen, setIsClusterDetailsOpen] = useState(false);
@@ -19,25 +19,24 @@ export default function ClusterPage() {
     setLoading(true);
     setError(null);
     try {
-      const [clusterStateRes, nodesRes] = await Promise.all([
+      const [clusterStateRes, nodeStatusRes] = await Promise.all([
         fetch('/api/cluster/cluster-status'),
-        fetch('/api/cluster/nodes'),
+        fetch('/api/cluster/node-status'),
       ]);
 
       const clusterStateData = await clusterStateRes.json();
-      const nodesData = await nodesRes.json();
+      const nodeStatusData = await nodeStatusRes.json();
 
-      // API에서 데이터를 직접 반환하므로 바로 설정
       if (clusterStateRes.ok) {
         setClusterStatus(clusterStateData);
       } else {
         throw new Error(clusterStateData.error?.message || 'Failed to fetch cluster status');
       }
 
-      if (nodesData.success) {
-        setNodeStats(nodesData.data);
+      if (nodeStatusData.code === '200' && nodeStatusData.data?.nodes) {
+        setNodeStatus(nodeStatusData.data.nodes);
       } else {
-        throw new Error(nodesData.error?.message || 'Failed to fetch node stats');
+        throw new Error(nodeStatusData.message || 'Failed to fetch node status');
       }
     } catch (err: any) {
       setError(err.message);
@@ -85,7 +84,7 @@ export default function ClusterPage() {
 
   if (!clusterStatus) return null;
 
-  const nodes = nodeStats ? Object.entries(nodeStats) : [];
+  const nodes = nodeStatus || [];
 
   return (
     <div className="min-h-screen bg-white">
@@ -227,77 +226,109 @@ export default function ClusterPage() {
               </div>
               <p className="text-sm text-slate-600 mt-1 ml-7">Resource usage and performance metrics across all nodes</p>
             </div>
-            
             <Card className="border-slate-200/60">
               <CardContent className="pt-6">
-              <div className="space-y-4">
-                {nodes.map(([nodeId, node]) => (
-                  <div key={nodeId} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <div className="font-semibold text-slate-900">{node.name}</div>
-                        <div className="text-sm text-slate-600">{node.roles.join(', ')}</div>
-                        <div className="text-xs text-slate-500 mt-1">{node.transport_address}</div>
+                <div className="space-y-4">
+                  {nodes.map((node) => (
+                    <div key={node.id} className="border rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="font-semibold text-slate-900">{node.name}</div>
+                          <div className="text-xs text-slate-500">ID: {node.id}</div>
+                          <div className="text-xs text-slate-500">Host: {node.host}</div>
+                          <div className="text-xs text-slate-500">Transport: {node.transport}</div>
+                          <div className="text-sm text-slate-600 mt-1">Roles: {node.roles.join(', ')}</div>
+                        </div>
+                        <Badge variant={node.is_master_node ? 'default' : 'outline'}>{node.is_master_node ? 'Master' : 'Active'}</Badge>
                       </div>
-                      <Badge variant="outline">Active</Badge>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div>
+                          <div className="flex items-center justify-between text-sm mb-1">
+                            <span className="text-slate-600">Documents</span>
+                            <span className="font-medium">{node.stats.docs_count.toLocaleString()}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between text-sm mb-1">
+                            <span className="text-slate-600">Memory</span>
+                            <span className="font-medium">{node.stats.os_mem_used_percent}%</span>
+                            <span className="ml-1 group relative">
+                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                Total: {node.stats.os_mem_total}<br />Used: {node.stats.os_mem_used}<br />Free: {node.stats.os_mem_free}
+                              </span>
+                            </span>
+                          </div>
+                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-purple-600 transition-all" style={{ width: `${node.stats.os_mem_used_percent}%` }} />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between text-sm mb-1">
+                            <span className="text-slate-600">JVM Heap</span>
+                            <span className="font-medium">{node.stats.jvm_heap_used_percent}%</span>
+                            <span className="ml-1 group relative">
+                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                Used: {node.stats.jvm_heap_used}<br />Max: {node.stats.jvm_heap_max}
+                              </span>
+                            </span>
+                          </div>
+                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-600 transition-all" style={{ width: `${node.stats.jvm_heap_used_percent}%` }} />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between text-sm mb-1">
+                            <span className="text-slate-600">Filesystem</span>
+                            <span className="font-medium">{node.stats.fs_used_percent}%</span>
+                            <span className="ml-1 group relative">
+                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                Used: {node.stats.fs_used}<br />Free: {node.stats.fs_free}<br />Total: {node.stats.fs_total}
+                              </span>
+                            </span>
+                          </div>
+                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-orange-600 transition-all" style={{ width: `${node.stats.fs_used_percent}%` }} />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between text-sm mb-1">
+                            <span className="text-slate-600">Indexing Pressure</span>
+                            <span className="font-medium">{node.stats.indexing_pressure_percent}%</span>
+                            <span className="ml-1 group relative">
+                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                Current: {node.stats.indexing_current_all}<br />Total: {node.stats.indexing_total_all}<br />Limit: {node.stats.indexing_limit}
+                              </span>
+                            </span>
+                          </div>
+                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-pink-600 transition-all" style={{ width: `${node.stats.indexing_pressure_percent}%` }} />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between text-sm mb-1">
+                            <span className="text-slate-600">Search Active</span>
+                            <span className="font-medium">{node.stats.search_active}</span>
+                            <span className="ml-1 group relative">
+                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+                              <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                Threads: {node.stats.search_threads}<br />Queue: {node.stats.search_queue}<br />Rejected: {node.stats.search_rejected}<br />Completed: {node.stats.search_completed}
+                              </span>
+                            </span>
+                          </div>
+                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-green-600 transition-all" style={{ width: `${Math.min(node.stats.search_active, 100)}%` }} />
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-slate-600">CPU</span>
-                          <span className="font-medium">{node.os.cpu.percent}%</span>
-                        </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-600 transition-all"
-                            style={{ width: `${node.os.cpu.percent}%` }}
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-slate-600">Memory</span>
-                          <span className="font-medium">{node.os.mem.used_percent}%</span>
-                        </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-purple-600 transition-all"
-                            style={{ width: `${node.os.mem.used_percent}%` }}
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-slate-600">Disk</span>
-                          <span className="font-medium">
-                            {((1 - node.fs.total.available_in_bytes / node.fs.total.total_in_bytes) * 100).toFixed(1)}%
-                          </span>
-                        </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-orange-600 transition-all"
-                            style={{
-                              width: `${((1 - node.fs.total.available_in_bytes / node.fs.total.total_in_bytes) * 100).toFixed(1)}%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-slate-600">Documents: </span>
-                        <span className="font-medium">{formatNumber(node.indices.docs.count)}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-600">Store Size: </span>
-                        <span className="font-medium">{formatBytes(node.indices.store.size_in_bytes)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>

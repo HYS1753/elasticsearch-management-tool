@@ -1,4 +1,4 @@
-export interface ClusterHealth {
+export interface ClusterStatus {
   cluster_name: string;
   status: 'green' | 'yellow' | 'red';
   timed_out: boolean;
@@ -30,42 +30,39 @@ export interface NodeInfo {
   attributes: Record<string, string>;
 }
 
-export interface NodeStats {
+
+export interface NodeStatus {
+  is_master_node: boolean;
+  id: string;
   name: string;
-  transport_address: string;
   host: string;
-  ip: string;
+  transport: string;
   roles: string[];
-  indices: {
-    docs: {
-      count: number;
-      deleted: number;
-    };
-    store: {
-      size_in_bytes: number;
-    };
-  };
-  os: {
-    cpu: {
-      percent: number;
-    };
-    mem: {
-      used_percent: number;
-    };
-  };
-  fs: {
-    total: {
-      total_in_bytes: number;
-      available_in_bytes: number;
-      free_in_bytes: number;
-    };
-  };
-  jvm: {
-    mem: {
-      heap_used_percent: number;
-      heap_used_in_bytes: number;
-      heap_max_in_bytes: number;
-    };
+  stats: {
+    docs_count: number;
+    docs_deleted: number;
+    docs_store_size: string;
+    os_mem_total: string;
+    os_mem_used: string;
+    os_mem_used_percent: number;
+    os_mem_free: string;
+    jvm_heap_used: string;
+    jvm_heap_used_percent: number;
+    jvm_heap_max: string;
+    fs_total: string;
+    fs_free: string;
+    fs_used: string;
+    fs_used_percent: number;
+    search_threads: number;
+    search_queue: number;
+    search_active: number;
+    search_rejected: number;
+    search_completed: number;
+    indexing_current_all: string;
+    indexing_total_all: string;
+    indexing_limit: string;
+    indexing_pressure_percent: number;
+    indexing_rejections_total: number;
   };
 }
 

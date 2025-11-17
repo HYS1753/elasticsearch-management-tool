@@ -32,9 +32,24 @@ export class ClusterService {
     return response as ClusterStats;
   }
 
-  async getNodeStats(): Promise<Record<string, NodeStats>> {
-    const response = await this.client.nodes.stats();
-    return response.nodes as Record<string, NodeStats>;
+
+  async getNodeStatus(): Promise<{ code: string; message: string; data: { nodes: NodeStatus[] } }> {
+    const response = await fetch(`${this.apiUrl}/app/cluster/node-status`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch node status: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    if (result.code === '200' && result.data) {
+      return result;
+    }
+    throw new Error(result.message || 'Failed to fetch node status');
   }
 
   async getNodeInfo() {
