@@ -5,8 +5,8 @@ export class ClusterService {
   private client = getElasticsearchClient();
   private apiUrl = process.env.CLUSTER_API_URL;
 
-  async getHealth(): Promise<ClusterHealth> {
-    const response = await fetch(`${this.apiUrl}/app/cluster/health`, {
+  async getClusterState(): Promise<ClusterHealth> {
+    const response = await fetch(`${this.apiUrl}/app/cluster/cluster-state`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -14,7 +14,7 @@ export class ClusterService {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch cluster health: ${response.statusText}`);
+      throw new Error(`Failed to fetch cluster state: ${response.statusText}`);
     }
 
     const result = await response.json();
@@ -24,7 +24,7 @@ export class ClusterService {
       return result.data as ClusterHealth;
     }
     
-    throw new Error(result.message || 'Failed to fetch cluster health');
+    throw new Error(result.message || 'Failed to fetch cluster state');
   }
 
   async getStats(): Promise<ClusterStats> {

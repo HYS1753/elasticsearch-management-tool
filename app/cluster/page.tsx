@@ -3,34 +3,35 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
 import { Badge } from '@/components/badge';
-import { Activity, Server, HardDrive, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Activity, Server, HardDrive, CheckCircle2, RefreshCw, ChevronDown, Boxes, Hexagon } from 'lucide-react';
 import { Button } from '@/components/button';
 import { formatBytes, formatNumber, getHealthColor } from '@/lib/utils';
 import type { ClusterHealth, NodeStats } from '@/types';
 
 export default function ClusterPage() {
-  const [health, setHealth] = useState<ClusterHealth | null>(null);
+  const [clusterState, setClusterState] = useState<ClusterHealth | null>(null);
   const [nodeStats, setNodeStats] = useState<Record<string, NodeStats> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClusterDetailsOpen, setIsClusterDetailsOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [healthRes, nodesRes] = await Promise.all([
-        fetch('/api/cluster/health'),
+      const [clusterStateRes, nodesRes] = await Promise.all([
+        fetch('/api/cluster/cluster-state'),
         fetch('/api/cluster/nodes'),
       ]);
 
-      const healthData = await healthRes.json();
+      const clusterStateData = await clusterStateRes.json();
       const nodesData = await nodesRes.json();
 
       // API에서 데이터를 직접 반환하므로 바로 설정
-      if (healthRes.ok) {
-        setHealth(healthData);
+      if (clusterStateRes.ok) {
+        setClusterState(clusterStateData);
       } else {
-        throw new Error(healthData.error?.message || 'Failed to fetch cluster health');
+        throw new Error(clusterStateData.error?.message || 'Failed to fetch cluster state');
       }
 
       if (nodesData.success) {
@@ -82,7 +83,7 @@ export default function ClusterPage() {
     );
   }
 
-  if (!health) return null;
+  if (!clusterState) return null;
 
   const nodes = nodeStats ? Object.entries(nodeStats) : [];
 
@@ -99,103 +100,136 @@ export default function ClusterPage() {
             Refresh
           </Button>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Cluster Status</CardTitle>
-              <Activity className="h-4 w-4 text-slate-600" />
-            </CardHeader>
-            <CardContent>
+
+        {/* Cluster Status Section */}
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <Boxes className="h-5 w-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-slate-900">Cluster Status</h2>
+            </div>
+            <p className="text-sm text-slate-600 mt-1 ml-7">Overall health and performance metrics of your Elasticsearch cluster</p>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Cluster Status</CardTitle>
+                <Activity className="h-4 w-4 text-slate-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <div className={`h-3 w-3 rounded-full ${getHealthColor(clusterState.status)}`} />
+                  <span className="text-2xl font-bold capitalize">{clusterState.status}</span>
+                </div>
+                <p className="text-xs text-slate-600 mt-1">{clusterState.cluster_name}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Nodes</CardTitle>
+                <Server className="h-4 w-4 text-slate-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{clusterState.number_of_nodes}</div>
+                <p className="text-xs text-slate-600 mt-1">
+                  {clusterState.number_of_data_nodes} data nodes
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Shards</CardTitle>
+                <HardDrive className="h-4 w-4 text-slate-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatNumber(clusterState.active_shards)}</div>
+                <p className="text-xs text-slate-600 mt-1">
+                  {formatNumber(clusterState.active_primary_shards)} primary
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Shard Health</CardTitle>
+                <CheckCircle2 className="h-4 w-4 text-slate-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {clusterState.active_shards_percent_as_number.toFixed(1)}%
+                </div>
+                <p className="text-xs text-slate-600 mt-1">Active shards</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="border border-slate-200/60 rounded-lg overflow-hidden bg-white">
+            <button
+              onClick={() => setIsClusterDetailsOpen(!isClusterDetailsOpen)}
+              className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
+            >
               <div className="flex items-center gap-2">
-                <div className={`h-3 w-3 rounded-full ${getHealthColor(health.status)}`} />
-                <span className="text-2xl font-bold capitalize">{health.status}</span>
+                <div className={`transform transition-transform duration-300 ${
+                  isClusterDetailsOpen ? 'rotate-90' : ''
+                }`}>
+                  <ChevronDown className="h-5 w-5 text-slate-600" />
+                </div>
+                <span className="text-lg font-semibold text-slate-900">Cluster Details</span>
               </div>
-              <p className="text-xs text-slate-600 mt-1">{health.cluster_name}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Nodes</CardTitle>
-              <Server className="h-4 w-4 text-slate-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{health.number_of_nodes}</div>
-              <p className="text-xs text-slate-600 mt-1">
-                {health.number_of_data_nodes} data nodes
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Shards</CardTitle>
-              <HardDrive className="h-4 w-4 text-slate-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(health.active_shards)}</div>
-              <p className="text-xs text-slate-600 mt-1">
-                {formatNumber(health.active_primary_shards)} primary
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-slate-200/60 hover:shadow-lg hover:border-blue-200/40 transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Shard Health</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-slate-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {health.active_shards_percent_as_number.toFixed(1)}%
-              </div>
-              <p className="text-xs text-slate-600 mt-1">Active shards</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Cluster Details</CardTitle>
-            <CardDescription>Overview of your Elasticsearch cluster</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <div>
-                <div className="text-sm text-slate-600 mb-1">Relocating Shards</div>
-                <div className="text-lg font-semibold">{formatNumber(health.relocating_shards)}</div>
-              </div>
-              <div>
-                <div className="text-sm text-slate-600 mb-1">Initializing Shards</div>
-                <div className="text-lg font-semibold">{formatNumber(health.initializing_shards)}</div>
-              </div>
-              <div>
-                <div className="text-sm text-slate-600 mb-1">Unassigned Shards</div>
-                <div className="text-lg font-semibold">{formatNumber(health.unassigned_shards)}</div>
-              </div>
-              <div>
-                <div className="text-sm text-slate-600 mb-1">Pending Tasks</div>
-                <div className="text-lg font-semibold">{formatNumber(health.number_of_pending_tasks)}</div>
-              </div>
-              <div>
-                <div className="text-sm text-slate-600 mb-1">In-Flight Fetches</div>
-                <div className="text-lg font-semibold">{formatNumber(health.number_of_in_flight_fetch)}</div>
-              </div>
-              <div>
-                <div className="text-sm text-slate-600 mb-1">Delayed Shards</div>
-                <div className="text-lg font-semibold">{formatNumber(health.delayed_unassigned_shards)}</div>
+            </button>
+            <div
+              className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                isClusterDetailsOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+              }`}
+            >
+              <div className="px-6 pb-6 pt-2">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
+                    <div className="text-sm text-slate-600 mb-1">Relocating Shards</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterState.relocating_shards)}</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
+                    <div className="text-sm text-slate-600 mb-1">Initializing Shards</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterState.initializing_shards)}</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
+                    <div className="text-sm text-slate-600 mb-1">Unassigned Shards</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterState.unassigned_shards)}</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
+                    <div className="text-sm text-slate-600 mb-1">Pending Tasks</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterState.number_of_pending_tasks)}</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
+                    <div className="text-sm text-slate-600 mb-1">In-Flight Fetches</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterState.number_of_in_flight_fetch)}</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-slate-50/50 border border-slate-100">
+                    <div className="text-sm text-slate-600 mb-1">Delayed Shards</div>
+                    <div className="text-lg font-semibold">{formatNumber(clusterState.delayed_unassigned_shards)}</div>
+                  </div>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
+        {/* Node Status Section */}
         {nodes.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Node Status</CardTitle>
-              <CardDescription>Resource usage across all nodes</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Hexagon className="h-5 w-5 text-blue-600" />
+                <h2 className="text-xl font-semibold text-slate-900">Node Status</h2>
+              </div>
+              <p className="text-sm text-slate-600 mt-1 ml-7">Resource usage and performance metrics across all nodes</p>
+            </div>
+            
+            <Card className="border-slate-200/60">
+              <CardContent className="pt-6">
               <div className="space-y-4">
                 {nodes.map(([nodeId, node]) => (
                   <div key={nodeId} className="border rounded-lg p-4">
@@ -264,6 +298,7 @@ export default function ClusterPage() {
               </div>
             </CardContent>
           </Card>
+          </div>
         )}
       </div>
     </div>
