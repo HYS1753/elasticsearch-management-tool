@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, Database, FileText, BookOpen, TrendingUp } from 'lucide-react';
+import { Network, Layers, Settings2, FileText, BookOpen, TrendingUp } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 const navItems = [
-  { href: '/cluster', label: 'Cluster Info', icon: Activity },
-  { href: '/indices', label: 'Indices', icon: Database },
+  { href: '/cluster-information', label: 'Cluster Info', icon: Network },
+  { href: '/indices-information', label: 'Indices Info', icon: Layers },
+  { href: '/indices', label: 'Indices', icon: Settings2 },
   { href: '/documents', label: 'Documents', icon: FileText },
   { href: '/dictionary', label: 'Dictionary', icon: BookOpen },
   { href: '/boosting', label: 'Category Boosting', icon: TrendingUp },
