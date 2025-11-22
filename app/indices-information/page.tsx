@@ -258,19 +258,17 @@ export default function IndicesInformationPage() {
 
           <Card className="border-slate-200/60 shadow-sm">
             <CardContent className="pt-6">
-              <div className="flex">
-                {/* Fixed Left Column - Node Header */}
-                <div className="w-64 flex-shrink-0 border-r-2 border-slate-300">
-                  <div className="px-4 py-2 font-semibold text-slate-700 border-b-2 border-slate-300 bg-gradient-to-r from-slate-50 to-slate-100/50 flex items-center gap-2 min-h-[80px]">
-                    <Server className="h-4 w-4 text-slate-600" />
-                    Nodes
-                  </div>
+              {/* Header Row */}
+              <div className="grid grid-cols-[256px_1fr] border-b-2 border-slate-300">
+                {/* Fixed Left Header */}
+                <div className="px-4 py-2 font-semibold text-slate-700 border-r-2 border-slate-300 bg-gradient-to-r from-slate-50 to-slate-100/50 flex items-center gap-2 min-h-[80px]">
+                  <Server className="h-4 w-4 text-slate-600" />
+                  Nodes
                 </div>
                 
-                {/* Scrollable Right Section - Index Headers */}
-                <div className="flex-1 overflow-x-auto">
-                  <div className="flex border-b-2 border-slate-300 bg-gradient-to-r from-slate-50 to-slate-100/50">
-                    {/* Index columns headers */}
+                {/* Scrollable Right Header */}
+                <div className="overflow-x-auto">
+                  <div className="flex bg-gradient-to-r from-slate-50 to-slate-100/50">
                     {indices.map((index) => {
                       const totalShards = Object.values(index.shards_by_node).flat().length;
                       return (
@@ -303,62 +301,31 @@ export default function IndicesInformationPage() {
               </div>
 
               {/* Content Rows */}
-              <div className="flex">
-                {/* Fixed Left Column - Node Content */}
-                <div className="w-64 flex-shrink-0 border-r-2 border-slate-300">
-                  {/* Unassigned Shards Row (if any) */}
-                  {has_unassigned_shards && (
-                    <div className="px-4 py-4 border-b border-slate-200/60 bg-amber-50/40 hover:bg-amber-50/60 transition-colors">
-                      <div className="flex items-start gap-2">
-                        <Box className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="font-semibold text-amber-900 text-sm">Unassigned Shards</div>
-                          <div className="text-[11px] text-amber-700 mt-1">
-                            Total: {unassignedCount} shard{unassignedCount !== 1 ? 's' : ''}
-                          </div>
+              {/* Unassigned Shards Row (if any) */}
+              {has_unassigned_shards && (
+                <div className="grid grid-cols-[256px_1fr] border-b border-slate-200/60 bg-amber-50/40 hover:bg-amber-50/60 transition-colors">
+                  {/* Fixed Left Cell */}
+                  <div className="px-4 py-4 border-r-2 border-slate-300">
+                    <div className="flex items-start gap-2">
+                      <Box className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="font-semibold text-amber-900 text-sm">Unassigned Shards</div>
+                        <div className="text-[11px] text-amber-700 mt-1">
+                          Total: {unassignedCount} shard{unassignedCount !== 1 ? 's' : ''}
                         </div>
                       </div>
                     </div>
-                  )}
+                  </div>
                   
-                  {/* Node Info Cells */}
-                  {nodes.map((node) => (
-                    <div 
-                      key={node.id}
-                      className="px-4 py-4 border-b border-slate-200/60 bg-white hover:bg-slate-50/50 cursor-pointer group transition-colors"
-                      title={`Node: ${node.name}\nHost: ${node.host}\nID: ${node.id}\nRoles: ${node.roles.join(', ')}\nMaster: ${node.is_master ? 'Yes' : 'No'}`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <Server className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-slate-800 text-sm truncate">
-                              {node.name}
-                            </span>
-                            {node.is_master && (
-                              <Badge variant="default" className="text-[10px] px-1.5 py-0">Master</Badge>
-                            )}
-                          </div>
-                          <div className="text-[11px] text-slate-500 mt-1 truncate">
-                            {node.host}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Scrollable Right Section - Index Content */}
-                <div className="flex-1 overflow-x-auto">
-                  {/* Unassigned Shards Row (if any) */}
-                  {has_unassigned_shards && (
-                    <div className="flex border-b border-slate-200/60 bg-amber-50/40 hover:bg-amber-50/60 transition-colors">
+                  {/* Scrollable Right Cell */}
+                  <div className="overflow-x-auto">
+                    <div className="flex">
                       {indices.map((index) => (
-                          <div 
-                            key={`unassigned-${index.index}`}
-                            className="w-[220px] px-4 py-4 flex items-start justify-start border-r border-slate-200/60 flex-shrink-0"
-                          >
-                            {index.unassigned.length > 0 ? (
+                        <div 
+                          key={`unassigned-${index.index}`}
+                          className="w-[220px] px-4 py-4 flex items-start justify-start border-r border-slate-200/60 flex-shrink-0"
+                        >
+                          {index.unassigned.length > 0 ? (
                             <div className="flex flex-wrap gap-1.5 max-w-full">
                               {index.unassigned.map((shard, idx) => (
                                 <div
@@ -378,14 +345,40 @@ export default function IndicesInformationPage() {
                         </div>
                       ))}
                     </div>
-                  )}
-
-                  {/* Node Rows */}
-                  {nodes.map((node) => (
-                    <div key={node.id} className="flex border-b border-slate-200/60 hover:bg-slate-50/50 transition-colors">
-                      {/* Shard Boxes for each Index */}
+                  </div>
+                </div>
+              )}
+              
+              {/* Node Rows */}
+              {nodes.map((node) => (
+                <div key={node.id} className="grid grid-cols-[256px_1fr] border-b border-slate-200/60 hover:bg-slate-50/50 transition-colors">
+                  {/* Fixed Left Cell - Node Info */}
+                  <div 
+                    className="px-4 py-4 border-r-2 border-slate-300 bg-white cursor-pointer group"
+                    title={`Node: ${node.name}\nHost: ${node.host}\nID: ${node.id}\nRoles: ${node.roles.join(', ')}\nMaster: ${node.is_master ? 'Yes' : 'No'}`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <Server className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-slate-800 text-sm truncate">
+                            {node.name}
+                          </span>
+                          {node.is_master && (
+                            <Badge variant="default" className="text-[10px] px-1.5 py-0">Master</Badge>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-slate-500 mt-1 truncate">
+                          {node.host}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Scrollable Right Cell - Shard Boxes */}
+                  <div className="overflow-x-auto">
+                    <div className="flex">
                       {indices.map((index) => {
-                        // Get all shards for this node
                         const nodeShards = index.shards_by_node[node.name] || [];
                         
                         return (
@@ -418,9 +411,9 @@ export default function IndicesInformationPage() {
                         );
                       })}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
+              ))}
             </CardContent>
           </Card>
         </div>
