@@ -1,8 +1,8 @@
 'use client';
 
-import { Card, CardContent } from '@/components/card';
-import { Badge } from '@/components/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { IndexListItem } from '@/types/indices-list';
 
 interface ListViewProps {

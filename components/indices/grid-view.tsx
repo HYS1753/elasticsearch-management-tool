@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardContent } from '@/components/card';
-import { Badge } from '@/components/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Server, Box } from 'lucide-react';
 import type { IndicesPlacementResponse } from '@/types/indices-placement';
 

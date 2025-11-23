@@ -1,19 +1,11 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-} from '@/components/dropdown-menu';
-import { Skeleton } from '@/components/skeleton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/card';
-import { Button } from '@/components/button';
-import { Switch } from '@/components/switch';
-import { Label } from '@/components/label';
-import { Grid3x3, RefreshCw, List } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Grid3x3, List } from 'lucide-react';
 import type { IndicesPlacementResponse } from '@/types/indices-placement';
 import type { IndexListItem } from '@/types/indices-list';
 import { fetchIndicesPlacement, fetchIndicesList } from '@/lib/api/indices';
@@ -21,9 +13,11 @@ import { useAutoRefresh } from '@/hooks/use-auto-refresh';
 import { GridView } from '@/components/indices/grid-view';
 import { ListView } from '@/components/indices/list-view';
 import { ShardDialog } from '@/components/indices/shard-dialog';
+import { PageHeader } from '@/components/common/page-header';
+import { RefreshControls, RefreshInterval } from '@/components/common/refresh-controls';
+import { ErrorDisplay } from '@/components/common/error-display';
 
 type ViewMode = 'grid' | 'list';
-type RefreshInterval = 'manual' | '5' | '15' | '30' | '60';
 
 export default function IndicesInformationPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -62,23 +56,7 @@ export default function IndicesInformationPage() {
   }, [viewMode, includeHiddenIndex, includeClosedIndex]);
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-white p-6">
-        <div className="container mx-auto">
-          <Card className="border-red-200 bg-red-50/50">
-            <CardHeader>
-              <CardTitle className="text-red-900">Error</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-red-700">{error}</p>
-              <Button onClick={() => fetchData()} className="mt-4" variant="outline">
-                Try Again
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    return <ErrorDisplay error={error} onRetry={() => fetchData()} />;
   }
 
   if (loading && !gridData && !listData) {
@@ -94,79 +72,44 @@ export default function IndicesInformationPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-6 py-8 space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Indices Information</h1>
-            <p className="text-slate-600 text-sm mt-1">
-              {viewMode === 'grid' ? 'View shard allocation across cluster nodes' : 'View indices in list format'}
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            {/* View Mode Toggle */}
-            <div className="flex items-center gap-2 border border-slate-200 rounded-md p-1">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('grid')}
-                className="gap-2"
-              >
-                <Grid3x3 className="h-4 w-4" />
-                Grid
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className="gap-2"
-              >
-                <List className="h-4 w-4" />
-                List
-              </Button>
-            </div>
-
-            {/* Interval Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="border-slate-200 min-w-[110px]">
-                  {refreshInterval === 'manual' ? 'Manual' : `${refreshInterval}s`}
+        <PageHeader
+          title="Indices Information"
+          description={viewMode === 'grid' ? 'View shard allocation across cluster nodes' : 'View indices in list format'}
+          actions={
+            <>
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-2 border border-slate-200 rounded-md p-1">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="gap-2"
+                >
+                  <Grid3x3 className="h-4 w-4" />
+                  Grid
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuRadioGroup value={refreshInterval} onValueChange={v => setRefreshInterval(v as RefreshInterval)}>
-                  <DropdownMenuRadioItem value="manual">Manual</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="5">5 Sec</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="15">15 Sec</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="30">30 Sec</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="60">60 Sec</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="gap-2"
+                >
+                  <List className="h-4 w-4" />
+                  List
+                </Button>
+              </div>
 
-            {/* Refresh Button */}
-            <Button 
-              onClick={() => fetchData()} 
-              variant="outline" 
-              className="gap-2 border-slate-200 relative overflow-hidden" 
-              disabled={isAutoRefreshing}
-            >
-              {isAutoRefreshing && (
-                <div 
-                  className="absolute inset-0 bg-slate-300 transition-all duration-75 ease-linear"
-                  style={{ width: `${refreshProgress}%`, left: 0 }}
-                />
-              )}
-              <span className="relative z-10 flex items-center gap-2">
-                {isAutoRefreshing || loading ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-                Refresh
-              </span>
-            </Button>
-          </div>
-        </div>
+              <RefreshControls
+                refreshInterval={refreshInterval}
+                onRefreshIntervalChange={setRefreshInterval}
+                onRefresh={() => fetchData()}
+                isAutoRefreshing={isAutoRefreshing}
+                refreshProgress={refreshProgress}
+                loading={loading}
+              />
+            </>
+          }
+        />
 
         {/* View Content */}
         <div className="space-y-4">

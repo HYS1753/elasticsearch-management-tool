@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
-import { Button } from '@/components/button';
-import { Input } from '@/components/input';
-import { Badge } from '@/components/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/table';
+} from '@/components/ui/table';
 import {
   Dialog,
   DialogContent,
@@ -21,8 +21,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/dialog';
-import { Label } from '@/components/label';
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { Plus, Trash2, RefreshCw, Search, Database } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatNumber, getHealthColor } from '@/lib/utils';

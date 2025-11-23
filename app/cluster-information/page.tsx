@@ -1,19 +1,16 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-} from '@/components/dropdown-menu';
-import { Skeleton } from '@/components/skeleton';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
-import { Badge } from '@/components/badge';
-import { Activity, Server, HardDrive, CheckCircle2, RefreshCw, Boxes, Hexagon } from 'lucide-react';
-import { Button } from '@/components/button';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Activity, Server, HardDrive, CheckCircle2, Boxes, Hexagon } from 'lucide-react';
 import { formatBytes, formatNumber, getHealthColor } from '@/lib/utils';
+import { PageHeader } from '@/components/common/page-header';
+import { RefreshControls, RefreshInterval } from '@/components/common/refresh-controls';
+import { ErrorDisplay } from '@/components/common/error-display';
+import { useAutoRefresh } from '@/hooks/use-auto-refresh';
+import type { ClusterStatus, NodeStatus } from '@/types';
 
 function getBarColor(percent: number) {
   if (percent < 60) return '#2ECC71'; // Green
@@ -21,18 +18,13 @@ function getBarColor(percent: number) {
   if (percent < 90) return '#E67E22'; // Orange
   return '#E74C3C'; // Red
 }
-import type { ClusterStatus, NodeStatus } from '@/types';
 
 export default function ClusterPage() {
   const [clusterStatus, setClusterStatus] = useState<ClusterStatus | null>(null);
   const [nodeStatus, setNodeStatus] = useState<NodeStatus[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState<'manual' | '5' | '15' | '30' | '60'>('manual');
-  const [isAutoRefreshing, setIsAutoRefreshing] = useState(false);
-  const [refreshProgress, setRefreshProgress] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const refreshProgressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [refreshInterval, setRefreshInterval] = useState<RefreshInterval>('manual');
 
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -64,67 +56,11 @@ export default function ClusterPage() {
     }
   };
 
+  const { isAutoRefreshing, refreshProgress } = useAutoRefresh(refreshInterval, () => fetchData(false));
+
   useEffect(() => {
     fetchData();
   }, []);
-
-  // Interval refresh effect
-  useEffect(() => {
-    if (refreshInterval === 'manual') {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      if (refreshProgressIntervalRef.current) {
-        clearInterval(refreshProgressIntervalRef.current);
-        refreshProgressIntervalRef.current = null;
-      }
-      setIsAutoRefreshing(false);
-      setRefreshProgress(0);
-      return;
-    }
-    
-    setIsAutoRefreshing(true);
-    setRefreshProgress(0);
-    
-    const intervalMs = Number(refreshInterval) * 1000;
-    const updateInterval = 50; // Update progress every 50ms for smooth animation
-    const increment = (updateInterval / intervalMs) * 100;
-    
-    // Clear existing intervals
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (refreshProgressIntervalRef.current) clearInterval(refreshProgressIntervalRef.current);
-    
-    // Progress bar animation
-    refreshProgressIntervalRef.current = setInterval(() => {
-      setRefreshProgress(prev => {
-        const next = prev + increment;
-        if (next >= 100) {
-          return 0; // Reset to 0 when reaching 100%
-        }
-        return next;
-      });
-    }, updateInterval);
-    
-    // Data refresh interval
-    intervalRef.current = setInterval(() => {
-      setRefreshProgress(0); // Reset progress when fetching
-      fetchData(false); // no skeleton, just update data
-    }, intervalMs);
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      if (refreshProgressIntervalRef.current) {
-        clearInterval(refreshProgressIntervalRef.current);
-        refreshProgressIntervalRef.current = null;
-      }
-      setIsAutoRefreshing(false);
-      setRefreshProgress(0);
-    };
-  }, [refreshInterval]);
 
   // Skeleton for cluster cards
   const ClusterCardsSkeleton = (
@@ -144,23 +80,7 @@ export default function ClusterPage() {
   );
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-white p-6">
-        <div className="container mx-auto">
-          <Card className="border-red-200 bg-red-50/50">
-            <CardHeader>
-              <CardTitle className="text-red-900">Error</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-red-700">{error}</p>
-              <Button onClick={() => fetchData()} className="mt-4" variant="outline">
-                Try Again
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    return <ErrorDisplay error={error} onRetry={() => fetchData()} />;
   }
 
   if (!clusterStatus) return null;
@@ -170,58 +90,20 @@ export default function ClusterPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-6 py-8 space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Cluster Information</h1>
-            <p className="text-slate-600 text-sm mt-1">Monitor your Elasticsearch cluster health</p>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Interval Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="border-slate-200 min-w-[110px]">
-                  {refreshInterval === 'manual' ? 'Manual' : `${refreshInterval}s`}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuRadioGroup value={refreshInterval} onValueChange={v => setRefreshInterval(v as any)}>
-                  <DropdownMenuRadioItem value="manual">Manual</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="5">5 Sec</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="15">15 Sec</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="30">30 Sec</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="60">60 Sec</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {/* Refresh Button with progress effect */}
-            <Button 
-              onClick={() => fetchData()} 
-              variant="outline" 
-              className="gap-2 border-slate-200 relative overflow-hidden" 
-              disabled={isAutoRefreshing}
-            >
-              {/* Progress background */}
-              {isAutoRefreshing && (
-                <div 
-                  className="absolute inset-0 bg-slate-300 transition-all duration-75 ease-linear"
-                  style={{ 
-                    width: `${refreshProgress}%`,
-                    left: 0,
-                  }}
-                />
-              )}
-              {/* Button content */}
-              <span className="relative z-10 flex items-center gap-2">
-                {isAutoRefreshing || loading ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-                Refresh
-              </span>
-            </Button>
-          </div>
-        </div>
+        <PageHeader
+          title="Cluster Information"
+          description="Monitor your Elasticsearch cluster health"
+          actions={
+            <RefreshControls
+              refreshInterval={refreshInterval}
+              onRefreshIntervalChange={setRefreshInterval}
+              onRefresh={() => fetchData()}
+              isAutoRefreshing={isAutoRefreshing}
+              refreshProgress={refreshProgress}
+              loading={loading}
+            />
+          }
+        />
 
         {/* Cluster Status Section */}
         <div className="space-y-4">

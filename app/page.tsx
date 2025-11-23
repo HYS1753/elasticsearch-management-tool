@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Activity, FileText, BookOpen, TrendingUp, ArrowRight, Search, Plus, Eye, BarChart3, Database } from 'lucide-react';
-import { Button } from '@/components/button';
-import { Badge } from '@/components/badge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default function Home() {
   return (
