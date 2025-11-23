@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -9,45 +9,44 @@ import {
   DropdownMenuRadioItem,
 } from '@/components/dropdown-menu';
 import { Skeleton } from '@/components/skeleton';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/card';
-import { Badge } from '@/components/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/card';
 import { Button } from '@/components/button';
 import { Switch } from '@/components/switch';
 import { Label } from '@/components/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/dialog';
-import { Grid3x3, RefreshCw, Server, Box, X } from 'lucide-react';
-import type { IndicesPlacementResponse, Node, IndexPlacement } from '@/types/indices-placement';
+import { Grid3x3, RefreshCw, List } from 'lucide-react';
+import type { IndicesPlacementResponse } from '@/types/indices-placement';
+import type { IndexListItem } from '@/types/indices-list';
+import { fetchIndicesPlacement, fetchIndicesList } from '@/lib/api/indices';
+import { useAutoRefresh } from '@/hooks/use-auto-refresh';
+import { GridView } from '@/components/indices/grid-view';
+import { ListView } from '@/components/indices/list-view';
+import { ShardDialog } from '@/components/indices/shard-dialog';
+
+type ViewMode = 'grid' | 'list';
+type RefreshInterval = 'manual' | '5' | '15' | '30' | '60';
 
 export default function IndicesInformationPage() {
-  const [data, setData] = useState<IndicesPlacementResponse['data'] | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [gridData, setGridData] = useState<IndicesPlacementResponse['data'] | null>(null);
+  const [listData, setListData] = useState<IndexListItem[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState<'manual' | '5' | '15' | '30' | '60'>('manual');
-  const [isAutoRefreshing, setIsAutoRefreshing] = useState(false);
-  const [refreshProgress, setRefreshProgress] = useState(0);
+  const [refreshInterval, setRefreshInterval] = useState<RefreshInterval>('manual');
   const [includeHiddenIndex, setIncludeHiddenIndex] = useState(false);
   const [includeClosedIndex, setIncludeClosedIndex] = useState(false);
   const [selectedShard, setSelectedShard] = useState<any>(null);
-  
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const refreshProgressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     setError(null);
+
     try {
-      const params = new URLSearchParams({
-        include_hidden_index: includeHiddenIndex.toString(),
-        include_closed_index: includeClosedIndex.toString(),
-      });
-
-      const response = await fetch(`/api/indices/indices-placement?${params}`);
-      const result: IndicesPlacementResponse = await response.json();
-
-      if (response.ok && result.code === '200') {
-        setData(result.data);
+      if (viewMode === 'grid') {
+        const result = await fetchIndicesPlacement(includeHiddenIndex, includeClosedIndex);
+        setGridData(result.data);
       } else {
-        throw new Error(result.message || 'Failed to fetch indices placement');
+        const result = await fetchIndicesList(includeHiddenIndex, includeClosedIndex);
+        setListData(result.data.indices);
       }
     } catch (err: any) {
       setError(err.message);
@@ -56,62 +55,11 @@ export default function IndicesInformationPage() {
     }
   };
 
+  const { isAutoRefreshing, refreshProgress } = useAutoRefresh(refreshInterval, () => fetchData(false));
+
   useEffect(() => {
     fetchData();
-  }, [includeHiddenIndex, includeClosedIndex]);
-
-  // Interval refresh effect
-  useEffect(() => {
-    if (refreshInterval === 'manual') {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      if (refreshProgressIntervalRef.current) {
-        clearInterval(refreshProgressIntervalRef.current);
-        refreshProgressIntervalRef.current = null;
-      }
-      setIsAutoRefreshing(false);
-      setRefreshProgress(0);
-      return;
-    }
-    
-    setIsAutoRefreshing(true);
-    setRefreshProgress(0);
-    
-    const intervalMs = Number(refreshInterval) * 1000;
-    const updateInterval = 50;
-    const increment = (updateInterval / intervalMs) * 100;
-    
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (refreshProgressIntervalRef.current) clearInterval(refreshProgressIntervalRef.current);
-    
-    refreshProgressIntervalRef.current = setInterval(() => {
-      setRefreshProgress(prev => {
-        const next = prev + increment;
-        if (next >= 100) return 0;
-        return next;
-      });
-    }, updateInterval);
-    
-    intervalRef.current = setInterval(() => {
-      setRefreshProgress(0);
-      fetchData(false); // no full loading, just update data
-    }, intervalMs);
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      if (refreshProgressIntervalRef.current) {
-        clearInterval(refreshProgressIntervalRef.current);
-        refreshProgressIntervalRef.current = null;
-      }
-      setIsAutoRefreshing(false);
-      setRefreshProgress(0);
-    };
-  }, [refreshInterval]);
+  }, [viewMode, includeHiddenIndex, includeClosedIndex]);
 
   if (error) {
     return (
@@ -133,7 +81,7 @@ export default function IndicesInformationPage() {
     );
   }
 
-  if (loading && !data) {
+  if (loading && !gridData && !listData) {
     return (
       <div className="min-h-screen bg-white p-6">
         <div className="container mx-auto">
@@ -143,21 +91,40 @@ export default function IndicesInformationPage() {
     );
   }
 
-  if (!data) return null;
-
-  const { nodes, indices, has_unassigned_shards } = data;
-  const unassignedCount = indices.reduce((sum, idx) => sum + idx.unassigned.length, 0);
-
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-6 py-8 space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Indices Placement</h1>
-            <p className="text-slate-600 text-sm mt-1">View shard allocation across cluster nodes</p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Indices Information</h1>
+            <p className="text-slate-600 text-sm mt-1">
+              {viewMode === 'grid' ? 'View shard allocation across cluster nodes' : 'View indices in list format'}
+            </p>
           </div>
           <div className="flex items-center gap-4">
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2 border border-slate-200 rounded-md p-1">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className="gap-2"
+              >
+                <Grid3x3 className="h-4 w-4" />
+                Grid
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="gap-2"
+              >
+                <List className="h-4 w-4" />
+                List
+              </Button>
+            </div>
+
             {/* Interval Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -166,7 +133,7 @@ export default function IndicesInformationPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
-                <DropdownMenuRadioGroup value={refreshInterval} onValueChange={v => setRefreshInterval(v as any)}>
+                <DropdownMenuRadioGroup value={refreshInterval} onValueChange={v => setRefreshInterval(v as RefreshInterval)}>
                   <DropdownMenuRadioItem value="manual">Manual</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="5">5 Sec</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="15">15 Sec</DropdownMenuRadioItem>
@@ -201,15 +168,21 @@ export default function IndicesInformationPage() {
           </div>
         </div>
 
-        {/* Indices Placement Grid */}
+        {/* View Content */}
         <div className="space-y-4">
           <div>
             <div className="flex items-center gap-2">
-              <Grid3x3 className="h-5 w-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-900">Shard Allocation Grid</h2>
+              {viewMode === 'grid' ? (
+                <Grid3x3 className="h-5 w-5 text-blue-600" />
+              ) : (
+                <List className="h-5 w-5 text-blue-600" />
+              )}
+              <h2 className="text-xl font-semibold text-slate-900">
+                {viewMode === 'grid' ? 'Shard Allocation Grid' : 'Indices List'}
+              </h2>
             </div>
             <p className="text-sm text-slate-600 mt-1 ml-7">
-              Shard distribution across nodes
+              {viewMode === 'grid' ? 'Shard distribution across nodes' : 'Detailed list of all indices'}
             </p>
           </div>
 
@@ -239,290 +212,38 @@ export default function IndicesInformationPage() {
               </Label>
             </div>
 
-            {/* Legend */}
-            <div className="flex items-center gap-4 text-xs text-slate-600 ml-3">
-              <div className="flex items-center gap-1.5">
-                <div className="w-6 h-6 rounded border-2 border-solid border-green-600 bg-green-100"></div>
-                <span>Primary (p)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-6 h-6 rounded border-2 border-dashed border-blue-600 bg-blue-100"></div>
-                <span>Replica (r)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-6 h-6 rounded border-2 border-dashed border-amber-500 bg-amber-100"></div>
-                <span>Unassigned</span>
-              </div>
-            </div>
-          </div>
-
-          <Card className="border-slate-200/60 shadow-sm">
-            <CardContent className="pt-6">
-              {/* Header Row */}
-              <div className="grid grid-cols-[256px_1fr] border-b-2 border-slate-300">
-                {/* Fixed Left Header */}
-                <div className="px-4 py-2 font-semibold text-slate-700 border-r-2 border-slate-300 bg-gradient-to-r from-slate-50 to-slate-100/50 flex items-center gap-2 min-h-[80px]">
-                  <Server className="h-4 w-4 text-slate-600" />
-                  Nodes
+            {/* Legend - Only show in grid view */}
+            {viewMode === 'grid' && (
+              <div className="flex items-center gap-4 text-xs text-slate-600 ml-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-6 h-6 rounded border-2 border-solid border-green-600 bg-green-100"></div>
+                  <span>Primary (p)</span>
                 </div>
-                
-                {/* Scrollable Right Header */}
-                <div className="overflow-x-auto">
-                  <div className="flex bg-gradient-to-r from-slate-50 to-slate-100/50">
-                    {indices.map((index) => {
-                      const totalShards = Object.values(index.shards_by_node).flat().length;
-                      return (
-                        <div 
-                          key={index.index}
-                          className="w-[220px] px-4 py-2 text-left border-r border-slate-200/60 flex-shrink-0"
-                        >
-                          <div className="font-semibold text-slate-800 text-sm truncate" title={index.index}>
-                            {index.index}
-                          </div>
-                          <div className="text-xs text-slate-500 mt-1">
-                            <Badge 
-                              variant={index.status === 'open' ? 'default' : 'secondary'}
-                              className="text-[10px] px-1.5 py-0"
-                            >
-                              {index.status}
-                            </Badge>
-                          </div>
-                          <div className="text-[11px] text-slate-500 mt-1">
-                            shards: {totalShards}
-                            {index.unassigned.length > 0 && (
-                              <span className="text-red-600 font-medium"> | {index.unassigned.length} unassigned</span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-6 h-6 rounded border-2 border-dashed border-blue-600 bg-blue-100"></div>
+                  <span>Replica (r)</span>
                 </div>
-              </div>
-
-              {/* Content Rows */}
-              {/* Unassigned Shards Row (if any) */}
-              {has_unassigned_shards && (
-                <div className="grid grid-cols-[256px_1fr] border-b border-slate-200/60 bg-amber-50/40 hover:bg-amber-50/60 transition-colors">
-                  {/* Fixed Left Cell */}
-                  <div className="px-4 py-4 border-r-2 border-slate-300">
-                    <div className="flex items-start gap-2">
-                      <Box className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <div className="font-semibold text-amber-900 text-sm">Unassigned Shards</div>
-                        <div className="text-[11px] text-amber-700 mt-1">
-                          Total: {unassignedCount} shard{unassignedCount !== 1 ? 's' : ''}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Scrollable Right Cell */}
-                  <div className="overflow-x-auto">
-                    <div className="flex">
-                      {indices.map((index) => (
-                        <div 
-                          key={`unassigned-${index.index}`}
-                          className="w-[220px] px-4 py-4 flex items-start justify-start border-r border-slate-200/60 flex-shrink-0"
-                        >
-                          {index.unassigned.length > 0 ? (
-                            <div className="flex flex-wrap gap-1.5 max-w-full">
-                              {index.unassigned.map((shard, idx) => (
-                                <div
-                                  key={idx}
-                                  onClick={() => setSelectedShard({ ...shard, index: index.index, node: 'Unassigned' })}
-                                  className="w-8 h-8 rounded border-2 border-amber-500 border-dashed bg-amber-100/80 flex flex-col items-center justify-center text-xs font-semibold text-amber-900 hover:bg-amber-100 hover:shadow-sm transition-all cursor-pointer"
-                                  title={`Shard ${shard.shard} (${shard.prirep === 'p' ? 'Primary' : 'Replica'}) - ${shard.state}`}
-                                >
-                                  <span className="text-[11px]">{shard.shard}</span>
-                                  <span className="text-[9px] opacity-75">{shard.prirep}</span>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-slate-400 text-[11px]">-</div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Node Rows */}
-              {nodes.map((node) => (
-                <div key={node.id} className="grid grid-cols-[256px_1fr] border-b border-slate-200/60 hover:bg-slate-50/50 transition-colors">
-                  {/* Fixed Left Cell - Node Info */}
-                  <div 
-                    className="px-4 py-4 border-r-2 border-slate-300 bg-white cursor-pointer group"
-                    title={`Node: ${node.name}\nHost: ${node.host}\nID: ${node.id}\nRoles: ${node.roles.join(', ')}\nMaster: ${node.is_master ? 'Yes' : 'No'}`}
-                  >
-                    <div className="flex items-start gap-2">
-                      <Server className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-slate-800 text-sm truncate">
-                            {node.name}
-                          </span>
-                          {node.is_master && (
-                            <Badge variant="default" className="text-[10px] px-1.5 py-0">Master</Badge>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-slate-500 mt-1 truncate">
-                          {node.host}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Scrollable Right Cell - Shard Boxes */}
-                  <div className="overflow-x-auto">
-                    <div className="flex">
-                      {indices.map((index) => {
-                        const nodeShards = index.shards_by_node[node.name] || [];
-                        
-                        return (
-                          <div 
-                            key={`${node.id}-${index.index}`}
-                            className="w-[220px] px-4 py-4 flex items-start justify-start border-r border-slate-200/60 flex-shrink-0"
-                          >
-                            {nodeShards.length > 0 ? (
-                              <div className="flex flex-wrap gap-1.5 max-w-full">
-                                {nodeShards.map((shard, idx) => (
-                                  <div
-                                    key={idx}
-                                    onClick={() => setSelectedShard({ ...shard, index: index.index, node: node.name })}
-                                    className={`w-8 h-8 rounded flex flex-col items-center justify-center text-xs font-semibold transition-all hover:scale-110 hover:shadow-sm cursor-pointer ${
-                                      shard.prirep === 'p'
-                                        ? 'border-2 border-solid border-green-600 bg-green-100/80 text-green-900 hover:bg-green-100'
-                                        : 'border-2 border-dashed border-blue-600 bg-blue-100/80 text-blue-900 hover:bg-blue-100'
-                                    }`}
-                                    title={`Shard ${shard.shard} (${shard.prirep === 'p' ? 'Primary' : 'Replica'})\nState: ${shard.state}\nStore: ${shard.store}\nDocs: ${shard.docs}`}
-                                  >
-                                    <span className="text-[11px]">{shard.shard}</span>
-                                    <span className="text-[9px] opacity-75">{shard.prirep}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="text-slate-400 text-[11px]">-</div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Shard Information Dialog */}
-        <Dialog open={!!selectedShard} onOpenChange={() => setSelectedShard(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Box className="h-5 w-5 text-blue-600" />
-                Shard Information
-              </DialogTitle>
-              <DialogDescription>
-                Detailed information about the selected shard
-              </DialogDescription>
-            </DialogHeader>
-            
-            {selectedShard && (
-              <div className="space-y-4">
-                {/* Basic Info */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Basic Information</CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm font-medium text-slate-600">Index</div>
-                      <div className="text-sm font-semibold text-slate-900">{selectedShard.index}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-slate-600">Shard Number</div>
-                      <div className="text-sm font-semibold text-slate-900">{selectedShard.shard}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-slate-600">Type</div>
-                      <div>
-                        <Badge variant={selectedShard.prirep === 'p' ? 'default' : 'secondary'}>
-                          {selectedShard.prirep === 'p' ? 'Primary' : 'Replica'}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-slate-600">State</div>
-                      <div>
-                        <Badge variant={selectedShard.state === 'STARTED' ? 'default' : 'secondary'}>
-                          {selectedShard.state}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-slate-600">Node</div>
-                      <div className="text-sm font-semibold text-slate-900">{selectedShard.node}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-slate-600">Documents</div>
-                      <div className="text-sm font-semibold text-slate-900">{selectedShard.docs || 'N/A'}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Storage Info */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Storage Information</CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm font-medium text-slate-600">Store Size</div>
-                      <div className="text-sm font-semibold text-slate-900">{selectedShard.store || 'N/A'}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-slate-600">IP Address</div>
-                      <div className="text-sm font-semibold text-slate-900">{selectedShard.ip || 'N/A'}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Additional Details */}
-                {(selectedShard.unassigned_reason || selectedShard.unassigned_details) && (
-                  <Card className="border-amber-200 bg-amber-50/50">
-                    <CardHeader>
-                      <CardTitle className="text-base text-amber-900">Unassigned Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {selectedShard.unassigned_reason && (
-                        <div>
-                          <div className="text-sm font-medium text-amber-700">Reason</div>
-                          <div className="text-sm text-amber-900">{selectedShard.unassigned_reason}</div>
-                        </div>
-                      )}
-                      {selectedShard.unassigned_details && (
-                        <div>
-                          <div className="text-sm font-medium text-amber-700">Details</div>
-                          <div className="text-sm text-amber-900">{selectedShard.unassigned_details}</div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
-                <div className="flex justify-end">
-                  <Button onClick={() => setSelectedShard(null)} variant="outline">
-                    Close
-                  </Button>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-6 h-6 rounded border-2 border-dashed border-amber-500 bg-amber-100"></div>
+                  <span>Unassigned</span>
                 </div>
               </div>
             )}
-          </DialogContent>
-        </Dialog>
+          </div>
+
+          {/* Grid View */}
+          {viewMode === 'grid' && gridData && (
+            <GridView data={gridData} setSelectedShard={setSelectedShard} />
+          )}
+
+          {/* List View */}
+          {viewMode === 'list' && listData && (
+            <ListView data={listData} />
+          )}
+        </div>
+
+        {/* Shard Information Dialog */}
+        <ShardDialog shard={selectedShard} onClose={() => setSelectedShard(null)} />
       </div>
     </div>
   );
