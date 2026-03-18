@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Network, Layers, Settings2, FileText, BookOpen, TrendingUp } from 'lucide-react';
+import { Network, Layers, Settings2, FileText, BookOpen, TrendingUp, SearchCode } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { href: '/documents', label: 'Documents', icon: FileText },
   { href: '/dictionary', label: 'Dictionary', icon: BookOpen },
   { href: '/boosting', label: 'Category Boosting', icon: TrendingUp },
+  { href: '/query-explain', label: 'Query Explain', icon: SearchCode}
 ];
 
 export function Navigation() {

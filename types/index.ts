@@ -120,3 +120,6 @@ export interface IndexStats {
     };
   }>;
 }
+
+// Search Explain types
+export * from './query-explain';
