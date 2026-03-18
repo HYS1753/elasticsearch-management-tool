@@ -18,7 +18,7 @@ interface QueryExplainDetailApiResponse {
 }
 
 export class QueryExplainService {
-  private apiUrl = process.env.NEXT_PUBLIC_CLUSTER_API_URL;
+  private apiUrl = process.env.CLUSTER_API_URL;
 
   async getExplainSummary(
     payload: QueryExplainSummaryRequest
