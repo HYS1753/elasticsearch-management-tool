@@ -1,4 +1,4 @@
-export interface QueryExplainScoreStep {
+export interface ExplainScoreStep {
   key: string;
   label: string;
   value?: number | null;
@@ -11,7 +11,7 @@ export interface QueryExplainSummaryHit {
   doc_title?: string | null;
   total_score?: number | null;
   query_score?: number | null;
-  rescore_steps: QueryExplainScoreStep[];
+  rescore_steps: ExplainScoreStep[];
   formula: string;
   source?: Record<string, unknown> | null;
 }
@@ -23,31 +23,58 @@ export interface QueryExplainSummaryResponse {
   hits: QueryExplainSummaryHit[];
 }
 
-export interface QueryExplainDetailNode {
-  key: string;
-  label: string;
-  value?: number | null;
-  description?: string | null;
-  children: QueryExplainDetailNode[];
-  expandable: boolean;
-}
-
-export interface QueryExplainTermFactor {
-  field?: string | null;
-  term?: string | null;
+export interface ExplainMatchedToken {
+  token: string;
   score?: number | null;
   boost?: number | null;
   idf?: number | null;
   tf?: number | null;
-  freq?: number | null;
-  dl?: number | null;
-  avgdl?: number | null;
+  description?: string | null;
 }
 
-export interface QueryExplainSection {
+export interface ExplainFieldScoreGroup {
+  field: string;
+  source_value?: unknown;
+  total_score?: number | null;
+  matched_tokens: ExplainMatchedToken[];
+}
+
+export interface ExplainFilter {
+  label: string;
+  matched: boolean;
+  source_value?: unknown;
+  description?: string | null;
+}
+
+export interface ExplainFunctionScore {
+  label: string;
   score?: number | null;
+  field?: string | null;
+  source_value?: unknown;
+  description?: string | null;
+}
+
+export interface ExplainRescoreDetail {
+  order: number;
+  type: string;
   title: string;
-  items: QueryExplainDetailNode[];
+  score?: number | null;
+  description?: string | null;
+  details: ExplainFunctionScore[];
+}
+
+export interface ExplainQueryDetail {
+  original_score?: number | null;
+  filters: ExplainFilter[];
+  bm25_groups: ExplainFieldScoreGroup[];
+  function_scores: ExplainFunctionScore[];
+}
+
+export interface QueryExplainScoreTimelineStep {
+  key: string;
+  label: string;
+  value?: number | null;
+  description?: string | null;
 }
 
 export interface QueryExplainDetailResponse {
@@ -55,15 +82,11 @@ export interface QueryExplainDetailResponse {
   id: string;
   doc_title?: string | null;
   total_score?: number | null;
-  query_section: QueryExplainSection;
-  rescore_sections: QueryExplainSection[];
-  term_factors: QueryExplainTermFactor[];
+  query: ExplainQueryDetail;
+  rescores: ExplainRescoreDetail[];
+  score_timeline: QueryExplainScoreTimelineStep[];
   raw_explanation?: Record<string, unknown> | null;
   source?: Record<string, unknown> | null;
-  score_timeline: QueryExplainScoreTimelineStep[];
-  field_impacts: QueryExplainFieldImpact[];
-  filter_matches: QueryExplainFilterMatch[];
-  scoring_functions: QueryExplainScoringFunction[];
 }
 
 export interface QueryExplainSummaryRequest {
@@ -80,40 +103,4 @@ export interface QueryExplainDetailRequest {
   include_raw_explain: boolean;
   include_source_fields: boolean;
   doc_title_fields: string[];
-}
-
-export interface QueryExplainScoreTimelineStep {
-  key: string;
-  label: string;
-  value?: number | null;
-  description?: string | null;
-}
-
-export interface QueryExplainMatchedToken {
-  token: string;
-  score?: number | null;
-  boost?: number | null;
-  idf?: number | null;
-  tf?: number | null;
-}
-
-export interface QueryExplainFieldImpact {
-  field: string;
-  source_value?: unknown;
-  total_score?: number | null;
-  matched_tokens: QueryExplainMatchedToken[];
-}
-
-export interface QueryExplainFilterMatch {
-  label: string;
-  matched: boolean;
-  description?: string | null;
-}
-
-export interface QueryExplainScoringFunction {
-  label: string;
-  score?: number | null;
-  description?: string | null;
-  field?: string | null;
-  source_value?: unknown;
 }
