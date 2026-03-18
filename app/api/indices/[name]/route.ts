@@ -2,44 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { indicesService } from '@/lib/services/indices.service';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { name: string } }
+  _request: NextRequest,
+  context: { params: Promise<{ name: string }> }
 ) {
   try {
-    const indexName = params.name;
-    const index = {} //await indicesService.getIndex(indexName);
-    return NextResponse.json({ success: true, data: index });
-  } catch (error: any) {
-    console.error('Error fetching index:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: error.message || 'Failed to fetch index',
-          details: error,
-        },
-      },
-      { status: 500 }
-    );
-  }
-}
+    const { name } = await context.params;
+    const indexName = decodeURIComponent(name);
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { name: string } }
-) {
-  try {
-    const indexName = params.name;
-    const response = "" //await indexService.deleteIndex(indexName);
-    return NextResponse.json({ success: true, data: response });
+    const data = await indicesService.getIndexDetail(indexName);
+
+    return NextResponse.json({
+      success: true,
+      data,
+    });
   } catch (error: any) {
-    console.error('Error deleting index:', error);
+    console.error('Error fetching index detail:', error);
+
     return NextResponse.json(
       {
         success: false,
         error: {
-          message: error.message || 'Failed to delete index',
-          details: error,
+          message: error?.message || 'Failed to fetch index detail',
         },
       },
       { status: 500 }
