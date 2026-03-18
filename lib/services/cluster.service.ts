@@ -1,8 +1,6 @@
-import { getElasticsearchClient } from '@/lib/elasticsearch/client';
 import type { ClusterStatus, NodeStatus, ClusterStats } from '@/types/cluster';
 
 export class ClusterService {
-  private client = getElasticsearchClient();
   private apiUrl = process.env.CLUSTER_API_URL;
 
   async getClusterStatus(): Promise<ClusterStatus> {
@@ -27,12 +25,6 @@ export class ClusterService {
     throw new Error(result.message || 'Failed to fetch cluster status');
   }
 
-  async getStats(): Promise<ClusterStats> {
-    const response = await this.client.cluster.stats();
-    return response as ClusterStats;
-  }
-
-
   async getNodeStatus(): Promise<{ code: string; message: string; data: { nodes: NodeStatus[] } }> {
     const response = await fetch(`${this.apiUrl}/app/cluster/node-status`, {
       method: 'GET',
@@ -50,16 +42,6 @@ export class ClusterService {
       return result;
     }
     throw new Error(result.message || 'Failed to fetch node status');
-  }
-
-  async getNodeInfo() {
-    const response = await this.client.nodes.info();
-    return response.nodes;
-  }
-
-  async getClusterInfo() {
-    const response = await this.client.info();
-    return response;
   }
 }
 

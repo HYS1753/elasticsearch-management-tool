@@ -8,10 +8,10 @@ import { useEffect, useRef, useState } from 'react';
 const navItems = [
   { href: '/cluster-information', label: 'Cluster Info', icon: Network },
   { href: '/indices-information', label: 'Indices Info', icon: Layers },
-  { href: '/indices', label: 'Indices', icon: Settings2 },
-  { href: '/documents', label: 'Documents', icon: FileText },
-  { href: '/dictionary', label: 'Dictionary', icon: BookOpen },
-  { href: '/boosting', label: 'Category Boosting', icon: TrendingUp },
+  //{ href: '/indices', label: 'Indices', icon: Settings2 },
+  //{ href: '/documents', label: 'Documents', icon: FileText },
+  //{ href: '/dictionary', label: 'Dictionary', icon: BookOpen },
+  //{ href: '/boosting', label: 'Category Boosting', icon: TrendingUp },
   { href: '/query-explain', label: 'Query Explain', icon: SearchCode}
 ];
 
