@@ -56,55 +56,53 @@ export function QueryExplainDetailDialog({
             </div>
           ) : (
             <div className="space-y-6 p-6">
-              <div className="grid gap-4 lg:grid-cols-3">
+              <div className="grid gap-4 lg:grid-cols-4">
                 <Card className="border-slate-200/70 shadow-sm">
-                  <CardContent className="flex items-start gap-3 p-5">
-                    <div className="rounded-lg bg-slate-100 p-2">
-                      <Hash className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    <CardContent className="p-5">
+                    <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
                         DOC ID
-                      </div>
-                      <div className="mt-1 break-all font-mono text-sm text-slate-900">
+                    </div>
+                    <div className="mt-2 break-all font-mono text-sm text-slate-900">
                         {data.id}
-                      </div>
                     </div>
-                  </CardContent>
+                    </CardContent>
                 </Card>
 
                 <Card className="border-slate-200/70 shadow-sm">
-                  <CardContent className="flex items-start gap-3 p-5">
-                    <div className="rounded-lg bg-blue-50 p-2">
-                      <Sigma className="h-4 w-4 text-blue-600" />
+                    <CardContent className="p-5">
+                    <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        TOTAL SCORE
                     </div>
-                    <div>
-                      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Total Score
-                      </div>
-                      <div className="mt-1 font-mono text-2xl font-semibold text-slate-900">
+                    <div className="mt-2 font-mono text-2xl font-semibold text-slate-900">
                         {typeof data.total_score === 'number' ? data.total_score.toFixed(4) : 'N/A'}
-                      </div>
                     </div>
-                  </CardContent>
+                    </CardContent>
                 </Card>
 
                 <Card className="border-slate-200/70 shadow-sm">
-                  <CardContent className="flex items-start gap-3 p-5">
-                    <div className="rounded-lg bg-emerald-50 p-2">
-                      <FileText className="h-4 w-4 text-emerald-600" />
+                    <CardContent className="p-5">
+                    <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        FINAL QUERY SCORE
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Title
-                      </div>
-                      <div className="mt-1 break-words text-sm text-slate-900">
-                        {data.doc_title || data.id}
-                      </div>
+                    <div className="mt-2 font-mono text-2xl font-semibold text-blue-700">
+                        {typeof data.query?.final_query_score === 'number'
+                        ? data.query.final_query_score.toFixed(4)
+                        : 'N/A'}
                     </div>
-                  </CardContent>
+                    </CardContent>
                 </Card>
-              </div>
+
+                <Card className="border-slate-200/70 shadow-sm">
+                    <CardContent className="p-5">
+                    <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        TITLE
+                    </div>
+                    <div className="mt-2 break-words text-sm text-slate-900">
+                        {data.doc_title || data.id}
+                    </div>
+                    </CardContent>
+                </Card>
+                </div>
 
               <Card className="border-slate-200/70 shadow-sm">
                 <CardContent className="p-5">

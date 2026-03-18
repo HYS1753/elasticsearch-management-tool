@@ -52,6 +52,11 @@ export interface ExplainFunctionScore {
   field?: string | null;
   source_value?: unknown;
   description?: string | null;
+
+  operation?: string | null;
+  filter_label?: string | null;
+  matched?: boolean | null;
+  params?: Record<string, unknown> | null;
 }
 
 export interface ExplainRescoreDetail {
@@ -61,6 +66,11 @@ export interface ExplainRescoreDetail {
   score?: number | null;
   description?: string | null;
   details: ExplainFunctionScore[];
+
+  score_mode?: string | null;
+  boost_mode?: string | null;
+  query_weight?: number | null;
+  rescore_query_weight?: number | null;
 }
 
 export interface ExplainQueryDetail {
@@ -68,6 +78,11 @@ export interface ExplainQueryDetail {
   filters: ExplainFilter[];
   bm25_groups: ExplainFieldScoreGroup[];
   function_scores: ExplainFunctionScore[];
+
+  function_score_mode?: string | null;
+  function_boost_mode?: string | null;
+  function_score_combined?: number | null;
+  final_query_score?: number | null;
 }
 
 export interface QueryExplainScoreTimelineStep {

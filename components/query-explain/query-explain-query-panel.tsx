@@ -24,6 +24,15 @@ function renderSourceValue(value: unknown) {
   return JSON.stringify(value);
 }
 
+function formatNumber(value?: number | null) {
+  return typeof value === 'number' ? value.toFixed(4) : 'N/A';
+}
+
+function renderParams(params?: Record<string, unknown> | null) {
+  if (!params) return null;
+  return JSON.stringify(params);
+}
+
 function FilterList({ items }: { items: ExplainFilter[] }) {
   if (!items.length) {
     return (
@@ -158,30 +167,73 @@ function FunctionScores({ items }: { items: ExplainFunctionScore[] }) {
     <div className="space-y-3">
       {items.map((item, idx) => (
         <div key={`${item.label}-${idx}`} className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="font-medium text-slate-900">{item.label}</div>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="font-medium text-slate-900">{item.label}</div>
+
+                {item.matched === true && (
+                  <span className="rounded bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700">
+                    matched
+                  </span>
+                )}
+
+                {item.matched === false && (
+                  <span className="rounded bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500">
+                    not matched
+                  </span>
+                )}
+              </div>
+
+              {item.filter_label && (
+                <div className="mt-2 text-sm text-slate-700">
+                  <span className="font-medium">조건</span>: {item.filter_label}
+                </div>
+              )}
+
               {item.field && (
-                <div className="mt-1 text-sm text-slate-500">
-                  field: <span className="font-mono">{item.field}</span>
+                <div className="mt-1 text-sm text-slate-600">
+                  <span className="font-medium">필드</span>: <span className="font-mono">{item.field}</span>
+                </div>
+              )}
+
+              {item.operation && (
+                <div className="mt-1 text-xs text-slate-500">
+                  {item.operation}
+                </div>
+              )}
+
+              {item.source_value !== undefined && item.source_value !== null && (
+                <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
+                  <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                    Source Value
+                  </div>
+                  {renderSourceValue(item.source_value)}
+                </div>
+              )}
+
+              {item.params && (
+                <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                  <span className="font-medium">params:</span> {renderParams(item.params)}
+                </div>
+              )}
+
+              {item.description && (
+                <div className="mt-3 text-xs leading-5 text-slate-500">
+                  {item.description}
                 </div>
               )}
             </div>
 
-            <div className="rounded bg-blue-50 px-3 py-2 font-mono text-sm font-semibold text-blue-700">
-              {typeof item.score === 'number' ? item.score.toFixed(4) : 'N/A'}
+            <div className="shrink-0 rounded bg-blue-50 px-3 py-2 text-right">
+              <div className="text-[10px] font-medium uppercase tracking-wide text-blue-600">
+                Score
+              </div>
+              <div className="font-mono text-sm font-semibold text-blue-700">
+                {formatNumber(item.score)}
+              </div>
             </div>
           </div>
-
-          {item.source_value !== undefined && item.source_value !== null && (
-            <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
-              source: {renderSourceValue(item.source_value)}
-            </div>
-          )}
-
-          {item.description && (
-            <div className="mt-3 text-xs text-slate-500">{item.description}</div>
-          )}
         </div>
       ))}
     </div>
@@ -196,12 +248,41 @@ export function QueryExplainQueryPanel({ query }: Props) {
           <CardTitle className="text-base">Query Overview</CardTitle>
         </CardHeader>
         <CardContent className="p-5">
-          <div className="rounded-xl border border-slate-200 bg-white p-4">
-            <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
-              Original Query Score
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                Original Text Score
+              </div>
+              <div className="mt-2 font-mono text-2xl font-semibold text-slate-900">
+                {formatNumber(query.original_score)}
+              </div>
+              <div className="mt-2 text-xs text-slate-500">
+                BM25 및 텍스트 relevance 기반 원점수
+              </div>
             </div>
-            <div className="mt-2 font-mono text-2xl font-semibold text-slate-900">
-              {typeof query.original_score === 'number' ? query.original_score.toFixed(4) : 'N/A'}
+
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                Function Score Combined
+              </div>
+              <div className="mt-2 font-mono text-2xl font-semibold text-slate-900">
+                {formatNumber(query.function_score_combined)}
+              </div>
+              <div className="mt-2 text-xs text-slate-500">
+                score_mode={query.function_score_mode ?? 'N/A'} / boost_mode={query.function_boost_mode ?? 'N/A'}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+              <div className="text-xs font-medium uppercase tracking-wide text-blue-700">
+                Final Query Score
+              </div>
+              <div className="mt-2 font-mono text-2xl font-semibold text-blue-700">
+                {formatNumber(query.final_query_score)}
+              </div>
+              <div className="mt-2 text-xs text-blue-600">
+                query 단계 최종 점수
+              </div>
             </div>
           </div>
         </CardContent>
