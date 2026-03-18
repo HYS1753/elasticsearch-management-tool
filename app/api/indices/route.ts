@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const response = "" //await indicesService.createIndex(name, {
+    const response = {} //await indicesService.createIndex(name, {
     //   settings,
     //   mappings,
     //   aliases,

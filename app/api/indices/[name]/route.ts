@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const indexName = params.name;
-    const index = "" //await indicesService.getIndex(indexName);
+    const index = {} //await indicesService.getIndex(indexName);
     return NextResponse.json({ success: true, data: index });
   } catch (error: any) {
     console.error('Error fetching index:', error);
