@@ -1,6 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { indicesService } from '@/lib/services/indices.service';
 
+export async function GET() {
+  try {
+    const response = await indicesService.getIndicesList();
+
+    return NextResponse.json({
+      success: true,
+      data: response,
+    });
+  } catch (error: any) {
+    console.error('Error fetching indices:', error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: error.message || 'Failed to fetch indices',
+          details: error,
+        },
+      },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

@@ -10,12 +10,20 @@ import {
   FileText,
   ArrowUpDown,
   ExternalLink,
+  ListFilter,
+  Layers3,
 } from 'lucide-react';
 
 import { fetchIndicesList } from '@/lib/client-api/indices';
 import type { IndexListItem } from '@/types/indices-list';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -127,6 +135,41 @@ function SummaryCard({ title, value, description, icon: Icon }: SummaryCardProps
   );
 }
 
+function MiniStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
+      <span className="text-sm text-slate-500">{label}: </span>
+      <span className="text-sm font-semibold text-slate-900">{value}</span>
+    </div>
+  );
+}
+
+function SectionHeading({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        <Icon className="h-5 w-5 text-blue-600" />
+        <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
+      </div>
+      <p className="mt-1 ml-7 text-sm text-slate-600">{description}</p>
+    </div>
+  );
+}
+
 export function IndicesManagementList() {
   const [indices, setIndices] = useState<IndexListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -232,11 +275,31 @@ export function IndicesManagementList() {
       (item) => normalizeStatus(item.status) === 'open'
     ).length;
 
+    const greenCount = filteredAndSortedIndices.filter(
+      (item) => (item.health ?? 'unknown') === 'green'
+    ).length;
+
+    const yellowCount = filteredAndSortedIndices.filter(
+      (item) => (item.health ?? 'unknown') === 'yellow'
+    ).length;
+
+    const redCount = filteredAndSortedIndices.filter(
+      (item) => (item.health ?? 'unknown') === 'red'
+    ).length;
+
+    const closedCount = filteredAndSortedIndices.filter(
+      (item) => normalizeStatus(item.status) === 'closed'
+    ).length;
+
     return {
       totalIndices: filteredAndSortedIndices.length,
       totalDocs,
       totalStorageBytes,
       openCount,
+      greenCount,
+      yellowCount,
+      redCount,
+      closedCount,
     };
   }, [filteredAndSortedIndices]);
 
@@ -268,17 +331,17 @@ export function IndicesManagementList() {
   };
 
   if (error) {
-    return (
-      <ErrorDisplay
-        error={error}
-        onRetry={() => fetchData(true)}
-      />
-    );
+    return <ErrorDisplay error={error} onRetry={() => fetchData(true)} />;
   }
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
+        <div>
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="mt-2 h-4 w-80" />
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <Card key={index}>
@@ -289,6 +352,11 @@ export function IndicesManagementList() {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        <div>
+          <Skeleton className="h-6 w-44" />
+          <Skeleton className="mt-2 h-4 w-72" />
         </div>
 
         <Card>
@@ -306,249 +374,274 @@ export function IndicesManagementList() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard
-          title="Visible Indices"
-          value={summary.totalIndices.toLocaleString()}
-          description="현재 필터 기준으로 보이는 인덱스 수"
+    <div className="space-y-8">
+      <section className="space-y-4">
+        <SectionHeading
           icon={Database}
+          title="Indices Overview"
+          description="View overall index metrics based on current filters"
         />
-        <SummaryCard
-          title="Open Indices"
-          value={summary.openCount.toLocaleString()}
-          description="상태가 open 인 인덱스 수"
-          icon={RefreshCw}
-        />
-        <SummaryCard
-          title="Documents"
-          value={summary.totalDocs.toLocaleString()}
-          description="현재 필터 기준 전체 문서 수"
-          icon={FileText}
-        />
-        <SummaryCard
-          title="Storage"
-          value={totalStorageLabel}
-          description="현재 필터 기준 전체 스토리지"
-          icon={HardDrive}
-        />
-      </div>
 
-      <Card>
-        <CardHeader className="space-y-4">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-            <div>
-              <CardTitle>Indices List</CardTitle>
-              <CardDescription>
-                Kibana 스타일의 인덱스 탐색 화면입니다. 인덱스를 클릭하면 상세 화면으로 이동합니다.
-              </CardDescription>
-            </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <SummaryCard
+            title="Visible Indices"
+            value={summary.totalIndices.toLocaleString()}
+            description="현재 필터 기준으로 보이는 인덱스 수"
+            icon={Database}
+          />
+          <SummaryCard
+            title="Open Indices"
+            value={summary.openCount.toLocaleString()}
+            description="상태가 open 인 인덱스 수"
+            icon={RefreshCw}
+          />
+          <SummaryCard
+            title="Documents"
+            value={summary.totalDocs.toLocaleString()}
+            description="현재 필터 기준 전체 문서 수"
+            icon={FileText}
+          />
+          <SummaryCard
+            title="Storage"
+            value={totalStorageLabel}
+            description="현재 필터 기준 전체 스토리지"
+            icon={HardDrive}
+          />
+        </div>
 
-            <Button
-              variant="outline"
-              className="gap-2 self-start"
-              onClick={() => fetchData(false)}
-              disabled={refreshing}
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-          </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <MiniStat label="Green" value={summary.greenCount} />
+          <MiniStat label="Yellow" value={summary.yellowCount} />
+          <MiniStat label="Red" value={summary.redCount} />
+          <MiniStat label="Closed" value={summary.closedCount} />
+        </div>
+      </section>
 
-          <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-            <div className="xl:col-span-2">
-              <Label htmlFor="indices-search" className="mb-2 block text-sm text-slate-600">
-                Search
-              </Label>
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  id="indices-search"
-                  value={searchKeyword}
-                  onChange={(e) => setSearchKeyword(e.target.value)}
-                  placeholder="index name 또는 uuid 검색"
-                  className="flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                />
+      <section className="space-y-4">
+        <SectionHeading
+          icon={Layers3}
+          title="Indices Explorer"
+          description="Search, filter, and sort indices to explore details"
+        />
+
+        <Card>
+          <CardHeader className="space-y-4">
+            <div className="flex flex-wrap items-end gap-4">
+              {/* Search */}
+              <div className="flex-1 min-w-[260px]">
+                <Label htmlFor="indices-search" className="mb-2 block text-sm text-slate-600">
+                  Search
+                </Label>
+                <div className="relative">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="indices-search"
+                    value={searchKeyword}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                    placeholder="index name 또는 uuid 검색"
+                    className="flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  />
+                </div>
+              </div>
+
+              {/* Health */}
+              <div className="w-[180px]">
+                <Label htmlFor="health-filter" className="mb-2 block text-sm text-slate-600">
+                  Health
+                </Label>
+                <select
+                  id="health-filter"
+                  value={healthFilter}
+                  onChange={(e) => setHealthFilter(e.target.value as HealthFilter)}
+                  className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                >
+                  <option value="all">All health</option>
+                  <option value="green">Green</option>
+                  <option value="yellow">Yellow</option>
+                  <option value="red">Red</option>
+                  <option value="unknown">Unknown</option>
+                </select>
+              </div>
+
+              {/* Status */}
+              <div className="w-[180px]">
+                <Label htmlFor="status-filter" className="mb-2 block text-sm text-slate-600">
+                  Status
+                </Label>
+                <select
+                  id="status-filter"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                  className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                >
+                  <option value="all">All status</option>
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                  <option value="unknown">Unknown</option>
+                </select>
+              </div>
+
+              {/* Refresh */}
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  className="gap-2 h-11"
+                  onClick={() => fetchData(false)}
+                  disabled={refreshing}
+                >
+                  <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="health-filter" className="mb-2 block text-sm text-slate-600">
-                Health
-              </Label>
-              <select
-                id="health-filter"
-                value={healthFilter}
-                onChange={(e) => setHealthFilter(e.target.value as HealthFilter)}
-                className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-              >
-                <option value="all">All health</option>
-                <option value="green">Green</option>
-                <option value="yellow">Yellow</option>
-                <option value="red">Red</option>
-                <option value="unknown">Unknown</option>
-              </select>
-            </div>
+            <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex flex-wrap items-center gap-6">
+                <div className="flex items-center gap-3">
+                  <Switch
+                    id="include-hidden-index"
+                    checked={includeHiddenIndex}
+                    onCheckedChange={setIncludeHiddenIndex}
+                  />
+                  <Label htmlFor="include-hidden-index">Include hidden</Label>
+                </div>
 
-            <div>
-              <Label htmlFor="status-filter" className="mb-2 block text-sm text-slate-600">
-                Status
-              </Label>
-              <select
-                id="status-filter"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-              >
-                <option value="all">All status</option>
-                <option value="open">Open</option>
-                <option value="closed">Closed</option>
-                <option value="unknown">Unknown</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex flex-wrap items-center gap-6">
-              <div className="flex items-center gap-3">
-                <Switch
-                  id="include-hidden-index"
-                  checked={includeHiddenIndex}
-                  onCheckedChange={setIncludeHiddenIndex}
-                />
-                <Label htmlFor="include-hidden-index">Include hidden</Label>
+                <div className="flex items-center gap-3">
+                  <Switch
+                    id="include-closed-index"
+                    checked={includeClosedIndex}
+                    onCheckedChange={setIncludeClosedIndex}
+                  />
+                  <Label htmlFor="include-closed-index">Include closed</Label>
+                </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <Switch
-                  id="include-closed-index"
-                  checked={includeClosedIndex}
-                  onCheckedChange={setIncludeClosedIndex}
-                />
-                <Label htmlFor="include-closed-index">Include closed</Label>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="mr-1 flex items-center gap-2 text-sm text-slate-500">
+                  <ListFilter className="h-4 w-4" />
+                  <span>Sort</span>
+                </div>
+
+                <Button
+                  variant={sortField === 'index' ? 'default' : 'outline'}
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => handleSortChange('index')}
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                  Name
+                </Button>
+                <Button
+                  variant={sortField === 'docs_count' ? 'default' : 'outline'}
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => handleSortChange('docs_count')}
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                  Docs
+                </Button>
+                <Button
+                  variant={sortField === 'store_size' ? 'default' : 'outline'}
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => handleSortChange('store_size')}
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                  Storage
+                </Button>
               </div>
             </div>
+          </CardHeader>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant={sortField === 'index' ? 'default' : 'outline'}
-                size="sm"
-                className="gap-2"
-                onClick={() => handleSortChange('index')}
-              >
-                <ArrowUpDown className="h-4 w-4" />
-                Name
-              </Button>
-              <Button
-                variant={sortField === 'docs_count' ? 'default' : 'outline'}
-                size="sm"
-                className="gap-2"
-                onClick={() => handleSortChange('docs_count')}
-              >
-                <ArrowUpDown className="h-4 w-4" />
-                Docs
-              </Button>
-              <Button
-                variant={sortField === 'store_size' ? 'default' : 'outline'}
-                size="sm"
-                className="gap-2"
-                onClick={() => handleSortChange('store_size')}
-              >
-                <ArrowUpDown className="h-4 w-4" />
-                Storage
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-slate-50">
-                  <tr className="border-b border-slate-200">
-                    <th className="px-4 py-3 text-left font-medium text-slate-600">Index</th>
-                    <th className="px-4 py-3 text-left font-medium text-slate-600">Health</th>
-                    <th className="px-4 py-3 text-left font-medium text-slate-600">Status</th>
-                    <th className="px-4 py-3 text-right font-medium text-slate-600">Primaries</th>
-                    <th className="px-4 py-3 text-right font-medium text-slate-600">Replicas</th>
-                    <th className="px-4 py-3 text-right font-medium text-slate-600">Documents</th>
-                    <th className="px-4 py-3 text-right font-medium text-slate-600">Storage</th>
-                    <th className="px-4 py-3 text-left font-medium text-slate-600">UUID</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  {filteredAndSortedIndices.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="px-4 py-16 text-center text-slate-500">
-                        조건에 맞는 인덱스가 없습니다.
-                      </td>
+          <CardContent>
+            <div className="overflow-hidden rounded-2xl border border-slate-200">
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-slate-50">
+                    <tr className="border-b border-slate-200">
+                      <th className="px-4 py-3 text-left font-medium text-slate-600">Index</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-600">Health</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-600">Status</th>
+                      <th className="px-4 py-3 text-right font-medium text-slate-600">Primaries</th>
+                      <th className="px-4 py-3 text-right font-medium text-slate-600">Replicas</th>
+                      <th className="px-4 py-3 text-right font-medium text-slate-600">Documents</th>
+                      <th className="px-4 py-3 text-right font-medium text-slate-600">Storage</th>
+                      <th className="px-4 py-3 text-left font-medium text-slate-600">UUID</th>
                     </tr>
-                  ) : (
-                    filteredAndSortedIndices.map((item) => (
-                      <tr
-                        key={`${item.index}-${item.uuid}`}
-                        className="border-b border-slate-100 transition hover:bg-slate-50/80"
-                      >
-                        <td className="px-4 py-3 align-middle">
-                          <Link
-                            href={`/indices/${encodeURIComponent(item.index)}`}
-                            className="inline-flex items-center gap-2 font-medium text-slate-900 transition hover:text-sky-700"
-                          >
-                            <span>{item.index}</span>
-                            <ExternalLink className="h-4 w-4" />
-                          </Link>
-                        </td>
-
-                        <td className="px-4 py-3 align-middle">
-                          <Badge variant="outline" className={getHealthBadgeClass(item.health)}>
-                            {item.health ?? 'unknown'}
-                          </Badge>
-                        </td>
-
-                        <td className="px-4 py-3 align-middle">
-                          <Badge variant="outline" className={getStatusBadgeClass(item.status)}>
-                            {normalizeStatus(item.status)}
-                          </Badge>
-                        </td>
-
-                        <td className="px-4 py-3 text-right align-middle text-slate-700">
-                          {item.pri || '-'}
-                        </td>
-
-                        <td className="px-4 py-3 text-right align-middle text-slate-700">
-                          {item.rep || '-'}
-                        </td>
-
-                        <td className="px-4 py-3 text-right align-middle text-slate-700">
-                          {formatDocsCount(item.docs_count)}
-                        </td>
-
-                        <td className="px-4 py-3 text-right align-middle text-slate-700">
-                          {formatStorageSize(item.store_size)}
-                        </td>
-
-                        <td className="px-4 py-3 align-middle text-xs text-slate-500">
-                          <span className="line-clamp-1 break-all">{item.uuid}</span>
+                  </thead>
+                  <tbody className="bg-white">
+                    {filteredAndSortedIndices.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="px-4 py-16 text-center text-slate-500">
+                          조건에 맞는 인덱스가 없습니다.
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                    ) : (
+                      filteredAndSortedIndices.map((item) => (
+                        <tr
+                          key={`${item.index}-${item.uuid}`}
+                          className="border-b border-slate-100 transition hover:bg-slate-50/80"
+                        >
+                          <td className="px-4 py-3 align-middle">
+                            <Link
+                              href={`/indices/${encodeURIComponent(item.index)}`}
+                              className="inline-flex items-center gap-2 font-medium text-slate-900 transition hover:text-sky-700"
+                            >
+                              <span>{item.index}</span>
+                              <ExternalLink className="h-4 w-4" />
+                            </Link>
+                          </td>
 
-          <div className="mt-4 flex flex-col gap-2 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
-            <p>
-              {filteredAndSortedIndices.length.toLocaleString()} / {indices.length.toLocaleString()} indices
-            </p>
-            <p>
-              sort: {sortField} ({sortDirection})
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+                          <td className="px-4 py-3 align-middle">
+                            <Badge variant="outline" className={getHealthBadgeClass(item.health)}>
+                              {item.health ?? 'unknown'}
+                            </Badge>
+                          </td>
+
+                          <td className="px-4 py-3 align-middle">
+                            <Badge variant="outline" className={getStatusBadgeClass(item.status)}>
+                              {normalizeStatus(item.status)}
+                            </Badge>
+                          </td>
+
+                          <td className="px-4 py-3 text-right align-middle text-slate-700">
+                            {item.pri || '-'}
+                          </td>
+
+                          <td className="px-4 py-3 text-right align-middle text-slate-700">
+                            {item.rep || '-'}
+                          </td>
+
+                          <td className="px-4 py-3 text-right align-middle text-slate-700">
+                            {formatDocsCount(item.docs_count)}
+                          </td>
+
+                          <td className="px-4 py-3 text-right align-middle text-slate-700">
+                            {formatStorageSize(item.store_size)}
+                          </td>
+
+                          <td className="px-4 py-3 align-middle text-xs text-slate-500">
+                            <span className="line-clamp-1 break-all">{item.uuid}</span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-2 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
+              <p>
+                {filteredAndSortedIndices.length.toLocaleString()} / {indices.length.toLocaleString()} indices
+              </p>
+              <p>
+                sort: {sortField} ({sortDirection})
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }
