@@ -26,6 +26,7 @@ export * from './indices';
 export * from './document';
 export * from './query-explain';
 export * from './index-action';
+export * from './document-explorer';
 
 export interface IndexInfo {
   health: 'green' | 'yellow' | 'red';
