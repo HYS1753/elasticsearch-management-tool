@@ -1,5 +1,6 @@
 import type { IndicesPlacementResponse } from '@/types/indices-placement';
 import type { IndicesListResponse } from '@/types/indices-list';
+import type { IndexDetailResponse, IndexDetailData } from '@/types/index-detail';
 
 /**
  * Fetch indices placement data (shard allocation across nodes)
@@ -43,4 +44,21 @@ export async function fetchIndicesList(
   }
 
   throw new Error(result.message || 'Failed to fetch indices list');
+}
+
+export async function getIndexDetail(
+  indexName: string
+): Promise<IndexDetailData> {
+  const response = await fetch(`/api/indices/${encodeURIComponent(indexName)}`, {
+    method: 'GET',
+    cache: 'no-store',
+  });
+
+  const result: IndexDetailResponse = await response.json();
+
+  if (!response.ok || !result.success || !result.data) {
+    throw new Error(result.error?.message || 'Failed to fetch index detail');
+  }
+
+  return result.data;
 }

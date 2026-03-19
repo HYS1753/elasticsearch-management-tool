@@ -1,20 +1,6 @@
 import type { IndicesPlacementResponse } from '@/types/indices-placement';
 import type { IndicesListResponse } from '@/types/indices-list';
-import type { IndexDetailData } from '@/types/index-detail';
-
-interface IndexDetailResponse {
-  code?: string;
-  message?: string;
-  data?: IndexDetailData;
-}
-
-interface IndexDetailClientResponse {
-  success: boolean;
-  data?: IndexDetailData;
-  error?: {
-    message?: string;
-  };
-}
+import type { IndexDetailResponse, IndexDetailData } from '@/types/index-detail';
 
 export class IndicesService {
   private apiUrl = process.env.CLUSTER_API_URL;
@@ -111,21 +97,6 @@ export class IndicesService {
     }
 
     throw new Error(result.message || 'Failed to fetch index detail');
-  }
-
-  async getIndexDetailClient(indexName: string): Promise<IndexDetailData> {
-    const response = await fetch(`/api/indices/${encodeURIComponent(indexName)}`, {
-      method: 'GET',
-      cache: 'no-store',
-    });
-
-    const result: IndexDetailClientResponse = await response.json();
-
-    if (!response.ok || !result.success || !result.data) {
-      throw new Error(result.error?.message || 'Failed to fetch index detail');
-    }
-
-    return result.data;
   }
 }
 

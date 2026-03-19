@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Grid3x3, List } from 'lucide-react';
 import type { IndicesPlacementResponse } from '@/types/indices-placement';
 import type { IndexListItem } from '@/types/indices-list';
-import { fetchIndicesPlacement, fetchIndicesList } from '@/lib/api/indices';
+import { fetchIndicesPlacement, fetchIndicesList } from '@/lib/client-api/indices';
 import { useAutoRefresh } from '@/hooks/use-auto-refresh';
 import { GridView } from '@/components/indices/grid-view';
 import { ListView } from '@/components/indices/list-view';

@@ -12,7 +12,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 
-import { fetchIndicesList } from '@/lib/api/indices';
+import { fetchIndicesList } from '@/lib/client-api/indices';
 import type { IndexListItem } from '@/types/indices-list';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';

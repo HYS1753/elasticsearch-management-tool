@@ -16,7 +16,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-import { indicesService } from '@/lib/services/indices.service';
+import { getIndexDetail } from '@/lib/client-api/indices';
 import type {
   IndexAliasItem,
   IndexDetailData,
@@ -317,7 +317,7 @@ export function IndexDetailView({ indexName }: { indexName: string }) {
     setError(null);
 
     try {
-      const result = await indicesService.getIndexDetailClient(indexName);
+      const result = await getIndexDetail(indexName);
       setData(result);
     } catch (err: any) {
       setError(err.message || 'Failed to load index detail');

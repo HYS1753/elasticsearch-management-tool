@@ -1,3 +1,13 @@
+export interface IndexDetailResponse {
+  success?: boolean;
+  code?: string;
+  message?: string;
+  data?: IndexDetailData;
+  error?: {
+    message?: string;
+  };
+}
+
 export interface IndexDetailSummary {
   index: string;
   uuid: string;
