@@ -9,7 +9,7 @@ export default function IndicesPage() {
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-6 py-8 space-y-8">
         <PageHeader
-          title="Indices"
+          title="Indices Management"
           description="Manage and explore your Elasticsearch indices"
         />
 

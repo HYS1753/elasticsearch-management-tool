@@ -13,7 +13,7 @@ export interface PaginationParams {
   pageSize: number;
 }
 
-export interface PaginatedResponse<T> {
+export interface PaginatedResponse<T = any> {
   items: T[];
   total: number;
   page: number;
@@ -24,6 +24,8 @@ export interface PaginatedResponse<T> {
 export * from './cluster';
 export * from './indices';
 export * from './document';
+export * from './query-explain';
+export * from './index-action';
 
 export interface IndexInfo {
   health: 'green' | 'yellow' | 'red';
@@ -53,11 +55,8 @@ export interface IndexSettings {
 
 export interface IndexMappings {
   properties: Record<string, {
-    type: string;
-    fields?: Record<string, {
-      type: string;
-      [key: string]: any;
-    }>;
+    type?: string;
+    properties?: Record<string, any>;
     [key: string]: any;
   }>;
 }
@@ -98,28 +97,5 @@ export interface IndexStats {
       };
     };
   };
-  indices: Record<string, {
-    uuid: string;
-    primaries: {
-      docs: {
-        count: number;
-        deleted: number;
-      };
-      store: {
-        size_in_bytes: number;
-      };
-    };
-    total: {
-      docs: {
-        count: number;
-        deleted: number;
-      };
-      store: {
-        size_in_bytes: number;
-      };
-    };
-  }>;
+  indices: Record<string, any>;
 }
-
-// Search Explain types
-export * from './query-explain';

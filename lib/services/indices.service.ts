@@ -1,6 +1,11 @@
 import type { IndicesPlacementResponse } from '@/types/indices-placement';
 import type { IndicesListResponse } from '@/types/indices-list';
 import type { IndexDetailResponse, IndexDetailData } from '@/types/index-detail';
+import type {
+  ExecuteIndexActionRequest,
+  IndexActionResponse,
+  IndexActionResult,
+} from '@/types/index-action';
 
 export class IndicesService {
   private apiUrl = process.env.CLUSTER_API_URL;
@@ -97,6 +102,44 @@ export class IndicesService {
     }
 
     throw new Error(result.message || 'Failed to fetch index detail');
+  }
+
+  async executeIndexAction(
+    indexName: string,
+    payload: ExecuteIndexActionRequest
+  ): Promise<IndexActionResult> {
+    const response = await fetch(
+      `${this.apiUrl}/app/indices/indices/${encodeURIComponent(indexName)}/actions`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        cache: 'no-store',
+      }
+    );
+
+    if (!response.ok) {
+      let errorMessage = `Failed to execute index action: ${response.statusText}`;
+
+      try {
+        const errorResult = await response.json();
+        errorMessage = errorResult?.message || errorMessage;
+      } catch {
+        // ignore json parse error
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    const result: IndexActionResponse = await response.json();
+
+    if (result.code === '200' && result.data) {
+      return result.data;
+    }
+
+    throw new Error(result.message || 'Failed to execute index action');
   }
 }
 

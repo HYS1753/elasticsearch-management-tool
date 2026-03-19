@@ -2,21 +2,31 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   Activity,
   Database,
-  FileJson,
-  GitBranch,
   HardDrive,
   Layers3,
   Search,
   Shield,
   ChevronDown,
   ChevronRight,
+  FolderOpen,
+  FolderClosed,
+  Lock,
+  LockOpen,
+  RefreshCw,
+  Trash2,
+  DatabaseZap,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
 } from 'lucide-react';
 
-import { getIndexDetail } from '@/lib/client-api/indices';
+import { executeIndexAction, getIndexDetail } from '@/lib/client-api/indices';
+import type { ExecuteIndexActionRequest } from '@/types/index-action';
 import type {
   IndexAliasItem,
   IndexDetailData,
@@ -29,6 +39,17 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorDisplay } from '@/components/common/error-display';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 function formatNumber(value?: string | number | null) {
   if (value === null || value === undefined || value === '') return '-';
@@ -190,9 +211,7 @@ function SettingsSection({ settings }: { settings: IndexSettingItem[] }) {
     if (!q) return settings;
 
     return settings.filter(
-      (item) =>
-        item.key.toLowerCase().includes(q) ||
-        item.value.toLowerCase().includes(q)
+      (item) => item.key.toLowerCase().includes(q) || item.value.toLowerCase().includes(q)
     );
   }, [settings, keyword]);
 
@@ -307,10 +326,147 @@ function MappingsSection({ mappings }: { mappings: IndexMappingField[] }) {
   );
 }
 
+interface DetailActionItem {
+  label: string;
+  payload: ExecuteIndexActionRequest;
+  icon: React.ComponentType<{ className?: string }>;
+  variant?: 'default' | 'outline' | 'secondary' | 'destructive';
+  dangerous?: boolean;
+  description: string;
+}
+
+interface ActionResultState {
+  open: boolean;
+  action: string;
+  success: boolean;
+  message: string;
+}
+
+function IndexDetailActions({
+  loading,
+  onExecute,
+}: {
+  loading: boolean;
+  onExecute: (label: string, payload: ExecuteIndexActionRequest) => Promise<void>;
+}) {
+  const actionItems: DetailActionItem[] = [
+    {
+      label: 'Open',
+      payload: { action: 'open' },
+      icon: FolderOpen,
+      variant: 'secondary',
+      description: '인덱스를 open 상태로 전환합니다.',
+    },
+    {
+      label: 'Close',
+      payload: { action: 'close' },
+      icon: FolderClosed,
+      variant: 'secondary',
+      dangerous: true,
+      description: '인덱스를 close 상태로 전환합니다. 검색 및 쓰기에 영향이 있을 수 있습니다.',
+    },
+    // {
+    //   label: 'Read only ON',
+    //   payload: { action: 'update_read_only', read_only: true },
+    //   icon: Lock,
+    //   variant: 'outline',
+    //   description: '인덱스를 read only 상태로 전환합니다.',
+    // },
+    // {
+    //   label: 'Read only OFF',
+    //   payload: { action: 'update_read_only', read_only: false },
+    //   icon: LockOpen,
+    //   variant: 'outline',
+    //   description: '인덱스의 read only 상태를 해제합니다.',
+    // },
+    {
+      label: 'Refresh Index',
+      payload: { action: 'refresh' },
+      icon: RefreshCw,
+      variant: 'secondary',
+      description: '인덱스에 refresh를 수행합니다.',
+    },
+    {
+      label: 'Flush Index',
+      payload: { action: 'flush' },
+      icon: DatabaseZap,
+      variant: 'secondary',
+      description: '인덱스에 flush를 수행합니다.',
+    },
+    {
+      label: 'Force merge',
+      payload: { action: 'forcemerge', max_num_segments: 1 },
+      icon: Layers3,
+      variant: 'secondary',
+      dangerous: true,
+      description: '인덱스에 force merge를 수행합니다. 운영 비용이 큰 작업이므로 주의해서 사용하세요.',
+    },
+    {
+      label: 'Delete',
+      payload: { action: 'delete' },
+      icon: Trash2,
+      variant: 'destructive',
+      dangerous: true,
+      description: '인덱스를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다.',
+    },
+  ];
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {actionItems.map((item) => {
+        const Icon = item.icon;
+
+        const button = (
+          <Button
+            variant={item.variant ?? 'outline'}
+            disabled={loading}
+            onClick={!item.dangerous ? () => onExecute(item.label, item.payload) : undefined}
+            className="gap-2"
+          >
+            <Icon className="h-4 w-4" />
+            {item.label}
+          </Button>
+        );
+
+        if (!item.dangerous) {
+          return <div key={item.label}>{button}</div>;
+        }
+
+        return (
+          <AlertDialog key={item.label}>
+            <AlertDialogTrigger asChild>{button}</AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{item.label} 실행 확인</AlertDialogTitle>
+                <AlertDialogDescription>{item.description}</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>취소</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onExecute(item.label, item.payload)}>
+                  실행
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        );
+      })}
+    </div>
+  );
+}
+
 export function IndexDetailView({ indexName }: { indexName: string }) {
+  const router = useRouter();
+
   const [data, setData] = useState<IndexDetailData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [actionResult, setActionResult] = useState<ActionResultState>({
+    open: false,
+    action: '',
+    success: true,
+    message: '',
+  });
 
   const load = async () => {
     setLoading(true);
@@ -330,13 +486,47 @@ export function IndexDetailView({ indexName }: { indexName: string }) {
     load();
   }, [indexName]);
 
+  const handleAction = async (label: string, payload: ExecuteIndexActionRequest) => {
+    setActionLoading(true);
+
+    try {
+      const result = await executeIndexAction(indexName, payload);
+
+      if (payload.action === 'delete') {
+        setActionResult({
+          open: true,
+          action: label,
+          success: true,
+          message: result.message || `${indexName} 인덱스를 삭제했습니다.`,
+        });
+
+        router.push('/indices');
+        router.refresh();
+        return;
+      }
+
+      await load();
+
+      setActionResult({
+        open: true,
+        action: label,
+        success: true,
+        message: result.message || `${label} 작업이 완료되었습니다.`,
+      });
+    } catch (err: any) {
+      setActionResult({
+        open: true,
+        action: label,
+        success: false,
+        message: err?.message || `${label} 작업 중 오류가 발생했습니다.`,
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (error) {
-    return (
-      <ErrorDisplay
-        error={error}
-        onRetry={load}
-      />
-    );
+    return <ErrorDisplay error={error} onRetry={load} />;
   }
 
   if (loading || !data) {
@@ -360,146 +550,144 @@ export function IndexDetailView({ indexName }: { indexName: string }) {
   const { summary, aliases, settings, mappings, stats } = data;
 
   return (
-    <div className="space-y-6">
-      <Card className="border-sky-200/60 bg-gradient-to-r from-sky-50 to-white">
-        <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-4">
-            <Link
-              href="/indices"
-              className="inline-flex items-center gap-2 text-sm font-medium text-sky-700 transition hover:text-sky-800"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Indices
-            </Link>
+    <>
+      <div className="space-y-6">
+        <Card className="border-sky-200/60 bg-gradient-to-r from-sky-50 to-white">
+          <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-4">
+              <Link
+                href="/indices"
+                className="inline-flex items-center gap-2 text-sm font-medium text-sky-700 transition hover:text-sky-800"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Indices
+              </Link>
 
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl font-semibold text-slate-900">{summary.index}</h1>
-                <Badge variant="outline" className={getHealthBadgeClass(summary.health)}>
-                  {summary.health || 'unknown'}
-                </Badge>
-                <Badge variant="outline" className={getStatusBadgeClass(summary.status)}>
-                  {summary.status === 'close' ? 'closed' : summary.status || 'unknown'}
-                </Badge>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="text-2xl font-semibold text-slate-900">{summary.index}</h1>
+                  <Badge variant="outline" className={getHealthBadgeClass(summary.health)}>
+                    {summary.health || 'unknown'}
+                  </Badge>
+                  <Badge variant="outline" className={getStatusBadgeClass(summary.status)}>
+                    {summary.status === 'close' ? 'closed' : summary.status || 'unknown'}
+                  </Badge>
+                </div>
+
+                <IndexDetailActions loading={actionLoading} onExecute={handleAction} />
               </div>
-
-              <p className="text-sm leading-6 text-slate-600">
-                인덱스 기본 정보, aliases, settings, mappings, stats를 한 화면에서 확인합니다.
-              </p>
             </div>
-          </div>
 
-          <Button variant="outline" onClick={load}>
-            Refresh Detail
-          </Button>
-        </CardContent>
-      </Card>
+            <Button variant="outline" onClick={load} disabled={loading || actionLoading}>
+              Refresh Detail
+            </Button>
+          </CardContent>
+        </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatsCard
-          title="Documents"
-          value={formatNumber(stats.docs_count)}
-          description="총 문서 수"
-          icon={Database}
-        />
-        <StatsCard
-          title="Deleted Docs"
-          value={formatNumber(stats.docs_deleted)}
-          description="삭제 문서 수"
-          icon={Shield}
-        />
-        <StatsCard
-          title="Store Size"
-          value={formatBytes(stats.store_size_in_bytes)}
-          description="전체 스토리지"
-          icon={HardDrive}
-        />
-        <StatsCard
-          title="Primary Store"
-          value={formatBytes(stats.primary_store_size_in_bytes)}
-          description="primary 스토리지"
-          icon={Layers3}
-        />
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Summary</CardTitle>
-          <CardDescription>cat indices 및 stats 기준 요약 정보입니다.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <SummaryItem label="Index" value={summary.index} />
-          <SummaryItem label="UUID" value={summary.uuid} />
-          <SummaryItem label="Primary Shards" value={summary.pri || '-'} />
-          <SummaryItem label="Replicas" value={summary.rep || '-'} />
-          <SummaryItem label="Docs Count" value={formatNumber(summary.docs_count)} />
-          <SummaryItem label="Deleted Docs" value={formatNumber(summary.docs_deleted)} />
-          <SummaryItem label="Store Size" value={summary.store_size || '-'} />
-          <SummaryItem label="Primary Store Size" value={summary.pri_store_size || '-'} />
-          <SummaryItem label="Dataset Size" value={summary.dataset_size || '-'} />
-          <SummaryItem label="Search Query Total" value={formatNumber(stats.search_query_total)} />
-          <SummaryItem label="Indexing Total" value={formatNumber(stats.indexing_index_total)} />
-          <SummaryItem
-            label="Status"
-            value={summary.status === 'close' ? 'closed' : summary.status || 'unknown'}
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <StatsCard
+            title="Documents"
+            value={formatNumber(stats.docs_count)}
+            description="총 문서 수"
+            icon={Database}
           />
-        </CardContent>
-      </Card>
+          <StatsCard
+            title="Deleted Docs"
+            value={formatNumber(stats.docs_deleted)}
+            description="삭제 문서 수"
+            icon={Shield}
+          />
+          <StatsCard
+            title="Store Size"
+            value={formatBytes(stats.store_size_in_bytes)}
+            description="전체 스토리지"
+            icon={HardDrive}
+          />
+          <StatsCard
+            title="Primary Store"
+            value={formatBytes(stats.primary_store_size_in_bytes)}
+            description="primary 스토리지"
+            icon={Layers3}
+          />
+        </div>
 
-      <AliasTable aliases={aliases} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Summary</CardTitle>
+            <CardDescription>cat indices 및 stats 기준 요약 정보입니다.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <SummaryItem label="Index" value={summary.index} />
+            <SummaryItem label="UUID" value={summary.uuid} />
+            <SummaryItem label="Primary Shards" value={summary.pri || '-'} />
+            <SummaryItem label="Replicas" value={summary.rep || '-'} />
+            <SummaryItem label="Docs Count" value={formatNumber(summary.docs_count)} />
+            <SummaryItem label="Deleted Docs" value={formatNumber(summary.docs_deleted)} />
+            <SummaryItem label="Store Size" value={summary.store_size || '-'} />
+            <SummaryItem label="Primary Store Size" value={summary.pri_store_size || '-'} />
+            <SummaryItem label="Dataset Size" value={summary.dataset_size || '-'} />
+            <SummaryItem label="Search Query Total" value={formatNumber(stats.search_query_total)} />
+            <SummaryItem label="Indexing Total" value={formatNumber(stats.indexing_index_total)} />
+            <SummaryItem
+              label="Status"
+              value={summary.status === 'close' ? 'closed' : summary.status || 'unknown'}
+            />
+          </CardContent>
+        </Card>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <SettingsSection settings={settings} />
-        <MappingsSection mappings={mappings} />
+        <AliasTable aliases={aliases} />
+
+        <div className="grid gap-6 xl:grid-cols-2">
+          <SettingsSection settings={settings} />
+          <MappingsSection mappings={mappings} />
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>다음 단계 후보</CardTitle>
-          <CardDescription>이 상세 화면에서 바로 이어서 붙일 수 있는 운영 기능들입니다.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl border bg-white p-4">
-            <div className="flex items-center gap-2 text-slate-900">
-              <Activity className="h-4 w-4" />
-              <span className="font-medium">Open / Close</span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              인덱스 운영 상태를 제어하는 액션
-            </p>
-          </div>
+      <AlertDialog
+        open={actionResult.open}
+        onOpenChange={(open) =>
+          setActionResult((prev) => ({
+            ...prev,
+            open,
+          }))
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              {actionResult.success ? (
+                <div className="rounded-full bg-green-100 p-2">
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                </div>
+              ) : (
+                <div className="rounded-full bg-red-100 p-2">
+                  <XCircle className="h-5 w-5 text-red-600" />
+                </div>
+              )}
 
-          <div className="rounded-2xl border bg-white p-4">
-            <div className="flex items-center gap-2 text-slate-900">
-              <GitBranch className="h-4 w-4" />
-              <span className="font-medium">Alias Actions</span>
+              <div>
+                <AlertDialogTitle>[{actionResult.action}] 작업 결과</AlertDialogTitle>
+                <AlertDialogDescription className="mt-1 whitespace-pre-wrap break-words">
+                  {actionResult.message}
+                </AlertDialogDescription>
+              </div>
             </div>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              alias 추가/삭제 및 write index 제어
-            </p>
-          </div>
+          </AlertDialogHeader>
 
-          <div className="rounded-2xl border bg-white p-4">
-            <div className="flex items-center gap-2 text-slate-900">
-              <FileJson className="h-4 w-4" />
-              <span className="font-medium">Readonly Toggle</span>
+          {!actionResult.success && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>실패한 경우 현재 인덱스 상태를 다시 확인한 뒤 재시도해 주세요.</div>
+              </div>
             </div>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              주요 settings 변경 액션
-            </p>
-          </div>
+          )}
 
-          <div className="rounded-2xl border bg-white p-4">
-            <div className="flex items-center gap-2 text-slate-900">
-              <Activity className="h-4 w-4" />
-              <span className="font-medium">Refresh / Flush</span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              운영성 API 액션 확장
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          <AlertDialogFooter>
+            <AlertDialogAction>확인</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
