@@ -713,7 +713,7 @@ export function IndicesManagementList() {
 
                             <td className="px-4 py-3 align-middle">
                               <Link
-                                href={`/indices/${encodeURIComponent(item.index)}`}
+                                href={`/indices-management/${encodeURIComponent(item.index)}`}
                                 className="inline-flex items-center gap-2 font-medium text-slate-900 transition hover:text-sky-700"
                               >
                                 <span>{item.index}</span>
