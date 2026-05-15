@@ -73,7 +73,7 @@ export function Navigation() {
         isVisible ? 'translate-y-0' : '-translate-y-full'
       }`}
     >
-      <div className="container mx-auto px-6">
+      <div className="w-full px-6">
         <div className="relative flex items-center gap-2 py-3">
           {/* Sliding liquid crystal indicator */}
           <div

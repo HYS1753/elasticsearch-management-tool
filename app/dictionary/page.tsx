@@ -5,7 +5,8 @@ import { PageHeader } from '@/components/common/page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DictionaryTable } from '@/components/dictionary/dictionary-table';
 import { DictionaryType } from '@/types/dictionary';
-import { Book, GitBranch, Link as LinkIcon, SpellCheck, Ban } from 'lucide-react';
+import { Book, GitBranch, Link as LinkIcon, SpellCheck, Ban, Shield, ArrowRight } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const DICTIONARY_INFO = {
   user: {
@@ -65,6 +66,35 @@ export default function DictionaryPage() {
           title="Dictionary Management"
           description="Manage analyzers, stopwords, synonyms, and custom dictionary entries"
         />
+
+        {/* Dictionary Workflow Description */}
+        <Card className="border-blue-100 bg-blue-50/30 shadow-none">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                  <Shield className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">Dictionary Approval Workflow</h3>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    <span className="font-medium text-slate-700">Viewer:</span> View only | 
+                    <span className="font-medium text-slate-700 ml-2">Writer:</span> Add & Edit entries | 
+                    <span className="font-medium text-slate-700 ml-2">Admin:</span> Approve/Reject & Apply
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 text-[10px] font-bold">DRAFT</div>
+                <ArrowRight className="h-3 w-3 text-slate-400" />
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-700 border border-green-200 text-[10px] font-bold">APPROVED / REJECTED</div>
+                <ArrowRight className="h-3 w-3 text-slate-400" />
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 border border-sky-200 text-[10px] font-bold">APPLIED</div>
+                <div className="ml-2 text-[10px] text-slate-400 italic">* Only Admin can process stages beyond DRAFT</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Tabs
           value={activeTab}

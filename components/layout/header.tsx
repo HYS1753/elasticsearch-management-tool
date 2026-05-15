@@ -5,7 +5,7 @@ import { UserMenu } from './user-menu';
 export function Header() {
   return (
     <div className="border-b border-slate-200/60 bg-white/95 backdrop-blur-lg shadow-sm fixed top-0 left-0 right-0 z-50">
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="w-full px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 w-fit hover:opacity-80 transition-opacity">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg">
             <Image 
