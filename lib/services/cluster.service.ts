@@ -1,13 +1,16 @@
 import type { ClusterStatus, NodeStatus, ClusterStats } from '@/types/cluster';
+import { getAuthHeaders } from './auth-helper';
 
 export class ClusterService {
   private apiUrl = process.env.CLUSTER_API_URL;
 
   async getClusterStatus(): Promise<ClusterStatus> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/cluster/cluster-status`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
       },
     });
 
@@ -26,10 +29,12 @@ export class ClusterService {
   }
 
   async getNodeStatus(): Promise<{ code: string; message: string; data: { nodes: NodeStatus[] } }> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/cluster/node-status`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
       },
     });
 

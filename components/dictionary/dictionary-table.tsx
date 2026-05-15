@@ -3,14 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Trash2, Edit } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, CheckCircle, XCircle } from 'lucide-react';
 import { DictionaryDialog } from './dictionary-dialog';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { searchDictionary, deleteDictionaryEntry } from '@/lib/client-api/dictionary';
+import { searchDictionary, deleteDictionaryEntry, updateDictionaryEntry } from '@/lib/client-api/dictionary';
+import { getUserInfoFromCookie } from '@/lib/client-api/auth';
 import type { DictionaryType, DictionaryEntity } from '@/types/dictionary';
 
 interface DictionaryTableProps {
@@ -21,6 +21,7 @@ export function DictionaryTable({ type }: DictionaryTableProps) {
   const [data, setData] = useState<DictionaryEntity[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string>('VIEWER');
 
   // Search & Pagination states
   const [keyword, setKeyword] = useState('');
@@ -32,6 +33,14 @@ export function DictionaryTable({ type }: DictionaryTableProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<DictionaryEntity | null>(null);
   const [deleteItem, setDeleteItem] = useState<any>(null);
+
+  useEffect(() => {
+    const info = getUserInfoFromCookie();
+    if (info) setUserRole(info.role);
+  }, []);
+
+  const canWrite = userRole === 'ADMIN' || userRole === 'WRITER';
+  const canApprove = userRole === 'ADMIN';
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -84,6 +93,32 @@ export function DictionaryTable({ type }: DictionaryTableProps) {
       toast.error('Failed to delete: ' + err.message);
     } finally {
       setDeleteItem(null);
+    }
+  };
+
+  const handleStatusChange = async (item: any, newStatus: 'APPROVED' | 'REJECTED') => {
+    let key = '';
+    if (type === 'user' || type === 'stopword') key = item.word;
+    else if (type === 'decompound') key = item.compound_word;
+    else if (type === 'synonym') key = item.synonyms[0];
+    else if (type === 'correction') key = item.incorrect;
+
+    try {
+      await updateDictionaryEntry(type, key, { status: newStatus });
+      toast.success(`Entry ${newStatus.toLowerCase()} successfully`);
+      fetchData();
+    } catch (err: any) {
+      toast.error(`Failed to update status: ${err.message}`);
+    }
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'APPROVED': return 'border-green-200 bg-green-50 text-green-700';
+      case 'APPLIED': return 'border-sky-200 bg-sky-50 text-sky-700';
+      case 'REJECTED': return 'border-red-200 bg-red-50 text-red-700';
+      case 'DRAFT': return 'border-amber-200 bg-amber-50 text-amber-700';
+      default: return 'border-slate-200 bg-slate-100 text-slate-600';
     }
   };
 
@@ -169,11 +204,13 @@ export function DictionaryTable({ type }: DictionaryTableProps) {
               </form>
             </div>
             
-            <div className="flex items-end">
-              <Button onClick={handleOpenAdd} className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl">
-                <Plus className="h-4 w-4 mr-2" /> Add Entry
-              </Button>
-            </div>
+            {canWrite && (
+              <div className="flex items-end">
+                <Button onClick={handleOpenAdd} className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl">
+                  <Plus className="h-4 w-4 mr-2" /> Add Entry
+                </Button>
+              </div>
+            )}
           </div>
         </CardHeader>
 
@@ -189,7 +226,7 @@ export function DictionaryTable({ type }: DictionaryTableProps) {
               <TableHead className="w-[120px] px-4 py-3 font-medium text-slate-600">Author</TableHead>
               <TableHead className="w-[160px] px-4 py-3 font-medium text-slate-600">Created At</TableHead>
               <TableHead className="w-[160px] px-4 py-3 font-medium text-slate-600">Updated At</TableHead>
-              <TableHead className="w-[100px] px-4 py-3 font-medium text-slate-600 text-right">Actions</TableHead>
+              <TableHead className="w-[140px] px-4 py-3 font-medium text-slate-600 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -207,7 +244,7 @@ export function DictionaryTable({ type }: DictionaryTableProps) {
                   <TableCell className="px-4 py-3 text-center text-slate-500">{skip + i + 1}</TableCell>
                   {renderCells(item)}
                   <TableCell className="px-4 py-3 text-center">
-                    <Badge variant="outline" className={item.status === 'APPLIED' ? 'border-sky-200 bg-sky-50 text-sky-700' : 'border-slate-200 bg-slate-100 text-slate-600'}>
+                    <Badge variant="outline" className={getStatusBadgeClass(item.status)}>
                       {item.status}
                     </Badge>
                   </TableCell>
@@ -216,12 +253,39 @@ export function DictionaryTable({ type }: DictionaryTableProps) {
                   <TableCell className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">{item.updated_at_kst}</TableCell>
                   <TableCell className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(item)} className="h-8 w-8 text-slate-500 hover:text-sky-700 hover:bg-sky-50 transition-colors">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleteItem(item)} className="h-8 w-8 text-slate-500 hover:text-red-700 hover:bg-red-50 transition-colors">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {/* ADMIN: Approve/Reject buttons for DRAFT items */}
+                      {canApprove && item.status === 'DRAFT' && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleStatusChange(item, 'APPROVED')}
+                            className="h-8 w-8 text-green-600 hover:text-green-800 hover:bg-green-50 transition-colors"
+                            title="Approve"
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleStatusChange(item, 'REJECTED')}
+                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                            title="Reject"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                      {canWrite && (
+                        <>
+                          <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(item)} className="h-8 w-8 text-slate-500 hover:text-sky-700 hover:bg-sky-50 transition-colors">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => setDeleteItem(item)} className="h-8 w-8 text-slate-500 hover:text-red-700 hover:bg-red-50 transition-colors">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

@@ -1,3 +1,4 @@
+import { getAuthHeaders } from './auth-helper';
 import type {
   DocumentSearchRequest,
   DocumentSearchResponse,
@@ -8,10 +9,12 @@ export class DocumentsService {
   private apiUrl = process.env.CLUSTER_API_URL;
 
   async getDocumentIndices(): Promise<DocumentsIndexListResponse> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/documents/indices`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
       },
       cache: 'no-store',
     });
@@ -39,10 +42,12 @@ export class DocumentsService {
   }
 
   async searchDocuments(payload: DocumentSearchRequest): Promise<DocumentSearchResponse> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/documents/search`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
       cache: 'no-store',

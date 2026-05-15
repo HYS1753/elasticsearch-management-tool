@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { DictionaryType, DictionaryEntity } from '@/types/dictionary';
 import { createDictionaryEntry, updateDictionaryEntry } from '@/lib/client-api/dictionary';
+import { getUserInfoFromCookie } from '@/lib/client-api/auth';
 
 interface DictionaryDialogProps {
   type: DictionaryType;
@@ -59,7 +60,11 @@ export function DictionaryDialog({ type, isOpen, onClose, onSuccess, initialData
     setError(null);
 
     try {
-      let payload: any = { comment, author: 'admin' }; // hardcoded author for now
+      // Get current user from cookie for author field
+      const userInfo = getUserInfoFromCookie();
+      const author = userInfo?.user_id || 'unknown';
+
+      let payload: any = { comment, author };
       let key = '';
 
       if (type === 'user' || type === 'stopword') {
@@ -79,7 +84,6 @@ export function DictionaryDialog({ type, isOpen, onClose, onSuccess, initialData
       }
 
       if (isEditing) {
-        // Exclude key from update payload if it's the identifier, but it's handled by backend usually
         await updateDictionaryEntry(type, key, payload);
       } else {
         await createDictionaryEntry(type, payload);

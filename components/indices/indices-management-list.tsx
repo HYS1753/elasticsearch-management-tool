@@ -33,6 +33,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { ErrorDisplay } from '@/components/common/error-display';
+import { SectionHeading } from '@/components/common/section-heading';
 import { IndexActionsToolbar } from '@/components/indices/index-actions-toolbar';
 import {
   AlertDialog,
@@ -170,25 +171,7 @@ function MiniStat({
   );
 }
 
-function SectionHeading({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div>
-      <div className="flex items-center gap-2">
-        <Icon className="h-5 w-5 text-blue-600" />
-        <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
-      </div>
-      <p className="mt-1 ml-7 text-sm text-slate-600">{description}</p>
-    </div>
-  );
-}
+
 
 export function IndicesManagementList() {
   const [indices, setIndices] = useState<IndexListItem[]>([]);
@@ -207,12 +190,31 @@ export function IndicesManagementList() {
   const [sortField, setSortField] = useState<SortField>('index');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedIndexNames, setSelectedIndexNames] = useState<string[]>([]);
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  
   const [bulkActionResult, setBulkActionResult] = useState<BulkActionResultState>({
     open: false,
     action: '',
     successTargets: [],
     failedTargets: [],
   });
+
+  // Role-based UI
+  const [userRole, setUserRole] = useState<string>('VIEWER');
+  useEffect(() => {
+    const userInfoCookie = document.cookie.split('; ').find(row => row.startsWith('user_info='));
+    if (userInfoCookie) {
+      try {
+        const decoded = decodeURIComponent(userInfoCookie.split('=')[1]);
+        const parsed = JSON.parse(decoded);
+        if (parsed?.role) setUserRole(parsed.role);
+      } catch {}
+    }
+  }, []);
+  const canWrite = userRole === 'ADMIN' || userRole === 'WRITER';
 
   const fetchData = async (showLoading = true) => {
     if (showLoading) {
@@ -242,9 +244,9 @@ export function IndicesManagementList() {
   }, [includeHiddenIndex, includeClosedIndex]);
 
   useEffect(() => {
-    setSelectedIndexNames((prev) =>
-      prev.filter((name) => indices.some((item) => item.index === name))
-    );
+    if (indices.length === 0) return;
+    const indexSet = new Set(indices.map((item) => item.index));
+    setSelectedIndexNames((prev) => prev.filter((name) => indexSet.has(name)));
   }, [indices]);
 
   const filteredAndSortedIndices = useMemo(() => {
@@ -294,46 +296,51 @@ export function IndicesManagementList() {
     return sorted;
   }, [indices, searchKeyword, healthFilter, statusFilter, sortField, sortDirection]);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchKeyword, healthFilter, statusFilter]);
+
+  const pagedIndices = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredAndSortedIndices.slice(start, start + pageSize);
+  }, [filteredAndSortedIndices, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(filteredAndSortedIndices.length / pageSize);
+
   const summary = useMemo(() => {
-    const totalDocs = filteredAndSortedIndices.reduce(
-      (sum, item) => sum + parseNumberLike(item.docs_count),
-      0
-    );
+    const initial = {
+      totalDocs: 0,
+      totalStorageBytes: 0,
+      openCount: 0,
+      greenCount: 0,
+      yellowCount: 0,
+      redCount: 0,
+      closedCount: 0,
+    };
 
-    const totalStorageBytes = filteredAndSortedIndices.reduce(
-      (sum, item) => sum + parseByteSize(item.store_size),
-      0
-    );
+    const result = filteredAndSortedIndices.reduce((acc, item) => {
+      const docs = parseNumberLike(item.docs_count);
+      const storage = parseByteSize(item.store_size);
+      const health = item.health ?? 'unknown';
+      const status = normalizeStatus(item.status);
 
-    const openCount = filteredAndSortedIndices.filter(
-      (item) => normalizeStatus(item.status) === 'open'
-    ).length;
+      acc.totalDocs += docs;
+      acc.totalStorageBytes += storage;
+      
+      if (status === 'open') acc.openCount++;
+      if (status === 'closed') acc.closedCount++;
+      
+      if (health === 'green') acc.greenCount++;
+      else if (health === 'yellow') acc.yellowCount++;
+      else if (health === 'red') acc.redCount++;
 
-    const greenCount = filteredAndSortedIndices.filter(
-      (item) => (item.health ?? 'unknown') === 'green'
-    ).length;
-
-    const yellowCount = filteredAndSortedIndices.filter(
-      (item) => (item.health ?? 'unknown') === 'yellow'
-    ).length;
-
-    const redCount = filteredAndSortedIndices.filter(
-      (item) => (item.health ?? 'unknown') === 'red'
-    ).length;
-
-    const closedCount = filteredAndSortedIndices.filter(
-      (item) => normalizeStatus(item.status) === 'closed'
-    ).length;
+      return acc;
+    }, initial);
 
     return {
+      ...result,
       totalIndices: filteredAndSortedIndices.length,
-      totalDocs,
-      totalStorageBytes,
-      openCount,
-      greenCount,
-      yellowCount,
-      redCount,
-      closedCount,
     };
   }, [filteredAndSortedIndices]);
 
@@ -652,7 +659,7 @@ export function IndicesManagementList() {
                 </div>
               </div>
 
-              {selectedIndexNames.length > 0 && (
+              {canWrite && selectedIndexNames.length > 0 && (
                 <div className="animate-in fade-in slide-in-from-top-2 duration-200">
                   <IndexActionsToolbar
                     selectedCount={selectedIndexNames.length}
@@ -687,14 +694,14 @@ export function IndicesManagementList() {
                       </tr>
                     </thead>
                     <tbody className="bg-white">
-                      {filteredAndSortedIndices.length === 0 ? (
+                      {pagedIndices.length === 0 ? (
                         <tr>
                           <td colSpan={9} className="px-4 py-16 text-center text-slate-500">
                             조건에 맞는 인덱스가 없습니다.
                           </td>
                         </tr>
                       ) : (
-                        filteredAndSortedIndices.map((item) => (
+                        pagedIndices.map((item) => (
                           <tr
                             key={`${item.index}-${item.uuid}`}
                             className={`border-b border-slate-100 transition hover:bg-slate-50/80 ${
@@ -760,11 +767,56 @@ export function IndicesManagementList() {
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-col gap-2 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
-                <p>
-                  {filteredAndSortedIndices.length.toLocaleString()} / {indices.length.toLocaleString()} indices
-                </p>
-                <p>
+              <div className="mt-4 flex flex-col gap-4 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                  <p className="text-xs">
+                    {filteredAndSortedIndices.length.toLocaleString()} / {indices.length.toLocaleString()} indices
+                  </p>
+                  <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
+                    <span className="text-xs">Page size:</span>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="bg-transparent text-xs font-medium outline-none"
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                  </div>
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="h-8 w-20 rounded-lg text-xs"
+                    >
+                      Previous
+                    </Button>
+                    <div className="flex items-center px-4 text-xs font-medium">
+                      Page {currentPage} of {totalPages}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="h-8 w-20 rounded-lg text-xs"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+
+                <p className="text-xs text-right min-w-[120px]">
                   {selectedVisibleCount > 0
                     ? `${selectedVisibleCount.toLocaleString()} selected`
                     : `sort: ${sortField} (${sortDirection})`}

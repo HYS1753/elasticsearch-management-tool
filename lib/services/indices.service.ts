@@ -6,6 +6,7 @@ import type {
   IndexActionResponse,
   IndexActionResult,
 } from '@/types/index-action';
+import { getAuthHeaders } from './auth-helper';
 
 export class IndicesService {
   private apiUrl = process.env.CLUSTER_API_URL;
@@ -19,10 +20,12 @@ export class IndicesService {
       include_closed_index: includeClosedIndex.toString(),
     });
 
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/indices/indices-placement?${params}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
       },
       cache: 'no-store',
     });
@@ -49,10 +52,12 @@ export class IndicesService {
       include_closed_index: includeClosedIndex.toString(),
     });
 
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/indices/indices?${params}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
       },
       cache: 'no-store',
     });
@@ -71,12 +76,14 @@ export class IndicesService {
   }
 
   async getIndexDetail(indexName: string): Promise<IndexDetailData> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(
       `${this.apiUrl}/app/indices/indices/${encodeURIComponent(indexName)}`,
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          ...authHeaders,
         },
         cache: 'no-store',
       }
@@ -108,12 +115,14 @@ export class IndicesService {
     indexName: string,
     payload: ExecuteIndexActionRequest
   ): Promise<IndexActionResult> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(
       `${this.apiUrl}/app/indices/indices/${encodeURIComponent(indexName)}/actions`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...authHeaders,
         },
         body: JSON.stringify(payload),
         cache: 'no-store',

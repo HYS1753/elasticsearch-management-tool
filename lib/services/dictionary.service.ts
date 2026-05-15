@@ -1,4 +1,5 @@
 import type { DictionaryListResponse, DictionaryEntity, SearchDictionaryRequest } from '@/types/dictionary';
+import { getAuthHeaders } from './auth-helper';
 
 export class DictionaryService {
   private apiUrl = process.env.CLUSTER_API_URL;
@@ -15,11 +16,13 @@ export class DictionaryService {
       sort_order: sort_order.toString()
     });
 
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/dictionaries/${type}/${searchPath}?${query.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         accept: 'application/json',
+        ...authHeaders,
       },
       cache: 'no-store',
     });
@@ -41,11 +44,13 @@ export class DictionaryService {
   }
 
   async create(type: string, payload: any): Promise<any> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/dictionaries/${type}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         accept: 'application/json',
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
     });
@@ -59,11 +64,13 @@ export class DictionaryService {
   }
 
   async update(type: string, key: string, payload: any): Promise<any> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/dictionaries/${type}/${encodeURIComponent(key)}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         accept: 'application/json',
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
     });
@@ -77,10 +84,12 @@ export class DictionaryService {
   }
 
   async remove(type: string, key: string): Promise<any> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/dictionaries/${type}/${encodeURIComponent(key)}`, {
       method: 'DELETE',
       headers: {
         accept: 'application/json',
+        ...authHeaders,
       },
     });
 

@@ -5,6 +5,8 @@ import type {
   QueryExplainDetailResponse,
 } from '@/types/query-explain';
 
+import { getAuthHeaders } from './auth-helper';
+
 interface QueryExplainSummaryApiResponse {
   code: string;
   message: string;
@@ -23,11 +25,13 @@ export class QueryExplainService {
   async getExplainSummary(
     payload: QueryExplainSummaryRequest
   ): Promise<QueryExplainSummaryApiResponse> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/search/explain/summary`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         accept: 'application/json',
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
       cache: 'no-store',
@@ -56,11 +60,13 @@ export class QueryExplainService {
   async getExplainDetail(
     payload: QueryExplainDetailRequest
   ): Promise<QueryExplainDetailApiResponse> {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${this.apiUrl}/app/search/explain/detail`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         accept: 'application/json',
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
       cache: 'no-store',

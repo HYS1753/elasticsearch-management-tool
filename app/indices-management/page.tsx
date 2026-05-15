@@ -1,8 +1,15 @@
+'use client';
+
 import { Database, Info } from 'lucide-react';
 
+import dynamic from 'next/dynamic';
 import { PageHeader } from '@/components/common/page-header';
-import { IndicesManagementList } from '@/components/indices/indices-management-list';
 import { Card, CardContent } from '@/components/ui/card';
+
+const IndicesManagementList = dynamic(
+  () => import('@/components/indices/indices-management-list').then(mod => mod.IndicesManagementList),
+  { ssr: false }
+);
 
 export default function IndicesPage() {
   return (
