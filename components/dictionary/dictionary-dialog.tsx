@@ -45,7 +45,7 @@ export function DictionaryDialog({ type, isOpen, onClose, onSuccess, initialData
         if (type === 'synonym') setSynonyms(((initialData as any).synonyms || []).join(', '));
         if (type === 'correction') {
           setIncorrect((initialData as any).incorrect || '');
-          setCorrected((initialData as any).corrected || '');
+          setCorrected(((initialData as any).corrected || []).join(', '));
         }
       } else {
         // Reset
@@ -79,7 +79,7 @@ export function DictionaryDialog({ type, isOpen, onClose, onSuccess, initialData
         key = payload.synonyms[0]; // Usually first synonym is key
       } else if (type === 'correction') {
         payload.incorrect = incorrect;
-        payload.corrected = corrected;
+        payload.corrected = corrected.split(',').map(s => s.trim()).filter(Boolean);
         key = incorrect;
       }
 
@@ -140,7 +140,7 @@ export function DictionaryDialog({ type, isOpen, onClose, onSuccess, initialData
                 <Input value={incorrect} onChange={(e) => setIncorrect(e.target.value)} disabled={isEditing} required />
               </div>
               <div className="space-y-2">
-                <Label>Corrected Word</Label>
+                <Label>Corrected Words (comma separated)</Label>
                 <Input value={corrected} onChange={(e) => setCorrected(e.target.value)} required />
               </div>
             </>

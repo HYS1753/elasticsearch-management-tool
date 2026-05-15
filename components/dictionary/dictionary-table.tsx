@@ -150,7 +150,11 @@ export function DictionaryTable({ type }: DictionaryTableProps) {
         return (
           <>
             <TableCell className="px-4 py-3 text-red-500 line-through decoration-red-300">{item.incorrect}</TableCell>
-            <TableCell className="px-4 py-3 text-emerald-600 font-medium">{item.corrected}</TableCell>
+            <TableCell className="px-4 py-3">
+              <div className="flex gap-1 flex-wrap">
+                {item.corrected?.map((c: string, i: number) => <Badge key={i} variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">{c}</Badge>)}
+              </div>
+            </TableCell>
           </>
         );
       default:

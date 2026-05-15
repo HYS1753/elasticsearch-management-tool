@@ -32,7 +32,7 @@ export interface SynonymDictionary extends DictionaryBase {
 
 export interface CorrectionDictionary extends DictionaryBase {
   incorrect: string;
-  corrected: string;
+  corrected: string[];
 }
 
 export interface StopwordDictionary extends DictionaryBase {
