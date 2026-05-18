@@ -12,6 +12,16 @@ import {
   ChevronUp, ChevronDown, Check 
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle 
+} from '@/components/ui/alert-dialog';
 
 const DICTIONARY_INFO = {
   user: {
@@ -148,6 +158,7 @@ export default function DictionaryPage() {
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
+  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
 
   useEffect(() => {
     setUser(getUserInfoFromCookie());
@@ -289,7 +300,7 @@ export default function DictionaryPage() {
                   </button>
                   
                   <button
-                    onClick={() => startStream('publish')}
+                    onClick={() => setShowPublishConfirm(true)}
                     disabled={isRunning}
                     className="px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0 text-sm font-semibold transition-all duration-200 shadow-md shadow-indigo-600/10 hover:shadow-indigo-600/20 flex items-center gap-2 cursor-pointer"
                   >
@@ -416,6 +427,42 @@ export default function DictionaryPage() {
             </TabsContent>
           </div>
         </Tabs>
+
+        {/* Publish Confirmation Dialog */}
+        <AlertDialog open={showPublishConfirm} onOpenChange={setShowPublishConfirm}>
+          <AlertDialogContent className="max-w-md bg-white border border-slate-200/80 rounded-xl shadow-xl p-6">
+            <AlertDialogHeader className="space-y-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-50 border border-rose-100 text-rose-600 shadow-inner shrink-0 mb-1">
+                <CloudLightning className="h-6 w-6 animate-pulse" />
+              </div>
+              <AlertDialogTitle className="text-lg font-bold text-slate-900">
+                운영 서버 사전 반영 확인
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-sm text-slate-500 leading-relaxed space-y-2">
+                <p className="font-semibold text-slate-800">
+                  진짜로 승인된 사전을 원격 Elasticsearch 클러스터 노드들에 영구 배포 및 반영하시겠습니까?
+                </p>
+                <p>
+                  이 작업은 실제 운영 환경에 실시간으로 즉시 동적 적용됩니다. 배포 시작 직전 기존 사전 파일들은 시분초 단위 타임스탬프(`backup/*_YYYYMMDD_HHMMSS.txt`)를 붙여 안전하게 백업 폴더로 저장됩니다.
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="mt-6 flex items-center gap-3">
+              <AlertDialogCancel className="w-full sm:w-auto px-4 py-2 text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-lg text-sm font-medium cursor-pointer transition-colors">
+                취소하기
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => {
+                  setShowPublishConfirm(false);
+                  startStream('publish');
+                }} 
+                className="w-full sm:w-auto px-5 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg text-sm font-semibold cursor-pointer shadow-md transition-all duration-200 hover:shadow-lg"
+              >
+                진행 및 반영하기
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
