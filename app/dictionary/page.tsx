@@ -68,6 +68,75 @@ interface LogStep {
   details?: any;
 }
 
+function LogItem({ log, idx }: { log: LogStep; idx: number }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const isRunningStep = log.status === 'RUNNING';
+  const isSuccessStep = log.status === 'SUCCESS';
+  const isFailedStep = log.status === 'FAILED';
+
+  return (
+    <div 
+      className="flex flex-col gap-2 py-3 border-b border-slate-100 last:border-0 transition-all duration-300 animate-in fade-in slide-in-from-top-3 duration-500 ease-out"
+      style={{ animationDelay: `${Math.min(idx * 40, 200)}ms` }}
+    >
+      <div 
+        className={`flex items-start gap-3 cursor-pointer group rounded-lg p-1.5 -m-1.5 transition-colors duration-200 ${
+          log.details ? 'hover:bg-slate-50/80' : 'cursor-default'
+        }`}
+        onClick={() => log.details && setIsOpen(!isOpen)}
+      >
+        <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full shrink-0">
+          {isRunningStep && <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />}
+          {isSuccessStep && (
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 border border-emerald-200">
+              <Check className="h-3 w-3 text-emerald-600 font-bold" />
+            </div>
+          )}
+          {isFailedStep && (
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-50 border border-rose-200">
+              <XCircle className="h-3 w-3 text-rose-600" />
+            </div>
+          )}
+        </div>
+        
+        <div className="flex-1 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <p className={`text-sm font-semibold ${
+              isRunningStep ? 'text-indigo-600 animate-pulse' : isSuccessStep ? 'text-slate-800 font-medium' : 'text-rose-600'
+            }`}>
+              {log.message}
+            </p>
+            {isSuccessStep && (
+              <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-100/60 shadow-sm/subtle">성공</span>
+            )}
+            {isRunningStep && (
+              <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100/60 animate-pulse">진행중</span>
+            )}
+          </div>
+          
+          {log.details && (
+            <div className="flex items-center gap-1.5 text-xs text-slate-400 group-hover:text-indigo-600 transition-colors font-medium">
+              <span>{isOpen ? '상세 접기' : '상세 보기'}</span>
+              <span className="transition-transform duration-200 transform">
+                {isOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Accordion detail view */}
+      {log.details && isOpen && (
+        <div className="pl-8 mt-1.5 animate-in fade-in slide-in-from-top-1.5 duration-200">
+          <pre className="text-[11px] text-slate-600 bg-slate-50/70 border border-slate-200/50 p-3.5 rounded-lg max-w-full overflow-x-auto font-mono shadow-inner leading-relaxed">
+            {JSON.stringify(log.details, null, 2)}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DictionaryPage() {
   const [activeTab, setActiveTab] = useState<DictionaryType>('user');
   const [user, setUser] = useState<{ user_id: string; name: string; role: string } | null>(null);
@@ -279,51 +348,11 @@ export default function DictionaryPage() {
                     </div>
                   </div>
 
-                  {/* Detailed step lists */}
-                  <div className="bg-white border border-slate-200/60 rounded-xl p-5 space-y-3.5 max-h-80 overflow-y-auto shadow-inner/sm">
-                    {logs.map((log, idx) => {
-                      const isRunningStep = log.status === 'RUNNING';
-                      const isSuccessStep = log.status === 'SUCCESS';
-                      const isFailedStep = log.status === 'FAILED';
-
-                      return (
-                        <div key={idx} className="flex items-start gap-3 py-2.5 border-b border-slate-100 last:border-0 transition-all duration-300">
-                          <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full shrink-0">
-                            {isRunningStep && <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />}
-                            {isSuccessStep && (
-                              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 border border-emerald-200">
-                                <Check className="h-3 w-3 text-emerald-600 font-bold" />
-                              </div>
-                            )}
-                            {isFailedStep && (
-                              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-50 border border-rose-200">
-                                <XCircle className="h-3 w-3 text-rose-600" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1 space-y-2">
-                            <div className="flex items-center gap-2">
-                              <p className={`text-sm font-semibold ${
-                                isRunningStep ? 'text-indigo-600 animate-pulse' : isSuccessStep ? 'text-slate-800' : 'text-rose-600'
-                              }`}>
-                                {log.message}
-                              </p>
-                              {isSuccessStep && (
-                                <span className="text-[10px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-100">성공</span>
-                              )}
-                              {isRunningStep && (
-                                <span className="text-[10px] font-semibold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100 animate-pulse">진행중</span>
-                              )}
-                            </div>
-                            {log.details && (
-                              <pre className="text-[11px] text-slate-600 bg-slate-50/70 border border-slate-200/50 p-3.5 rounded-lg max-w-full overflow-x-auto font-mono shadow-inner leading-relaxed">
-                                {JSON.stringify(log.details, null, 2)}
-                              </pre>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                  {/* Detailed step lists - reverse ordered for immediate top visibility */}
+                  <div className="bg-white border border-slate-200/60 rounded-xl p-5 space-y-3.5 max-h-96 overflow-y-auto shadow-inner/sm">
+                    {logs.slice().reverse().map((log, idx) => (
+                      <LogItem key={log.step || idx} log={log} idx={idx} />
+                    ))}
                   </div>
 
                   {/* Failure Alert Box */}
