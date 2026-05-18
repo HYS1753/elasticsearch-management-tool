@@ -351,7 +351,7 @@ export default function DictionaryPage() {
 
         {/* Sync & Deploy Center Popup Layer Dialog */}
         <Dialog open={isDeployDialogOpen} onOpenChange={handleCloseDialog}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200/80 rounded-2xl shadow-2xl p-6">
+          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200/80 rounded-2xl shadow-2xl p-6">
             <DialogHeader className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner animate-in spin-in-12 duration-500">
