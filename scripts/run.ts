@@ -13,7 +13,7 @@ function parseEnv(filePath: string): string | null {
     const envContent = fs.readFileSync(filePath, 'utf-8');
     const lines = envContent.split('\n');
     for (const line of lines) {
-      const match = line.match(/^\s*PORT\s*=\s*(.*)$/);
+      const match = line.match(/^\s*NEXT_PUBLIC_APP_PORT\s*=\s*(.*)$/);
       if (match) {
         return match[1].trim();
       }
@@ -24,7 +24,7 @@ function parseEnv(filePath: string): string | null {
 
 const localPort = parseEnv(envPath);
 const defaultPort = parseEnv(envDefaultPath);
-port = localPort || defaultPort || process.env.PORT || '3000';
+port = localPort || defaultPort || process.env.NEXT_PUBLIC_APP_PORT || process.env.PORT || '3000';
 
 console.log(`🚀 Starting Next.js in '${command}' mode on port ${port}...`);
 
