@@ -58,20 +58,71 @@
 
 ## ⚙️ 환경 변수 설정 (Environment Variables)
 
-프로젝트 루트의 `.env.local` 파일에 다음과 같은 시스템 환경 변수를 기술합니다:
+### 1. 환경 변수 파일 종류 및 우선순위 (Next.js Precedence)
+Next.js는 기동 모드(Development, Production)에 따라 루트 디렉토리에 정의된 환경 변수 파일들을 아래 순서로 읽어들여 덮어씌웁니다 (위쪽에 있을수록 높은 우선순위를 가집니다):
 
-```env
-# Next.js 내부 API 라우트 구동을 위한 백엔드 API 주소 (FastAPI 주소)
-CLUSTER_API_URL=http://localhost:18080
-
-# (옵션) 로컬 Elasticsearch 다이렉트 통신 필요 시 사용
-ELASTICSEARCH_URL=https://localhost:9200
-ELASTICSEARCH_USERNAME=elastic
-ELASTICSEARCH_PASSWORD=your_password
-```
+1. **`process.env` (운영체제/기동 쉘에 직접 정의된 환경 변수)** ── *[최상위 우선순위]*
+2. **`.env.development.local`** / **`.env.production.local`** (로컬 테스트용 기동 환경별 덮어쓰기)
+3. **`.env.local`** (깃에 올리지 않는 로컬 전용 공통 설정)
+4. **`.env.development`** / **`.env.production`** (각각 `npm run dev` 및 `npm start` 시점에 적용되는 파일)
+5. **`.env`** (기본 공통 설정 파일)
 
 > [!NOTE]
 > 다중 배포 대상 원격 노드 서버들의 개별 SSH 접속 정보(ID/비밀번호 혹은 SSH Key 파일 경로 등)는 **백엔드 API 서버의 `.env` 파일** 내 `SSH_SERVERS` 환경 변수에서 JSON 배열 구조로 구성해 주시기 바랍니다.
+
+---
+
+### 2. 브라우저 노출 경계 (`NEXT_PUBLIC_`) 규칙
+- **서버사이드 전용 변수 (`CLUSTER_API_URL`)**:
+  - `NEXT_PUBLIC_` 접두사가 없는 변수는 Next.js의 SSR(Server-side Rendering) 혹은 API Routes 프록시 단에서만 참조할 수 있으며 브라우저에는 전달되지 않아 안전합니다.
+- **클라이언트 전용 변수 (`NEXT_PUBLIC_*`)**:
+  - `NEXT_PUBLIC_APP_NAME` 등은 브라우저(Client Components) 상에서 직접 접근할 수 있도록 허용하는 변수입니다. Next.js 빌드 시점에 JavaScript 소스 코드 내부에 **정적 텍스트로 인라인(Static Inlining)** 처리됩니다.
+
+---
+
+### 3. `.env` 파일 대신 기동(실행) 시점에 동적 주입하는 방법
+Next.js 프론트엔드 환경은 빌드 시점에 코드 바인딩이 일어나므로, 단순히 기동 시점(`npm start` 또는 `docker run -e`)에 환경 변수를 넣는 방식이 제대로 동작하지 않을 수 있습니다. 이를 해결하기 위한 실무적인 동적 주입 가이드는 다음과 같습니다:
+
+#### 방안 A: Docker 빌드 인수(Build Arguments) 주입 ── *[가장 추천하는 컨테이너 배포 방식]*
+제공된 `Dockerfile`은 멀티 스테이지 빌드 내에 `ARG`를 수용하도록 설계되어 있습니다. Docker 이미지를 빌드하는 명령어 실행 시점에 주입할 수 있습니다:
+```bash
+docker build \
+  --build-arg CLUSTER_API_URL="http://192.168.0.10:18080" \
+  --build-arg NEXT_PUBLIC_APP_NAME="Enterprise Search Admin" \
+  --build-arg NEXT_PUBLIC_APP_VERSION="1.5.0" \
+  -t es-management-ui:latest .
+```
+이 방식은 기동 환경(Dev, Staging, Prod)별로 이미지를 독립 빌드할 때 아주 유용하고 깔끔합니다.
+
+#### 방안 B: 런타임 설정 (Runtime Configuration) 사용
+이미 빌드된 단일 Docker 이미지 하나를 생성한 후, 컨테이너 기동 실행 시점(`docker run -e`)에 환경 변수를 다이나믹하게 교체하여 실행하고자 하는 경우에 유용합니다.
+1. `next.config.js`를 수정하여 런타임 설정을 매핑합니다:
+   ```javascript
+   module.exports = {
+     publicRuntimeConfig: {
+       NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+       NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,
+     },
+     serverRuntimeConfig: {
+       CLUSTER_API_URL: process.env.CLUSTER_API_URL,
+     }
+   };
+   ```
+2. 코드 상에서 `process.env` 직접 호출 대신 Next.js의 `getConfig()`를 임포트하여 사용하도록 수정합니다:
+   ```typescript
+   import getConfig from 'next/config';
+   const { publicRuntimeConfig } = getConfig();
+   const appName = publicRuntimeConfig.NEXT_PUBLIC_APP_NAME;
+   ```
+이 방식을 적용하면 `docker run -e CLUSTER_API_URL=http://prod-url ...` 과 같이 기동 시 입력한 운영 환경변수가 런타임에 동적으로 해석됩니다.
+
+#### 방안 C: 기동 시 쉘 스크립트 기반 플레이스홀더 치환 (Static Container Hybrid)
+빌드 시점에 가상의 식별 텍스트(예: `__PLACEHOLDER_API_URL__`)를 번들에 박아 빌드한 뒤, 컨테이너 실행 엔트리포인트(`entrypoint.sh`) 스크립트 실행 단계에서 `sed` 등을 사용하여 기동 시 주입받은 실제 `process.env` 값으로 교체하여 서버를 켜는 트릭입니다:
+```bash
+# entrypoint.sh 예시
+find .next -type f -exec sed -i "s|__PLACEHOLDER_API_URL__|${CLUSTER_API_URL}|g" {} +
+exec npm start
+```
 
 ---
 
