@@ -6,28 +6,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DictionaryTable } from '@/components/dictionary/dictionary-table';
 import { DictionaryType } from '@/types/dictionary';
 import { getUserInfoFromCookie } from '@/lib/client-api/auth';
-import { 
+import {
   Book, GitBranch, Link as LinkIcon, SpellCheck, Ban, Shield, ArrowRight,
-  CloudLightning, CheckCircle2, Loader2, XCircle, AlertCircle, Terminal, 
-  ChevronUp, ChevronDown, Check 
+  CloudLightning, CheckCircle2, Loader2, XCircle, AlertCircle, Terminal,
+  ChevronUp, ChevronDown, Check
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog';
 
 const DICTIONARY_INFO = {
@@ -92,17 +92,16 @@ function LogItem({ log, idx }: { log: LogStep; idx: number }) {
   const isFailedStep = log.status === 'FAILED';
 
   return (
-    <div 
+    <div
       className="flex flex-col gap-2 py-3 border-b border-slate-100 last:border-0 transition-all duration-300 animate-in fade-in slide-in-from-top-3 duration-500 ease-out"
       style={{ animationDelay: `${Math.min(idx * 40, 200)}ms` }}
     >
-      <div 
-        className={`flex items-start gap-3 cursor-pointer group rounded-lg p-1.5 -m-1.5 transition-colors duration-200 ${
-          log.details ? 'hover:bg-slate-50/80' : 'cursor-default'
-        }`}
+      <div
+        className={`flex items-center gap-3 cursor-pointer group rounded-lg p-2 -m-2 transition-colors duration-200 ${log.details ? 'hover:bg-slate-50/80' : 'cursor-default'
+          }`}
         onClick={() => log.details && setIsOpen(!isOpen)}
       >
-        <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full shrink-0">
+        <div className="flex h-5 w-5 items-center justify-center rounded-full shrink-0">
           {isRunningStep && <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />}
           {isSuccessStep && (
             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 border border-emerald-200">
@@ -115,12 +114,11 @@ function LogItem({ log, idx }: { log: LogStep; idx: number }) {
             </div>
           )}
         </div>
-        
+
         <div className="flex-1 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <p className={`text-sm font-semibold ${
-              isRunningStep ? 'text-indigo-600 animate-pulse' : isSuccessStep ? 'text-slate-800 font-medium' : 'text-rose-600'
-            }`}>
+            <p className={`text-sm font-semibold ${isRunningStep ? 'text-indigo-600 animate-pulse' : isSuccessStep ? 'text-slate-800 font-medium' : 'text-rose-600'
+              }`}>
               {log.message}
             </p>
             {isSuccessStep && (
@@ -130,7 +128,7 @@ function LogItem({ log, idx }: { log: LogStep; idx: number }) {
               <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100/60 animate-pulse">진행중</span>
             )}
           </div>
-          
+
           {log.details && (
             <div className="flex items-center gap-1.5 text-xs text-slate-400 group-hover:text-indigo-600 transition-colors font-medium">
               <span>{isOpen ? '상세 접기' : '상세 보기'}</span>
@@ -200,7 +198,7 @@ export default function DictionaryPage() {
       }
       try {
         const data = JSON.parse(event.data);
-        
+
         setLogs((prev) => {
           const existingIdx = prev.findIndex(item => item.step === data.step);
           let nextLogs = [...prev];
@@ -209,7 +207,7 @@ export default function DictionaryPage() {
           } else {
             nextLogs.push(data);
           }
-          
+
           const totalSteps = action === 'validate' ? 8 : 6;
           const successCount = nextLogs.filter(item => item.status === 'SUCCESS').length;
           const calculatedProgress = Math.min(Math.round((successCount / totalSteps) * 100), 100);
@@ -260,8 +258,8 @@ export default function DictionaryPage() {
                 <div>
                   <h3 className="text-sm font-semibold text-slate-900">Dictionary Approval Workflow</h3>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    <span className="font-medium text-slate-700">Viewer:</span> View only | 
-                    <span className="font-medium text-slate-700 ml-2">Writer:</span> Add & Edit entries | 
+                    <span className="font-medium text-slate-700">Viewer:</span> View only |
+                    <span className="font-medium text-slate-700 ml-2">Writer:</span> Add & Edit entries |
                     <span className="font-medium text-slate-700 ml-2">Admin:</span> Approve/Reject & Apply
                   </p>
                 </div>
@@ -287,9 +285,9 @@ export default function DictionaryPage() {
             {Object.entries(DICTIONARY_INFO).map(([key, info]) => {
               const Icon = info.icon;
               return (
-                <TabsTrigger 
-                  key={key} 
-                  value={key} 
+                <TabsTrigger
+                  key={key}
+                  value={key}
                   className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2 flex items-center gap-2"
                 >
                   <Icon className="h-4 w-4" />
@@ -300,48 +298,48 @@ export default function DictionaryPage() {
           </TabsList>
 
           <div className="space-y-4">
-            <SectionHeading 
+            <SectionHeading
               icon={DICTIONARY_INFO[activeTab].icon}
               title={DICTIONARY_INFO[activeTab].title}
               description={DICTIONARY_INFO[activeTab].description}
             />
 
             <TabsContent value="user" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable 
-                key={`user_${refreshKey}`} 
-                type="user" 
+              <DictionaryTable
+                key={`user_${refreshKey}`}
+                type="user"
                 isAdmin={isAdmin}
                 onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
             </TabsContent>
             <TabsContent value="decompound" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable 
-                key={`decompound_${refreshKey}`} 
-                type="decompound" 
+              <DictionaryTable
+                key={`decompound_${refreshKey}`}
+                type="decompound"
                 isAdmin={isAdmin}
                 onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
             </TabsContent>
             <TabsContent value="synonym" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable 
-                key={`synonym_${refreshKey}`} 
-                type="synonym" 
+              <DictionaryTable
+                key={`synonym_${refreshKey}`}
+                type="synonym"
                 isAdmin={isAdmin}
                 onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
             </TabsContent>
             <TabsContent value="correction" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable 
-                key={`correction_${refreshKey}`} 
-                type="correction" 
+              <DictionaryTable
+                key={`correction_${refreshKey}`}
+                type="correction"
                 isAdmin={isAdmin}
                 onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
             </TabsContent>
             <TabsContent value="stopword" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable 
-                key={`stopword_${refreshKey}`} 
-                type="stopword" 
+              <DictionaryTable
+                key={`stopword_${refreshKey}`}
+                type="stopword"
                 isAdmin={isAdmin}
                 onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
@@ -351,122 +349,139 @@ export default function DictionaryPage() {
 
         {/* Sync & Deploy Center Popup Layer Dialog */}
         <Dialog open={isDeployDialogOpen} onOpenChange={handleCloseDialog}>
-          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200/80 rounded-2xl shadow-2xl p-6">
-            <DialogHeader className="space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner animate-in spin-in-12 duration-500">
-                  <CloudLightning className="h-5 w-5 animate-pulse" />
+          <DialogContent className="sm:max-w-[950px] sm:min-w-[950px] sm:h-[680px] sm:min-h-[680px] overflow-hidden bg-white border border-slate-200/80 rounded-2xl shadow-2xl p-7 flex flex-col justify-between">
+            <DialogHeader className="space-y-2 shrink-0 border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner shrink-0 animate-in spin-in-12 duration-500">
+                  <CloudLightning className="h-4 w-4 animate-pulse" />
                 </div>
                 <div>
                   <DialogTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                    사전 동기화 및 원격 검증 센터
-                    <span className="text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100/60 px-2.5 py-0.5 rounded-full uppercase tracking-wider">ADMIN ONLY</span>
+                    사전 동기화 및 원격 검증 프로세스
+                    <span className="text-[9px] font-black bg-indigo-50 text-indigo-600 border border-indigo-100/50 px-1.5 py-0 rounded-sm uppercase tracking-wide inline-flex items-center justify-center h-4.5 shrink-0 ml-2">ADMIN ONLY</span>
                   </DialogTitle>
-                  <DialogDescription className="text-xs text-slate-400 font-medium">
+                  <DialogDescription className="text-xs text-slate-400 font-semibold mt-0.5">
                     원격 Elasticsearch 클러스터 노드군을 대상으로 실시간 배포 및 분석 타당성을 모니터링합니다.
                   </DialogDescription>
                 </div>
               </div>
             </DialogHeader>
 
-            <div className="space-y-6 mt-4">
-              <div className="p-4 bg-slate-50/60 border border-slate-200/50 rounded-xl flex items-center justify-between">
-                <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-lg">
-                  승인(APPROVED)된 사전 항목들을 Elasticsearch 원격 서버 노드들에 동기화하거나 원본 훼손 없이 형태소 분석 분석기를 가상 시뮬레이션하여 검증합니다.
+            <div className="flex-1 flex flex-col justify-between gap-5 mt-5 overflow-hidden">
+              {/* Top Action Control Box */}
+              <div className="p-4 bg-slate-50/70 border border-slate-200/50 rounded-xl flex items-center justify-between gap-6 shrink-0 shadow-sm/subtle">
+                <p className="text-xs md:text-sm text-slate-500 font-semibold leading-relaxed flex-1">
+                  승인(APPROVED)된 사전 항목들을 Elasticsearch 원격 서버 노드들에 동기화하거나
+                  <br />
+                  원본 훼손 없이 형태소 분석기를 가상 시뮬레이션하여 실시간 검증합니다.
                 </p>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 shrink-0">
                   <button
                     onClick={() => startStream('validate')}
                     disabled={isRunning}
-                    className="px-5 py-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0 text-sm font-semibold transition-all duration-200 shadow-sm flex items-center gap-2 bg-white cursor-pointer"
+                    className="h-[72px] w-[140px] rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 text-sm font-semibold transition-all duration-150 shadow-sm flex flex-col items-center justify-center gap-0.5 active:scale-[0.98] cursor-pointer"
                   >
-                    {isRunning && currentAction === 'validate' ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4 text-indigo-600" />
-                    )}
-                    검증하기 (Validate)
+                    <span className="flex items-center gap-1.5 leading-none">
+                      {isRunning && currentAction === 'validate' ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-600" />
+                      ) : (
+                        <CheckCircle2 className="h-3.5 w-3.5 text-indigo-600" />
+                      )}
+                      검증하기
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-medium leading-none mt-1">
+                      (Validate)
+                    </span>
                   </button>
-                  
+
                   <button
                     onClick={() => setShowPublishConfirm(true)}
                     disabled={isRunning}
-                    className="px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0 text-sm font-semibold transition-all duration-200 shadow-md shadow-indigo-600/10 hover:shadow-indigo-600/20 flex items-center gap-2 cursor-pointer"
+                    className="h-[72px] w-[170px] rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 text-sm font-semibold transition-all duration-150 shadow-md shadow-indigo-600/10 active:scale-[0.98] flex flex-col items-center justify-center gap-0.5 cursor-pointer"
                   >
-                    {isRunning && currentAction === 'publish' ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-white" />
-                    ) : (
-                      <CloudLightning className="h-4 w-4 text-white" />
-                    )}
-                    반영하기 (Publish & Apply)
+                    <span className="flex items-center gap-1.5 leading-none">
+                      {isRunning && currentAction === 'publish' ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+                      ) : (
+                        <CloudLightning className="h-3.5 w-3.5 text-white" />
+                      )}
+                      반영하기
+                    </span>
+                    <span className="text-[11px] text-indigo-200 font-medium leading-none mt-1">
+                      (Publish & Apply)
+                    </span>
                   </button>
                 </div>
               </div>
 
               {/* Progress & Live Log Panel inside modal */}
-              {isPanelExpanded && logs.length > 0 && (
-                <div className="border border-slate-200/50 rounded-xl bg-slate-50/30 p-5 space-y-4 transition-all duration-300">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                      <Terminal className="h-4 w-4 text-slate-500" />
-                      <span>실시간 동기화 상태:</span>
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        errorMsg 
-                          ? 'bg-rose-50 text-rose-600 border border-rose-100' 
-                          : logs.some(l => l.step === 'COMPLETE')
-                            ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                            : 'bg-indigo-50 text-indigo-600 border border-indigo-100 animate-pulse'
+              <div className="border border-slate-200/50 rounded-xl bg-slate-50/40 p-5 flex flex-col flex-1 h-[370px] min-h-[370px] max-h-[370px] overflow-hidden justify-between space-y-4 shadow-sm/subtle">
+                <div className="flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-2.5 text-sm font-bold text-slate-700">
+                    <Terminal className="h-4 w-4 text-slate-500" />
+                    <span>실시간 동기화 상태:</span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${errorMsg
+                      ? 'bg-rose-50 text-rose-600 border border-rose-100'
+                      : logs.some(l => l.step === 'COMPLETE')
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                        : logs.length > 0
+                          ? 'bg-indigo-50 text-indigo-600 border border-indigo-100 animate-pulse'
+                          : 'bg-slate-100 text-slate-500 border border-slate-200'
                       }`}>
-                        {errorMsg 
-                          ? '실패 (Failed)' 
-                          : logs.some(l => l.step === 'COMPLETE')
-                            ? '완료 (Complete)'
-                            : currentAction === 'validate' ? '검증 중...' : '배포 중...'}
-                      </span>
-                    </div>
-                    <button 
-                      onClick={() => setIsPanelExpanded(!isPanelExpanded)}
-                      className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 cursor-pointer font-medium"
-                    >
-                      {isPanelExpanded ? '로그 숨기기' : '로그 보이기'} {isPanelExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                    </button>
+                      {errorMsg
+                        ? '실패 (Failed)'
+                        : logs.some(l => l.step === 'COMPLETE')
+                          ? '완료 (Complete)'
+                          : logs.length > 0
+                            ? currentAction === 'validate' ? '검증 중...' : '배포 중...'
+                            : '대기 중 (Standby)'}
+                    </span>
                   </div>
-
-                  {/* Smooth Progress Bar */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center text-xs font-medium text-slate-500">
-                      <span>진행 상황</span>
-                      <span className="font-bold text-slate-700">{progress}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-100 border border-slate-200/20 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-500 ease-out ${
-                          errorMsg ? 'bg-rose-500' : 'bg-gradient-to-r from-indigo-500 to-blue-500'
-                        }`}
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Detailed step lists */}
-                  <div className="bg-white border border-slate-200/60 rounded-xl p-5 space-y-3.5 max-h-80 overflow-y-auto shadow-inner/sm">
-                    {logs.slice().reverse().map((log, idx) => (
-                      <LogItem key={log.step || idx} log={log} idx={idx} />
-                    ))}
-                  </div>
-
-                  {/* Failure Alert Box */}
-                  {errorMsg && (
-                    <div className="p-4 bg-rose-50/60 border border-rose-100 rounded-xl flex items-start gap-3 text-rose-900 shadow-sm">
-                      <AlertCircle className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
-                      <div>
-                        <h4 className="font-bold text-sm">작업 중 치명적인 에러가 발생했습니다:</h4>
-                        <p className="text-xs text-rose-700 mt-1.5 font-mono bg-white/60 p-2.5 rounded border border-rose-100/50 leading-relaxed">{errorMsg}</p>
-                      </div>
+                  {logs.length > 0 && (
+                    <div className="text-xs font-semibold text-slate-500">
+                      진행 상황: <span className="font-bold text-indigo-600">{progress}%</span>
                     </div>
                   )}
                 </div>
-              )}
+
+                {/* Progress Bar */}
+                <div className="w-full h-1.5 bg-slate-100 border border-slate-200/20 rounded-full overflow-hidden shrink-0">
+                  <div
+                    className={`h-full transition-all duration-500 ease-out ${errorMsg ? 'bg-rose-500' : 'bg-gradient-to-r from-indigo-500 to-blue-500'
+                      }`}
+                    style={{ width: `${logs.length > 0 ? progress : 0}%` }}
+                  />
+                </div>
+
+                {/* Log View Box */}
+                <div className="flex-1 min-h-[220px] h-[220px] max-h-[220px] overflow-hidden flex flex-col justify-between">
+                  {logs.length === 0 ? (
+                    <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 rounded-xl bg-white p-6 text-slate-400 text-center gap-2">
+                      <Terminal className="h-8 w-8 text-slate-300 animate-pulse" />
+                      <p className="text-xs font-bold text-slate-600 mt-1">실시간 로그 모니터링 콘솔 대기 중</p>
+                      <p className="text-[10px] text-slate-400 max-w-sm leading-relaxed">
+                        상단의 검증 또는 반영하기 버튼을 누르면 동기화 프로세스 및 분석 결과가 여기에 실시간 출력됩니다.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex-1 bg-white border border-slate-200/50 rounded-xl p-4.5 space-y-3.5 max-h-[220px] overflow-y-auto shadow-inner/sm">
+                      {logs.slice().reverse().map((log, idx) => (
+                        <LogItem key={log.step || idx} log={log} idx={idx} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Failure Alert Box */}
+                {errorMsg && (
+                  <div className="p-3 bg-rose-50/60 border border-rose-100 rounded-lg flex items-center gap-2.5 text-rose-900 shrink-0 shadow-sm/subtle">
+                    <AlertCircle className="h-4.5 w-4.5 text-rose-600 shrink-0" />
+                    <p className="text-xs font-mono text-rose-700 truncate flex-1 leading-none">
+                      <strong>에러 발생:</strong> {errorMsg}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </DialogContent>
         </Dialog>
@@ -483,7 +498,7 @@ export default function DictionaryPage() {
               </AlertDialogTitle>
               <AlertDialogDescription className="text-sm text-slate-500 leading-relaxed space-y-2">
                 <p className="font-semibold text-slate-800">
-                  진짜로 승인된 사전을 원격 Elasticsearch 클러스터 노드들에 영구 배포 및 반영하시겠습니까?
+                  승인된 사전을 원격 Elasticsearch 클러스터 노드들에 영구 배포 및 반영하시겠습니까?
                 </p>
                 <p>
                   이 작업은 실제 운영 환경에 실시간으로 즉시 동적 적용됩니다. 배포 시작 직전 기존 사전 파일들은 시분초 단위 타임스탬프(`backup/*_YYYYMMDD_HHMMSS.txt`)를 붙여 안전하게 백업 폴더로 저장됩니다.
@@ -494,11 +509,11 @@ export default function DictionaryPage() {
               <AlertDialogCancel className="w-full sm:w-auto px-4 py-2 text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-lg text-sm font-medium cursor-pointer transition-colors">
                 취소하기
               </AlertDialogCancel>
-              <AlertDialogAction 
+              <AlertDialogAction
                 onClick={() => {
                   setShowPublishConfirm(false);
                   startStream('publish');
-                }} 
+                }}
                 className="w-full sm:w-auto px-5 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg text-sm font-semibold cursor-pointer shadow-md transition-all duration-200 hover:shadow-lg"
               >
                 진행 및 반영하기
