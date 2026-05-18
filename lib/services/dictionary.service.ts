@@ -100,6 +100,24 @@ export class DictionaryService {
     if (!response.ok) throw new Error(result?.message || `Failed to delete dictionary entry`);
     return result;
   }
+
+  async validateStream(token: string): Promise<Response> {
+    return fetch(`${this.apiUrl}/app/dictionaries/validate/stream?token=${token}`, {
+      method: 'GET',
+      headers: {
+        accept: 'text/event-stream',
+      },
+    });
+  }
+
+  async publishStream(token: string): Promise<Response> {
+    return fetch(`${this.apiUrl}/app/dictionaries/publish/stream?token=${token}`, {
+      method: 'GET',
+      headers: {
+        accept: 'text/event-stream',
+      },
+    });
+  }
 }
 
 export const dictionaryService = new DictionaryService();
