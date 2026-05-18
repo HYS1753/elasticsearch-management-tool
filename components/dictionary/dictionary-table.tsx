@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Trash2, Edit, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, CheckCircle, XCircle, CloudLightning } from 'lucide-react';
 import { DictionaryDialog } from './dictionary-dialog';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -15,9 +15,11 @@ import type { DictionaryType, DictionaryEntity } from '@/types/dictionary';
 
 interface DictionaryTableProps {
   type: DictionaryType;
+  onDeployOpen?: () => void;
+  isAdmin?: boolean;
 }
 
-export function DictionaryTable({ type }: DictionaryTableProps) {
+export function DictionaryTable({ type, onDeployOpen, isAdmin }: DictionaryTableProps) {
   const [data, setData] = useState<DictionaryEntity[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -209,8 +211,18 @@ export function DictionaryTable({ type }: DictionaryTableProps) {
             </div>
             
             {canWrite && (
-              <div className="flex items-end">
-                <Button onClick={handleOpenAdd} className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl">
+              <div className="flex items-center gap-3">
+                {isAdmin && onDeployOpen && (
+                  <Button 
+                    onClick={onDeployOpen} 
+                    variant="outline" 
+                    className="border-indigo-200 text-indigo-600 hover:bg-indigo-50/50 hover:text-indigo-700 h-11 px-5 rounded-xl font-semibold shadow-sm hover:shadow transition-all duration-200"
+                  >
+                    <CloudLightning className="h-4 w-4 mr-2 text-indigo-500 animate-pulse" />
+                    Sync & Deploy (배포 및 검증)
+                  </Button>
+                )}
+                <Button onClick={handleOpenAdd} className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl font-semibold">
                   <Plus className="h-4 w-4 mr-2" /> Add Entry
                 </Button>
               </div>

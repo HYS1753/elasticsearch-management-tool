@@ -22,6 +22,13 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from '@/components/ui/alert-dialog';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog';
 
 const DICTIONARY_INFO = {
   user: {
@@ -157,8 +164,17 @@ export default function DictionaryPage() {
   const [currentAction, setCurrentAction] = useState<'validate' | 'publish' | null>(null);
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isPanelExpanded, setIsPanelExpanded] = useState(false);
+  const [isPanelExpanded, setIsPanelExpanded] = useState(true);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
+  const [isDeployDialogOpen, setIsDeployDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleCloseDialog = (open: boolean) => {
+    if (!open) {
+      setRefreshKey(prev => prev + 1);
+    }
+    setIsDeployDialogOpen(open);
+  };
 
   useEffect(() => {
     setUser(getUserInfoFromCookie());
@@ -262,29 +278,102 @@ export default function DictionaryPage() {
           </CardContent>
         </Card>
 
-        {/* ADMIN Sync & Deploy Manager Bar */}
-        {isAdmin && (
-          <Card className="border-slate-200/80 bg-gradient-to-br from-slate-50/40 via-white to-slate-50/30 hover:border-slate-300/80 hover:shadow-md transition-all duration-300 relative overflow-hidden rounded-xl shadow-sm">
-            {/* Decorative soft glow */}
-            <div className="absolute top-0 right-0 w-80 h-full bg-gradient-to-l from-indigo-500/5 to-transparent pointer-events-none" />
-            
-            <CardContent className="p-6 space-y-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex items-start gap-4">
-                  <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner">
-                    <CloudLightning className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                      사전 서버 동기화 및 검증 관리
-                      <span className="text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100/60 px-2.5 py-0.5 rounded-full uppercase tracking-wider">ADMIN ONLY</span>
-                    </h3>
-                    <p className="text-sm text-slate-500 mt-1">
-                      승인(APPROVED)된 사전 항목들을 Elasticsearch 원격 서버 노드들에 동기화하고 형태소 분석 유효성을 원격 검증합니다.
-                    </p>
-                  </div>
-                </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => setActiveTab(val as DictionaryType)}
+          className="w-full space-y-8"
+        >
+          <TabsList className="bg-slate-100/80 p-1 flex-wrap h-auto w-full justify-start gap-2">
+            {Object.entries(DICTIONARY_INFO).map(([key, info]) => {
+              const Icon = info.icon;
+              return (
+                <TabsTrigger 
+                  key={key} 
+                  value={key} 
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2 flex items-center gap-2"
+                >
+                  <Icon className="h-4 w-4" />
+                  {info.title}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
 
+          <div className="space-y-4">
+            <SectionHeading 
+              icon={DICTIONARY_INFO[activeTab].icon}
+              title={DICTIONARY_INFO[activeTab].title}
+              description={DICTIONARY_INFO[activeTab].description}
+            />
+
+            <TabsContent value="user" className="m-0 border-none p-0 outline-none">
+              <DictionaryTable 
+                key={`user_${refreshKey}`} 
+                type="user" 
+                isAdmin={isAdmin}
+                onDeployOpen={() => setIsDeployDialogOpen(true)}
+              />
+            </TabsContent>
+            <TabsContent value="decompound" className="m-0 border-none p-0 outline-none">
+              <DictionaryTable 
+                key={`decompound_${refreshKey}`} 
+                type="decompound" 
+                isAdmin={isAdmin}
+                onDeployOpen={() => setIsDeployDialogOpen(true)}
+              />
+            </TabsContent>
+            <TabsContent value="synonym" className="m-0 border-none p-0 outline-none">
+              <DictionaryTable 
+                key={`synonym_${refreshKey}`} 
+                type="synonym" 
+                isAdmin={isAdmin}
+                onDeployOpen={() => setIsDeployDialogOpen(true)}
+              />
+            </TabsContent>
+            <TabsContent value="correction" className="m-0 border-none p-0 outline-none">
+              <DictionaryTable 
+                key={`correction_${refreshKey}`} 
+                type="correction" 
+                isAdmin={isAdmin}
+                onDeployOpen={() => setIsDeployDialogOpen(true)}
+              />
+            </TabsContent>
+            <TabsContent value="stopword" className="m-0 border-none p-0 outline-none">
+              <DictionaryTable 
+                key={`stopword_${refreshKey}`} 
+                type="stopword" 
+                isAdmin={isAdmin}
+                onDeployOpen={() => setIsDeployDialogOpen(true)}
+              />
+            </TabsContent>
+          </div>
+        </Tabs>
+
+        {/* Sync & Deploy Center Popup Layer Dialog */}
+        <Dialog open={isDeployDialogOpen} onOpenChange={handleCloseDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200/80 rounded-2xl shadow-2xl p-6">
+            <DialogHeader className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner animate-in spin-in-12 duration-500">
+                  <CloudLightning className="h-5 w-5 animate-pulse" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    사전 동기화 및 원격 검증 센터
+                    <span className="text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100/60 px-2.5 py-0.5 rounded-full uppercase tracking-wider">ADMIN ONLY</span>
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-slate-400 font-medium">
+                    원격 Elasticsearch 클러스터 노드군을 대상으로 실시간 배포 및 분석 타당성을 모니터링합니다.
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <div className="space-y-6 mt-4">
+              <div className="p-4 bg-slate-50/60 border border-slate-200/50 rounded-xl flex items-center justify-between">
+                <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-lg">
+                  승인(APPROVED)된 사전 항목들을 Elasticsearch 원격 서버 노드들에 동기화하거나 원본 훼손 없이 형태소 분석 분석기를 가상 시뮬레이션하여 검증합니다.
+                </p>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => startStream('validate')}
@@ -314,7 +403,7 @@ export default function DictionaryPage() {
                 </div>
               </div>
 
-              {/* Progress & Live Log Panel */}
+              {/* Progress & Live Log Panel inside modal */}
               {isPanelExpanded && logs.length > 0 && (
                 <div className="border border-slate-200/50 rounded-xl bg-slate-50/30 p-5 space-y-4 transition-all duration-300">
                   <div className="flex items-center justify-between">
@@ -359,8 +448,8 @@ export default function DictionaryPage() {
                     </div>
                   </div>
 
-                  {/* Detailed step lists - reverse ordered for immediate top visibility */}
-                  <div className="bg-white border border-slate-200/60 rounded-xl p-5 space-y-3.5 max-h-96 overflow-y-auto shadow-inner/sm">
+                  {/* Detailed step lists */}
+                  <div className="bg-white border border-slate-200/60 rounded-xl p-5 space-y-3.5 max-h-80 overflow-y-auto shadow-inner/sm">
                     {logs.slice().reverse().map((log, idx) => (
                       <LogItem key={log.step || idx} log={log} idx={idx} />
                     ))}
@@ -378,55 +467,9 @@ export default function DictionaryPage() {
                   )}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        )}
-
-        <Tabs
-          value={activeTab}
-          onValueChange={(val) => setActiveTab(val as DictionaryType)}
-          className="w-full space-y-8"
-        >
-          <TabsList className="bg-slate-100/80 p-1 flex-wrap h-auto w-full justify-start gap-2">
-            {Object.entries(DICTIONARY_INFO).map(([key, info]) => {
-              const Icon = info.icon;
-              return (
-                <TabsTrigger 
-                  key={key} 
-                  value={key} 
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2 flex items-center gap-2"
-                >
-                  <Icon className="h-4 w-4" />
-                  {info.title}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-
-          <div className="space-y-4">
-            <SectionHeading 
-              icon={DICTIONARY_INFO[activeTab].icon}
-              title={DICTIONARY_INFO[activeTab].title}
-              description={DICTIONARY_INFO[activeTab].description}
-            />
-
-            <TabsContent value="user" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable type="user" />
-            </TabsContent>
-            <TabsContent value="decompound" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable type="decompound" />
-            </TabsContent>
-            <TabsContent value="synonym" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable type="synonym" />
-            </TabsContent>
-            <TabsContent value="correction" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable type="correction" />
-            </TabsContent>
-            <TabsContent value="stopword" className="m-0 border-none p-0 outline-none">
-              <DictionaryTable type="stopword" />
-            </TabsContent>
-          </div>
-        </Tabs>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Publish Confirmation Dialog */}
         <AlertDialog open={showPublishConfirm} onOpenChange={setShowPublishConfirm}>
