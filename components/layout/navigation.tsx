@@ -7,7 +7,7 @@ import { Network, Settings2, FileText, SearchCode, BookOpen, BarChart3 } from 'l
 
 const navItems = [
   { href: '/cluster-information', label: 'Cluster Info', icon: Network },
-  { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+  { href: '/cluster-dashboard', label: 'Cluster Dashboard', icon: BarChart3 },
   { href: '/indices-management', label: 'Indices Management', icon: Settings2 },
   { href: '/documents', label: 'Documents', icon: FileText },
   //{ href: '/boosting', label: 'Category Boosting', icon: TrendingUp },
@@ -17,7 +17,7 @@ const navItems = [
 
 export function Navigation() {
   const pathname = usePathname();
-  
+
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);

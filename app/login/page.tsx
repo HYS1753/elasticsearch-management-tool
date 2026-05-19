@@ -95,7 +95,7 @@ export default function LoginPage() {
               {['Cluster Monitoring', 'Index Management', 'Dictionary Config', 'Document Explorer'].map((feature) => (
                 <span
                   key={feature}
-                  className="px-4 py-2 rounded-full text-sm font-medium text-white/70 bg-white dark:bg-slate-950/5 border border-white/10 backdrop-blur-sm"
+                  className="px-4 py-2 rounded-full text-sm font-medium text-white/70 bg-white/10 dark:bg-slate-950/20 border border-white/10 backdrop-blur-sm"
                 >
                   {feature}
                 </span>

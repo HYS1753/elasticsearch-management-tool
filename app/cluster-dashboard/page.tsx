@@ -119,7 +119,7 @@ export default function DashboardPage() {
   // ── Initial fetch & refetch on timeRange or applied custom range change ──
   useEffect(() => {
     const hasTimeRangeChanged = prevTimeRangeRef.current !== timeRange;
-    
+
     if (hasTimeRangeChanged) {
       // Delay actual network call to let 400ms transition complete smoothly
       const timer = setTimeout(() => {
@@ -128,7 +128,7 @@ export default function DashboardPage() {
       prevTimeRangeRef.current = timeRange;
       return () => clearTimeout(timer);
     }
-    
+
     prevTimeRangeRef.current = timeRange;
     fetchAllData();
   }, [fetchAllData, timeRange, appliedCustomStart, appliedCustomEnd]);
@@ -149,10 +149,10 @@ export default function DashboardPage() {
   const healthColor = healthStatus === 'green'
     ? 'bg-emerald-500'
     : healthStatus === 'yellow'
-    ? 'bg-amber-500'
-    : healthStatus === 'red'
-    ? 'bg-rose-500'
-    : 'bg-slate-400';
+      ? 'bg-amber-500'
+      : healthStatus === 'red'
+        ? 'bg-rose-500'
+        : 'bg-slate-400';
 
   if (error) {
     return <ErrorDisplay error={error} onRetry={() => fetchAllData()} />;
@@ -164,7 +164,7 @@ export default function DashboardPage() {
 
         {/* ── Page Header ── */}
         <PageHeader
-          title="Dashboard"
+          title="Cluster Dashboard"
           description="Elasticsearch cluster metrics powered by Prometheus — real-time and historical views"
           actions={
             <div className="flex items-center gap-3">
@@ -175,7 +175,7 @@ export default function DashboardPage() {
                   {healthStatus}
                 </span>
               </div>
-              
+
               <TimeRangeSelector
                 value={timeRange}
                 onChange={handleTimeRangeChange}
@@ -187,8 +187,8 @@ export default function DashboardPage() {
                   setShowDatePicker(false);
                 }}
               />
-              
-              <div 
+
+              <div
                 className="flex items-center overflow-hidden"
                 style={{
                   maxWidth: timeRange === 'custom' ? '0px' : '230px',
