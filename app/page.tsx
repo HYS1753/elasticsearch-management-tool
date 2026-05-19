@@ -57,7 +57,7 @@ export default function Home() {
               <p className="text-sm text-slate-600 mb-4 leading-relaxed">
                 Cluster Info 탭에서 현재 클러스터의 건강 상태, 노드 정보, 리소스 사용량을 실시간으로 확인하세요.
               </p>
-              <Link href="/cluster">
+              <Link href="/cluster-information">
                 <Button variant="outline" size="sm" className="w-full gap-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50">
                   클러스터 보기 <ArrowRight className="h-3 w-3" />
                 </Button>
@@ -73,7 +73,7 @@ export default function Home() {
               <p className="text-sm text-slate-600 mb-4 leading-relaxed">
                 Indices 탭에서 새로운 인덱스를 생성하고, 기존 인덱스의 상태를 확인하며, 샤드 정보를 관리하세요.
               </p>
-              <Link href="/indices">
+              <Link href="/indices-management">
                 <Button variant="outline" size="sm" className="w-full gap-2 border-slate-200 hover:border-purple-300 hover:bg-purple-50">
                   인덱스 관리 <ArrowRight className="h-3 w-3" />
                 </Button>
