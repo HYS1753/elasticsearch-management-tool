@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -157,6 +157,38 @@ export default function DictionaryPage() {
   const [activeTab, setActiveTab] = useState<DictionaryType>('user');
   const [user, setUser] = useState<{ user_id: string; name: string; role: string } | null>(null);
 
+  const tabKeys: DictionaryType[] = ['user', 'decompound', 'synonym', 'correction', 'stopword'];
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [indicatorStyle, setIndicatorStyle] = useState<{
+    width: number;
+    left: number;
+    opacity: number;
+  }>({ width: 0, left: 0, opacity: 0 });
+
+  useEffect(() => {
+    const updateIndicator = () => {
+      const activeIndex = tabKeys.indexOf(activeTab);
+      if (activeIndex !== -1 && tabRefs.current[activeIndex]) {
+        const activeElement = tabRefs.current[activeIndex];
+        if (activeElement) {
+          setIndicatorStyle({
+            width: activeElement.offsetWidth,
+            left: activeElement.offsetLeft,
+            opacity: 1,
+          });
+        }
+      }
+    };
+    updateIndicator();
+    const timer = setTimeout(updateIndicator, 100);
+
+    window.addEventListener('resize', updateIndicator);
+    return () => {
+      window.removeEventListener('resize', updateIndicator);
+      clearTimeout(timer);
+    };
+  }, [activeTab]);
+
   // Streaming State
   const [logs, setLogs] = useState<LogStep[]>([]);
   const [isRunning, setIsRunning] = useState(false);
@@ -294,17 +326,55 @@ export default function DictionaryPage() {
           onValueChange={(val) => setActiveTab(val as DictionaryType)}
           className="w-full space-y-8"
         >
-          <TabsList className="bg-slate-100/80 dark:bg-slate-900/80 p-1 flex-wrap h-auto w-full justify-start gap-2">
-            {Object.entries(DICTIONARY_INFO).map(([key, info]) => {
+          <TabsList className="relative bg-slate-50/60 dark:bg-slate-900/40 backdrop-blur-md p-2 flex-wrap h-auto w-full justify-start gap-2 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm/subtle">
+            {/* Sliding liquid crystal indicator */}
+            <div
+              className="absolute pointer-events-none rounded-xl transition-all duration-500 ease-out h-[40px] bg-gradient-to-br from-white/90 to-slate-50/95 dark:from-slate-800/80 dark:to-slate-900/90 shadow-[0_3px_12px_rgba(148,163,184,0.15),0_1px_3px_rgba(148,163,184,0.18),inset_0_1px_2px_rgba(255,255,255,0.95)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md border border-slate-400/30 dark:border-slate-700"
+              style={{
+                width: indicatorStyle.width,
+                left: indicatorStyle.left,
+                opacity: indicatorStyle.opacity,
+                top: '8px',
+              }}
+            >
+              {/* Liquid droplet inner glow */}
+              <div
+                className="absolute inset-0 rounded-xl pointer-events-none bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.95)_0%,rgba(255,255,255,0.35)_40%,transparent_70%)] dark:bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.15)_0%,transparent_70%)]"
+              />
+              <div
+                className="absolute inset-0 rounded-xl pointer-events-none bg-[radial-gradient(ellipse_at_70%_80%,rgba(148,163,184,0.08)_0%,transparent_50%)] dark:bg-[radial-gradient(ellipse_at_70%_80%,rgba(255,255,255,0.04)_0%,transparent_50%)]"
+              />
+            </div>
+
+            {Object.entries(DICTIONARY_INFO).map(([key, info], index) => {
               const Icon = info.icon;
+              const active = activeTab === key;
               return (
                 <TabsTrigger
                   key={key}
                   value={key}
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm px-4 py-2 flex items-center gap-2"
+                  ref={(el) => {
+                    tabRefs.current[index] = el;
+                  }}
+                  className={`
+                    group relative z-10 px-5 py-2.5 flex items-center gap-2 rounded-xl text-sm font-semibold transition-all duration-300 border-0 bg-transparent shadow-none!
+                    data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:!border-transparent
+                    ${active
+                      ? 'text-slate-900 dark:text-slate-50'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200'
+                    }
+                  `}
                 >
-                  <Icon className="h-4 w-4" />
-                  {info.title}
+                  {/* Hover effect for non-active items */}
+                  {!active && (
+                    <div
+                      className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 bg-gradient-to-br from-slate-400/[0.04] to-slate-400/[0.08] dark:from-white/[0.03] dark:to-white/[0.05] transition-opacity duration-300 pointer-events-none"
+                    />
+                  )}
+                  <Icon className={`h-4 w-4 relative z-10 transition-all duration-300 ${active ? 'scale-110' : 'group-hover:scale-105'}`} />
+                  <span className="relative z-10 transition-all duration-300">
+                    {info.title}
+                  </span>
                 </TabsTrigger>
               );
             })}
