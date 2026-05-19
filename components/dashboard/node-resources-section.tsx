@@ -153,8 +153,7 @@ function renderAreaChart(
               fill={`url(#grad-${idx})`}
               strokeWidth={1.5}
               dot={false}
-              animationDuration={800}
-              animationEasing="ease-out"
+              isAnimationActive={false}
             />
           );
         })}

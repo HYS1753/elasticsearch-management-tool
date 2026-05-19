@@ -41,26 +41,54 @@ export class MetricsService {
     return this.fetchMetrics<ClusterOverviewResponse>('/cluster-overview');
   }
 
-  async getNodeResources(timeRange: TimeRange = '1h', step?: string): Promise<NodeResourcesResponse> {
+  async getNodeResources(
+    timeRange: TimeRange = '1h',
+    start?: string,
+    end?: string,
+    step?: string
+  ): Promise<NodeResourcesResponse> {
     const params: Record<string, string> = { time_range: timeRange };
+    if (start) params.start = start;
+    if (end) params.end = end;
     if (step) params.step = step;
     return this.fetchMetrics<NodeResourcesResponse>('/node-resources', params);
   }
 
-  async getSearchPerformance(timeRange: TimeRange = '1h', step?: string): Promise<SearchPerformanceResponse> {
+  async getSearchPerformance(
+    timeRange: TimeRange = '1h',
+    start?: string,
+    end?: string,
+    step?: string
+  ): Promise<SearchPerformanceResponse> {
     const params: Record<string, string> = { time_range: timeRange };
+    if (start) params.start = start;
+    if (end) params.end = end;
     if (step) params.step = step;
     return this.fetchMetrics<SearchPerformanceResponse>('/search-performance', params);
   }
 
-  async getIndexingPerformance(timeRange: TimeRange = '1h', step?: string): Promise<IndexingPerformanceResponse> {
+  async getIndexingPerformance(
+    timeRange: TimeRange = '1h',
+    start?: string,
+    end?: string,
+    step?: string
+  ): Promise<IndexingPerformanceResponse> {
     const params: Record<string, string> = { time_range: timeRange };
+    if (start) params.start = start;
+    if (end) params.end = end;
     if (step) params.step = step;
     return this.fetchMetrics<IndexingPerformanceResponse>('/indexing-performance', params);
   }
 
-  async getCacheThreadPool(timeRange: TimeRange = '1h', step?: string): Promise<CacheThreadPoolResponse> {
+  async getCacheThreadPool(
+    timeRange: TimeRange = '1h',
+    start?: string,
+    end?: string,
+    step?: string
+  ): Promise<CacheThreadPoolResponse> {
     const params: Record<string, string> = { time_range: timeRange };
+    if (start) params.start = start;
+    if (end) params.end = end;
     if (step) params.step = step;
     return this.fetchMetrics<CacheThreadPoolResponse>('/cache-threadpool', params);
   }

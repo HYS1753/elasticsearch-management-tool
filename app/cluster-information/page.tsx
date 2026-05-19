@@ -17,6 +17,7 @@ import { useAutoRefresh } from '@/hooks/use-auto-refresh';
 import { fetchIndicesPlacement } from '@/lib/client-api/indices';
 import { GridView } from '@/components/indices/grid-view';
 import { ShardDialog } from '@/components/indices/shard-dialog';
+import { useAnimatedCounter } from '@/hooks/use-animated-counter';
 import type { ClusterStatus, NodeStatus } from '@/types';
 import type { IndicesPlacementResponse } from '@/types/indices-placement';
 
@@ -36,6 +37,289 @@ function getHealthTextColor(status: string) {
     return 'text-amber-500';
   }
   return 'text-rose-600';
+}
+
+function AnimatedValue({ value, duration = 800, formatter = (v: number) => v.toString() }: { 
+  value: number; 
+  duration?: number;
+  formatter?: (v: number) => string;
+}) {
+  const animated = useAnimatedCounter(value, duration);
+  return <>{formatter(animated)}</>;
+}
+
+interface NodeStatusCardProps {
+  node: NodeStatus;
+}
+
+function NodeStatusCard({ node }: NodeStatusCardProps) {
+  const visibleRoles = node.roles.slice(0, 2);
+  const hiddenRoles = node.roles.slice(2);
+  const hasMoreRoles = hiddenRoles.length > 0;
+
+  // Animating values (Slowed down to 1.5s for smoother, more premium motion)
+  const cpuPercent = useAnimatedCounter(node.stats.os_cpu_percent, 1500);
+  const fsUsedPercent = useAnimatedCounter(node.stats.fs_used_percent, 1500);
+  const osMemUsedPercent = useAnimatedCounter(node.stats.os_mem_used_percent, 1500);
+  const jvmHeapUsedPercent = useAnimatedCounter(node.stats.jvm_heap_used_percent, 1500);
+  const searchActive = useAnimatedCounter(node.stats.search_active, 1500);
+  const indexingPressurePercent = useAnimatedCounter(node.stats.indexing_pressure_percent, 1500);
+
+  return (
+    <div key={node.id} className="border border-slate-100 dark:border-slate-800 rounded-lg p-4 bg-white dark:bg-slate-950 shadow-sm flex-1 flex flex-col justify-between">
+      
+      {/* Upper Metadata Row: Master Slot & Roles perfectly aligned */}
+      <div className="flex items-center justify-between flex-wrap gap-2 pb-3">
+        
+        {/* Left aligned elements with w-[65px] master badge slot, NO divider after Info icon */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <span className="font-bold text-slate-900 dark:text-slate-50 text-sm md:text-base select-none">{node.name}</span>
+          
+          {/* Prominent tooltip i SVG with enlarged text details (text-xs) */}
+          <span className="group relative cursor-pointer flex items-center">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 hover:text-indigo-650 transition-colors"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+            <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 font-sans leading-normal">
+              <div className="font-bold border-b border-slate-100 dark:border-slate-800 pb-1.5 mb-1.5 text-sm text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Server className="h-4 w-4 text-indigo-500" />
+                Node Info Metadata
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between"><span className="text-slate-400 font-semibold">Node ID</span><span className="font-bold text-slate-800 dark:text-slate-200 font-mono truncate max-w-[130px]" title={node.id}>{node.id}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400 font-semibold">Host IP</span><span className="font-bold text-slate-800 dark:text-slate-200 font-mono">{node.host}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400 font-semibold">Transport</span><span className="font-bold text-slate-800 dark:text-slate-200 font-mono">{node.transport}</span></div>
+              </div>
+            </span>
+          </span>
+
+          {/* Master Badge slot (always occupies w-[65px] for uniform alignment, no prior divider) */}
+          <div className="min-w-[65px] flex items-center justify-start select-none">
+            {node.is_master_node ? (
+              <Badge variant="default" className="text-[10px] px-2 py-0.5 bg-blue-600 hover:bg-blue-600 text-white font-bold leading-normal">Master</Badge>
+            ) : (
+              <span className="text-transparent select-none text-xs">-</span>
+            )}
+          </div>
+
+          {/* Divider | before roles */}
+          <span className="text-slate-300 font-light select-none text-sm">|</span>
+
+          {/* Roles: Label & gray badges with perfect center alignment for +N */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 select-none">Roles:</span>
+            {visibleRoles.map((role, idx) => (
+               <Badge 
+                key={idx} 
+                variant="secondary" 
+                className="text-[10px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border-none select-none"
+              >
+                {role}
+              </Badge>
+            ))}
+            {hasMoreRoles && (
+              <span className="group relative flex items-center">
+                <Badge 
+                  variant="secondary" 
+                  className="text-[10px] px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold border-none cursor-pointer select-none"
+                >
+                  +{hiddenRoles.length}
+                </Badge>
+                <span className="absolute left-0 top-full mt-1.5 w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded shadow-lg p-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
+                  <span className="flex flex-wrap gap-1">
+                    {hiddenRoles.map((role, idx) => (
+                      <Badge 
+                        key={idx} 
+                        variant="secondary" 
+                        className="text-[9px] px-1 py-0 bg-slate-100 dark:bg-slate-800 text-slate-750 dark:text-slate-300"
+                      >
+                        {role}
+                      </Badge>
+                    ))}
+                  </span>
+                </span>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Right aligned: Documents Count - Text Size comfy text-xs */}
+        <div className="text-xs text-slate-500 dark:text-slate-400 font-bold bg-slate-50 dark:bg-slate-900 px-2.5 py-0.5 rounded border border-slate-150 flex items-center gap-1 select-none">
+          <span className="text-slate-400 font-medium">Docs:</span>
+          <span className="text-slate-800 dark:text-slate-200">
+            <AnimatedValue value={node.stats.docs_count} formatter={formatNumber} />
+          </span>
+        </div>
+
+      </div>
+
+      {/* Lower Resource Grid - 3 Columns inside Node resource bars */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+        
+        {/* CPU */}
+        <div>
+          <div className="flex items-center justify-between text-xs mb-0.5">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">CPU</span>
+            <span className="group relative">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+              <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
+                CPU 사용률입니다.<br />Current: {node.stats.os_cpu_percent}%<br />1m avg: {node.stats.os_cpu_load_average_1m}
+              </span>
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{cpuPercent}%</span>
+            <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full transition-all duration-350" 
+                style={{ 
+                  width: `${cpuPercent}%`, 
+                  background: getBarColor(node.stats.os_cpu_percent),
+                  transformOrigin: 'left',
+                  animation: 'growWidth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Storage */}
+        <div>
+          <div className="flex items-center justify-between text-xs mb-0.5">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">Storage</span>
+            <span className="group relative">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+              <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
+                디스크 사용률입니다.<br />Used: {node.stats.fs_used}<br />Total: {node.stats.fs_total}
+              </span>
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{fsUsedPercent}%</span>
+            <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full transition-all duration-350" 
+                style={{ 
+                  width: `${fsUsedPercent}%`, 
+                  background: getBarColor(node.stats.fs_used_percent),
+                  transformOrigin: 'left',
+                  animation: 'growWidth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Memory */}
+        <div>
+          <div className="flex items-center justify-between text-xs mb-0.5">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">Memory</span>
+            <span className="group relative">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+              <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
+                시스템 메모리 점유율.<br />Used: {node.stats.os_mem_used}<br />Total: {node.stats.os_mem_total}
+              </span>
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{osMemUsedPercent}%</span>
+            <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full transition-all duration-350" 
+                style={{ 
+                  width: `${osMemUsedPercent}%`, 
+                  background: getBarColor(node.stats.os_mem_used_percent),
+                  transformOrigin: 'left',
+                  animation: 'growWidth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* JVM Heap */}
+        <div>
+          <div className="flex items-center justify-between text-xs mb-0.5">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">JVM Heap</span>
+            <span className="group relative">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+              <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
+                JVM Heap 점유율입니다.<br />Used: {node.stats.jvm_heap_used}<br />Max: {node.stats.jvm_heap_max}
+              </span>
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{jvmHeapUsedPercent}%</span>
+            <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full transition-all duration-350" 
+                style={{ 
+                  width: `${jvmHeapUsedPercent}%`, 
+                  background: getBarColor(node.stats.jvm_heap_used_percent),
+                  transformOrigin: 'left',
+                  animation: 'growWidth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Search Active */}
+        <div>
+          <div className="flex items-center justify-between text-xs mb-0.5">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">Search Active</span>
+            <span className="group relative">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+              <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
+                현재 활성화된 검색 스레드 작업 수입니다.<br />Active: {node.stats.search_active}<br />Queue: {node.stats.search_queue}
+              </span>
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{searchActive}</span>
+            <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full transition-all duration-350" 
+                style={{ 
+                  width: `${Math.min(node.stats.search_active * 10, 100)}%`, 
+                  background: getBarColor(Math.min(node.stats.search_active * 10, 100)),
+                  transformOrigin: 'left',
+                  animation: 'growWidth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Indexing Pressure */}
+        <div>
+          <div className="flex items-center justify-between text-xs mb-0.5">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">Indexing Pressure</span>
+            <span className="group relative">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
+              <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
+                인덱싱 압력(메모리 기준)입니다.<br />Used: {node.stats.indexing_pressure_percent}%<br />Limit: {node.stats.indexing_limit}
+              </span>
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{indexingPressurePercent}%</span>
+            <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full transition-all duration-350" 
+                style={{ 
+                  width: `${indexingPressurePercent}%`, 
+                  background: getBarColor(node.stats.indexing_pressure_percent),
+                  transformOrigin: 'left',
+                  animation: 'growWidth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  );
 }
 
 export default function ClusterPage() {
@@ -96,7 +380,7 @@ export default function ClusterPage() {
     }
   }, [includeHiddenIndex, includeClosedIndex]);
 
-  const { isAutoRefreshing, refreshProgress } = useAutoRefresh(refreshInterval, () => fetchData(false));
+  const { isAutoRefreshing, resetKey, resetTimer } = useAutoRefresh(refreshInterval, () => fetchData(false));
 
   useEffect(() => {
     fetchData();
@@ -126,10 +410,14 @@ export default function ClusterPage() {
     indices: gridData.indices.filter(idx => idx.index.toLowerCase().includes(searchTerm.toLowerCase()))
   } : null;
 
-
-
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
+      <style>{`
+        @keyframes growWidth {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
+        }
+      `}</style>
       <div className="container mx-auto px-6 py-8 space-y-8">
         
         {/* Page Header */}
@@ -140,9 +428,12 @@ export default function ClusterPage() {
             <RefreshControls
               refreshInterval={refreshInterval}
               onRefreshIntervalChange={setRefreshInterval}
-              onRefresh={() => fetchData()}
+              onRefresh={() => {
+                resetTimer();
+                fetchData();
+              }}
               isAutoRefreshing={isAutoRefreshing}
-              refreshProgress={refreshProgress}
+              resetKey={resetKey}
               loading={loading}
             />
           }
@@ -186,18 +477,20 @@ export default function ClusterPage() {
                   <div className="flex justify-between text-sm font-medium text-slate-500 dark:text-slate-400">
                     <span>Topology</span>
                     <span className="text-slate-800 dark:text-slate-200 font-bold text-right">
-                      {clusterStatus.number_of_nodes} Nodes ({clusterStatus.number_of_data_nodes} Data)
+                      <AnimatedValue value={clusterStatus.number_of_nodes} /> Nodes (<AnimatedValue value={clusterStatus.number_of_data_nodes} /> Data)
                     </span>
                   </div>
                   <div className="flex justify-between text-sm font-medium text-slate-500 dark:text-slate-400">
                     <span>Active Shards</span>
                     <span className="text-slate-800 dark:text-slate-200 font-bold text-right">
-                      {formatNumber(clusterStatus.active_shards)} ({clusterStatus.active_shards_percent_as_number.toFixed(1)}%)
+                      <AnimatedValue value={clusterStatus.active_shards} formatter={formatNumber} /> (<AnimatedValue value={Math.round(clusterStatus.active_shards_percent_as_number * 10)} formatter={v => (v / 10).toFixed(1)} />%)
                     </span>
                   </div>
                   <div className="flex justify-between text-sm font-medium text-slate-500 dark:text-slate-400">
                     <span>Total Docs</span>
-                    <span className="text-slate-800 dark:text-slate-200 font-bold text-right">{formatNumber(totalDocs)}</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-bold text-right">
+                      <AnimatedValue value={totalDocs} formatter={formatNumber} />
+                    </span>
                   </div>
                 </div>
 
@@ -206,27 +499,39 @@ export default function ClusterPage() {
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="p-2 border border-slate-100 dark:border-slate-800 rounded bg-white dark:bg-slate-950 hover:bg-slate-50/50 dark:bg-slate-900/50 transition-colors">
                       <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Relocating</span>
-                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.relocating_shards > 0 ? 'text-blue-600' : 'text-slate-700 dark:text-slate-300'}`}>{clusterStatus.relocating_shards}</span>
+                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.relocating_shards > 0 ? 'text-blue-600' : 'text-slate-700 dark:text-slate-300'}`}>
+                        <AnimatedValue value={clusterStatus.relocating_shards} />
+                      </span>
                     </div>
                     <div className="p-2 border border-slate-100 dark:border-slate-800 rounded bg-white dark:bg-slate-950 hover:bg-slate-50/50 dark:bg-slate-900/50 transition-colors">
                       <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Initializing</span>
-                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.initializing_shards > 0 ? 'text-amber-500' : 'text-slate-700 dark:text-slate-300'}`}>{clusterStatus.initializing_shards}</span>
+                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.initializing_shards > 0 ? 'text-amber-500' : 'text-slate-700 dark:text-slate-300'}`}>
+                        <AnimatedValue value={clusterStatus.initializing_shards} />
+                      </span>
                     </div>
                     <div className="p-2 border border-slate-100 dark:border-slate-800 rounded bg-white dark:bg-slate-950 hover:bg-slate-50/50 dark:bg-slate-900/50 transition-colors">
                       <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Unassigned</span>
-                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.unassigned_shards > 0 ? 'text-rose-600' : 'text-slate-700 dark:text-slate-300'}`}>{clusterStatus.unassigned_shards}</span>
+                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.unassigned_shards > 0 ? 'text-rose-600' : 'text-slate-700 dark:text-slate-300'}`}>
+                        <AnimatedValue value={clusterStatus.unassigned_shards} />
+                      </span>
                     </div>
                     <div className="p-2 border border-slate-100 dark:border-slate-800 rounded bg-white dark:bg-slate-950 hover:bg-slate-50/50 dark:bg-slate-900/50 transition-colors">
                       <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Pending</span>
-                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.number_of_pending_tasks > 0 ? 'text-indigo-600' : 'text-slate-700 dark:text-slate-300'}`}>{clusterStatus.number_of_pending_tasks}</span>
+                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.number_of_pending_tasks > 0 ? 'text-indigo-600' : 'text-slate-700 dark:text-slate-300'}`}>
+                        <AnimatedValue value={clusterStatus.number_of_pending_tasks} />
+                      </span>
                     </div>
                     <div className="p-2 border border-slate-100 dark:border-slate-800 rounded bg-white dark:bg-slate-950 hover:bg-slate-50/50 dark:bg-slate-900/50 transition-colors">
                       <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">In-Flight</span>
-                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.number_of_in_flight_fetch > 0 ? 'text-purple-600' : 'text-slate-700 dark:text-slate-300'}`}>{clusterStatus.number_of_in_flight_fetch}</span>
+                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.number_of_in_flight_fetch > 0 ? 'text-purple-600' : 'text-slate-700 dark:text-slate-300'}`}>
+                        <AnimatedValue value={clusterStatus.number_of_in_flight_fetch} />
+                      </span>
                     </div>
                     <div className="p-2 border border-slate-100 dark:border-slate-800 rounded bg-white dark:bg-slate-950 hover:bg-slate-50/50 dark:bg-slate-900/50 transition-colors">
                       <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Delayed</span>
-                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.delayed_unassigned_shards > 0 ? 'text-amber-600' : 'text-slate-700 dark:text-slate-300'}`}>{clusterStatus.delayed_unassigned_shards}</span>
+                      <span className={`text-sm font-extrabold block mt-0.5 ${clusterStatus.delayed_unassigned_shards > 0 ? 'text-amber-600' : 'text-slate-700 dark:text-slate-300'}`}>
+                        <AnimatedValue value={clusterStatus.delayed_unassigned_shards} />
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -252,217 +557,9 @@ export default function ClusterPage() {
               <Card className="border-slate-200/60 shadow-sm flex-1 bg-white dark:bg-slate-950 flex flex-col justify-between">
                 <CardContent className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   
-                  {nodes.map((node) => {
-                    const visibleRoles = node.roles.slice(0, 2);
-                    const hiddenRoles = node.roles.slice(2);
-                    const hasMoreRoles = hiddenRoles.length > 0;
-
-                    return (
-                      <div key={node.id} className="border border-slate-100 dark:border-slate-800 rounded-lg p-4 bg-white dark:bg-slate-950 shadow-sm flex-1 flex flex-col justify-between">
-                        
-                        {/* Upper Metadata Row: Master Slot & Roles perfectly aligned */}
-                        <div className="flex items-center justify-between flex-wrap gap-2 pb-3">
-                          
-                          {/* Left aligned elements with w-[65px] master badge slot, NO divider after Info icon */}
-                          <div className="flex items-center gap-2.5 flex-wrap">
-                            <span className="font-bold text-slate-900 dark:text-slate-50 text-sm md:text-base select-none">{node.name}</span>
-                            
-                            {/* Prominent tooltip i SVG with enlarged text details (text-xs) */}
-                            <span className="group relative cursor-pointer flex items-center">
-                              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 hover:text-indigo-650 transition-colors"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 font-sans leading-normal">
-                                <div className="font-bold border-b border-slate-100 dark:border-slate-800 pb-1.5 mb-1.5 text-sm text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                                  <Server className="h-4 w-4 text-indigo-500" />
-                                  Node Info Metadata
-                                </div>
-                                <div className="space-y-1.5">
-                                  <div className="flex justify-between"><span className="text-slate-400 font-semibold">Node ID</span><span className="font-bold text-slate-800 dark:text-slate-200 font-mono truncate max-w-[130px]" title={node.id}>{node.id}</span></div>
-                                  <div className="flex justify-between"><span className="text-slate-400 font-semibold">Host IP</span><span className="font-bold text-slate-800 dark:text-slate-200 font-mono">{node.host}</span></div>
-                                  <div className="flex justify-between"><span className="text-slate-400 font-semibold">Transport</span><span className="font-bold text-slate-800 dark:text-slate-200 font-mono">{node.transport}</span></div>
-                                </div>
-                              </span>
-                            </span>
-
-                            {/* Master Badge slot (always occupies w-[65px] for uniform alignment, no prior divider) */}
-                            <div className="min-w-[65px] flex items-center justify-start select-none">
-                              {node.is_master_node ? (
-                                <Badge variant="default" className="text-[10px] px-2 py-0.5 bg-blue-600 hover:bg-blue-600 text-white font-bold leading-normal">Master</Badge>
-                              ) : (
-                                <span className="text-transparent select-none text-xs">-</span>
-                              )}
-                            </div>
-
-                            {/* Divider | before roles */}
-                            <span className="text-slate-300 font-light select-none text-sm">|</span>
-
-                            {/* Roles: Label & gray badges with perfect center alignment for +N */}
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 select-none">Roles:</span>
-                              {visibleRoles.map((role, idx) => (
-                                 <Badge 
-                                  key={idx} 
-                                  variant="secondary" 
-                                  className="text-[10px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border-none select-none"
-                                >
-                                  {role}
-                                </Badge>
-                              ))}
-                              {hasMoreRoles && (
-                                <span className="group relative flex items-center">
-                                  <Badge 
-                                    variant="secondary" 
-                                    className="text-[10px] px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold border-none cursor-pointer select-none"
-                                  >
-                                    +{hiddenRoles.length}
-                                  </Badge>
-                                  <span className="absolute left-0 top-full mt-1.5 w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded shadow-lg p-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
-                                    <span className="flex flex-wrap gap-1">
-                                      {hiddenRoles.map((role, idx) => (
-                                        <Badge 
-                                          key={idx} 
-                                          variant="secondary" 
-                                          className="text-[9px] px-1 py-0 bg-slate-100 dark:bg-slate-800 text-slate-750 dark:text-slate-300"
-                                        >
-                                          {role}
-                                        </Badge>
-                                      ))}
-                                    </span>
-                                  </span>
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Right aligned: Documents Count - Text Size comfy text-xs */}
-                          <div className="text-xs text-slate-500 dark:text-slate-400 font-bold bg-slate-50 dark:bg-slate-900 px-2.5 py-0.5 rounded border border-slate-150 flex items-center gap-1 select-none">
-                            <span className="text-slate-400 font-medium">Docs:</span>
-                            <span className="text-slate-800 dark:text-slate-200">{node.stats.docs_count.toLocaleString()}</span>
-                          </div>
-
-                        </div>
-
-                        {/* Lower Resource Grid - 3 Columns inside Node resource bars */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-                          
-                          {/* CPU - No extra bold, font-medium, readable text-xs, enlarged tooltip (text-xs) */}
-                          <div>
-                            <div className="flex items-center justify-between text-xs mb-0.5">
-                              <span className="text-slate-500 dark:text-slate-400 font-medium">CPU</span>
-                              <span className="group relative">
-                                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                                <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
-                                  CPU 사용률입니다.<br />Current: {node.stats.os_cpu_percent}%<br />1m avg: {node.stats.os_cpu_load_average_1m}
-                                </span>
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{node.stats.os_cpu_percent}%</span>
-                              <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full transition-all duration-350" style={{ width: `${node.stats.os_cpu_percent}%`, background: getBarColor(node.stats.os_cpu_percent) }} />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Storage - No extra bold */}
-                          <div>
-                            <div className="flex items-center justify-between text-xs mb-0.5">
-                              <span className="text-slate-500 dark:text-slate-400 font-medium">Storage</span>
-                              <span className="group relative">
-                                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                                <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
-                                  디스크 사용률입니다.<br />Used: {node.stats.fs_used}<br />Total: {node.stats.fs_total}
-                                </span>
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{node.stats.fs_used_percent}%</span>
-                              <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full transition-all duration-350" style={{ width: `${node.stats.fs_used_percent}%`, background: getBarColor(node.stats.fs_used_percent) }} />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Memory - No extra bold */}
-                          <div>
-                            <div className="flex items-center justify-between text-xs mb-0.5">
-                              <span className="text-slate-500 dark:text-slate-400 font-medium">Memory</span>
-                              <span className="group relative">
-                                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                                <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
-                                  시스템 메모리 점유율.<br />Used: {node.stats.os_mem_used}<br />Total: {node.stats.os_mem_total}
-                                </span>
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{node.stats.os_mem_used_percent}%</span>
-                              <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full transition-all duration-350" style={{ width: `${node.stats.os_mem_used_percent}%`, background: getBarColor(node.stats.os_mem_used_percent) }} />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* JVM Heap - No extra bold */}
-                          <div>
-                            <div className="flex items-center justify-between text-xs mb-0.5">
-                              <span className="text-slate-500 dark:text-slate-400 font-medium">JVM Heap</span>
-                              <span className="group relative">
-                                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                                <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
-                                  JVM Heap 점유율입니다.<br />Used: {node.stats.jvm_heap_used}<br />Max: {node.stats.jvm_heap_max}
-                                </span>
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{node.stats.jvm_heap_used_percent}%</span>
-                              <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full transition-all duration-350" style={{ width: `${node.stats.jvm_heap_used_percent}%`, background: getBarColor(node.stats.jvm_heap_used_percent) }} />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Search Active - No extra bold */}
-                          <div>
-                            <div className="flex items-center justify-between text-xs mb-0.5">
-                              <span className="text-slate-500 dark:text-slate-400 font-medium">Search Active</span>
-                              <span className="group relative">
-                                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                                <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
-                                  현재 활성화된 검색 스레드 작업 수입니다.<br />Active: {node.stats.search_active}<br />Queue: {node.stats.search_queue}
-                                </span>
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{node.stats.search_active}</span>
-                              <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full transition-all duration-350" style={{ width: `${Math.min(node.stats.search_active * 10, 100)}%`, background: getBarColor(Math.min(node.stats.search_active * 10, 100)) }} />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Indexing Pressure - No extra bold */}
-                          <div>
-                            <div className="flex items-center justify-between text-xs mb-0.5">
-                              <span className="text-slate-500 dark:text-slate-400 font-medium">Indexing Pressure</span>
-                              <span className="group relative">
-                                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-slate-400 cursor-pointer"><circle cx="12" cy="12" r="10" strokeWidth="2" /><text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">i</text></svg>
-                                <span className="absolute right-0 bottom-full mb-1.5 w-56 bg-white dark:bg-slate-950 border border-slate-250 rounded shadow-lg text-xs text-slate-700 dark:text-slate-300 p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-normal">
-                                  인덱싱 압력(메모리 기준)입니다.<br />Used: {node.stats.indexing_pressure_percent}%<br />Limit: {node.stats.indexing_limit}
-                                </span>
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-semibold text-xs text-slate-700 dark:text-slate-300 w-9 text-right">{node.stats.indexing_pressure_percent}%</span>
-                              <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full transition-all duration-350" style={{ width: `${node.stats.indexing_pressure_percent}%`, background: getBarColor(node.stats.indexing_pressure_percent) }} />
-                              </div>
-                            </div>
-                          </div>
-
-                        </div>
-
-                      </div>
-                    );
-                  })}
+                  {nodes.map((node) => (
+                    <NodeStatusCard key={node.id} node={node} />
+                  ))}
 
                 </CardContent>
               </Card>

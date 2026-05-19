@@ -15,7 +15,7 @@ interface RefreshControlsProps {
   onRefreshIntervalChange: (interval: RefreshInterval) => void;
   onRefresh: () => void;
   isAutoRefreshing: boolean;
-  refreshProgress: number;
+  resetKey: number;
   loading?: boolean;
 }
 
@@ -24,7 +24,7 @@ export function RefreshControls({
   onRefreshIntervalChange,
   onRefresh,
   isAutoRefreshing,
-  refreshProgress,
+  resetKey,
   loading = false,
 }: RefreshControlsProps) {
   return (
@@ -55,14 +55,25 @@ export function RefreshControls({
         onClick={onRefresh} 
         variant="outline" 
         className="gap-2 border-slate-200 dark:border-slate-800 relative overflow-hidden" 
-        disabled={isAutoRefreshing}
+        disabled={loading}
       >
         {/* Progress background */}
         {isAutoRefreshing && (
-          <div 
-            className="absolute inset-0 bg-slate-300 transition-all duration-75 ease-linear"
-            style={{ width: `${refreshProgress}%`, left: 0 }}
-          />
+          <>
+            <style>{`
+              @keyframes progressBar {
+                from { width: 0%; }
+                to { width: 100%; }
+              }
+            `}</style>
+            <div 
+              key={resetKey}
+              className="absolute inset-0 bg-indigo-50 dark:bg-indigo-950/45 pointer-events-none origin-left left-0 top-0 bottom-0"
+              style={{ 
+                animation: `progressBar ${refreshInterval}s linear forwards`
+              }}
+            />
+          </>
         )}
         {/* Button content */}
         <span className="relative z-10 flex items-center gap-2">

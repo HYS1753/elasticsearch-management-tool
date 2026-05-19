@@ -95,7 +95,7 @@ function renderAreaChart(seriesList: MetricSeries[], valueFormatter?: (v: number
         <Tooltip content={<ChartTooltip valueFormatter={valueFormatter} />} />
         <Legend wrapperStyle={{ fontSize: 10, paddingTop: 4 }} iconType="circle" iconSize={6} />
         {nodeNames.map((name, idx) => (
-          <Area key={name} type="monotone" dataKey={name} stroke={NODE_COLORS[idx % NODE_COLORS.length].stroke} fill={`url(#ct-grad-${idx})`} strokeWidth={1.5} dot={false} animationDuration={800} animationEasing="ease-out" />
+          <Area key={name} type="monotone" dataKey={name} stroke={NODE_COLORS[idx % NODE_COLORS.length].stroke} fill={`url(#ct-grad-${idx})`} strokeWidth={1.5} dot={false} isAnimationActive={false} />
         ))}
       </AreaChart>
     </ResponsiveContainer>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { PageHeader } from '@/components/common/page-header';
 import { RefreshControls } from '@/components/common/refresh-controls';
 import { ErrorDisplay } from '@/components/common/error-display';
@@ -30,6 +30,11 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // ── Custom Date Range States ──
+  const [appliedCustomStart, setAppliedCustomStart] = useState<string>('');
+  const [appliedCustomEnd, setAppliedCustomEnd] = useState<string>('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   // ── Data ──
   const [clusterOverview, setClusterOverview] = useState<ClusterOverviewResponse | null>(null);
   const [nodeResources, setNodeResources] = useState<NodeResourcesResponse | null>(null);
@@ -38,13 +43,29 @@ export default function DashboardPage() {
   const [cacheThreadPool, setCacheThreadPool] = useState<CacheThreadPoolResponse | null>(null);
   const [storageOverview, setStorageOverview] = useState<StorageOverviewResponse | null>(null);
 
+  // ── Prev Time Range Tracking for delayed fetching during transitions ──
+  const prevTimeRangeRef = useRef<TimeRange>(timeRange);
+
   // ── Fetch ──
   const fetchAllData = useCallback(async (showLoading = true) => {
+    if (timeRange === 'custom') {
+      const startVal = appliedCustomStart;
+      const endVal = appliedCustomEnd;
+      if (!startVal || !endVal) return;
+    }
+
     if (showLoading) setLoading(true);
     setError(null);
 
     try {
-      const timeParam = `time_range=${timeRange}`;
+      let timeParam = `time_range=${timeRange}`;
+      if (timeRange === 'custom') {
+        const startVal = appliedCustomStart;
+        const endVal = appliedCustomEnd;
+        const startISO = new Date(startVal).toISOString();
+        const endISO = new Date(endVal).toISOString();
+        timeParam = `time_range=custom&start=${encodeURIComponent(startISO)}&end=${encodeURIComponent(endISO)}`;
+      }
 
       const [
         clusterRes,
@@ -91,15 +112,37 @@ export default function DashboardPage() {
     } finally {
       if (showLoading) setLoading(false);
     }
-  }, [timeRange]);
+  }, [timeRange, appliedCustomStart, appliedCustomEnd]);
 
-  // ── Auto-refresh ──
-  const { isAutoRefreshing, refreshProgress } = useAutoRefresh(refreshInterval, () => fetchAllData(false));
+  const { isAutoRefreshing, resetKey, resetTimer } = useAutoRefresh(refreshInterval, () => fetchAllData(false));
 
-  // ── Initial fetch & refetch on timeRange change ──
+  // ── Initial fetch & refetch on timeRange or applied custom range change ──
   useEffect(() => {
+    const hasTimeRangeChanged = prevTimeRangeRef.current !== timeRange;
+    
+    if (hasTimeRangeChanged) {
+      // Delay actual network call to let 400ms transition complete smoothly
+      const timer = setTimeout(() => {
+        fetchAllData();
+      }, 400);
+      prevTimeRangeRef.current = timeRange;
+      return () => clearTimeout(timer);
+    }
+    
+    prevTimeRangeRef.current = timeRange;
     fetchAllData();
-  }, [fetchAllData]);
+  }, [fetchAllData, timeRange, appliedCustomStart, appliedCustomEnd]);
+
+  const handleTimeRangeChange = (newRange: TimeRange) => {
+    setTimeRange(newRange);
+    if (newRange === 'custom') {
+      setShowDatePicker(true);
+    } else {
+      setShowDatePicker(false);
+      setAppliedCustomStart('');
+      setAppliedCustomEnd('');
+    }
+  };
 
   // ── Cluster health status for header badge ──
   const healthStatus = clusterOverview?.health?.status || 'unknown';
@@ -132,15 +175,41 @@ export default function DashboardPage() {
                   {healthStatus}
                 </span>
               </div>
-              <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
-              <RefreshControls
-                refreshInterval={refreshInterval}
-                onRefreshIntervalChange={setRefreshInterval}
-                onRefresh={() => fetchAllData()}
-                isAutoRefreshing={isAutoRefreshing}
-                refreshProgress={refreshProgress}
-                loading={loading}
+              
+              <TimeRangeSelector
+                value={timeRange}
+                onChange={handleTimeRangeChange}
+                appliedCustomStart={appliedCustomStart}
+                appliedCustomEnd={appliedCustomEnd}
+                onDatePickerApply={(startISO, endISO) => {
+                  setAppliedCustomStart(startISO);
+                  setAppliedCustomEnd(endISO);
+                  setShowDatePicker(false);
+                }}
               />
+              
+              <div 
+                className="flex items-center overflow-hidden"
+                style={{
+                  maxWidth: timeRange === 'custom' ? '0px' : '230px',
+                  opacity: timeRange === 'custom' ? 0 : 1,
+                  marginLeft: timeRange === 'custom' ? '-12px' : '0px',
+                  transition: 'max-width 400ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease-out, margin-left 400ms cubic-bezier(0.16, 1, 0.3, 1)',
+                  pointerEvents: timeRange === 'custom' ? 'none' : 'auto'
+                }}
+              >
+                <RefreshControls
+                  refreshInterval={refreshInterval}
+                  onRefreshIntervalChange={setRefreshInterval}
+                  onRefresh={() => {
+                    resetTimer();
+                    fetchAllData();
+                  }}
+                  isAutoRefreshing={isAutoRefreshing}
+                  resetKey={resetKey}
+                  loading={loading}
+                />
+              </div>
             </div>
           }
         />

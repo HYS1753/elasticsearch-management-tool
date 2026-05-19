@@ -87,4 +87,4 @@ export interface StorageOverviewResponse {
 
 // ── Time Range ──
 
-export type TimeRange = '15m' | '1h' | '6h' | '24h' | '7d';
+export type TimeRange = '15m' | '1h' | '6h' | '24h' | '7d' | 'custom';
