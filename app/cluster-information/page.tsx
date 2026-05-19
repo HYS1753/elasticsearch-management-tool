@@ -8,21 +8,17 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Activity, Server, HardDrive, CheckCircle2, Boxes, Hexagon, Grid3x3, List, Search } from 'lucide-react';
+import { Activity, Server, HardDrive, CheckCircle2, Boxes, Hexagon, Grid3x3, Search } from 'lucide-react';
 import { formatBytes, formatNumber, getHealthColor } from '@/lib/utils';
 import { PageHeader } from '@/components/common/page-header';
 import { RefreshControls, RefreshInterval } from '@/components/common/refresh-controls';
 import { ErrorDisplay } from '@/components/common/error-display';
 import { useAutoRefresh } from '@/hooks/use-auto-refresh';
-import { fetchIndicesPlacement, fetchIndicesList } from '@/lib/client-api/indices';
+import { fetchIndicesPlacement } from '@/lib/client-api/indices';
 import { GridView } from '@/components/indices/grid-view';
-import { ListView } from '@/components/indices/list-view';
 import { ShardDialog } from '@/components/indices/shard-dialog';
 import type { ClusterStatus, NodeStatus } from '@/types';
 import type { IndicesPlacementResponse } from '@/types/indices-placement';
-import type { IndexListItem } from '@/types/indices-list';
-
-type ViewMode = 'grid' | 'list';
 
 function getBarColor(percent: number) {
   if (percent < 60) return '#2ECC71'; // Green
@@ -46,13 +42,11 @@ export default function ClusterPage() {
   const [clusterStatus, setClusterStatus] = useState<ClusterStatus | null>(null);
   const [nodeStatus, setNodeStatus] = useState<NodeStatus[] | null>(null);
   const [gridData, setGridData] = useState<IndicesPlacementResponse['data'] | null>(null);
-  const [listData, setListData] = useState<IndexListItem[] | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshInterval, setRefreshInterval] = useState<RefreshInterval>('manual');
   
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [includeHiddenIndex, setIncludeHiddenIndex] = useState(false);
   const [includeClosedIndex, setIncludeClosedIndex] = useState(false);
   const [selectedShard, setSelectedShard] = useState<any>(null);
@@ -63,21 +57,19 @@ export default function ClusterPage() {
     if (showLoading) setLoading(true);
     setError(null);
     try {
-      const [clusterStateRes, nodeStatusRes, indicesPlacementRes, indicesListRes] = await Promise.all([
+      const [clusterStateRes, nodeStatusRes, indicesPlacementRes] = await Promise.all([
         fetch('/api/cluster/cluster-status'),
         fetch('/api/cluster/node-status'),
         fetch(`/api/indices/indices-placement?include_hidden_index=${includeHiddenIndex}&include_closed_index=${includeClosedIndex}`),
-        fetch(`/api/indices/list?include_hidden_index=${includeHiddenIndex}&include_closed_index=${includeClosedIndex}`),
       ]);
 
-      if (!clusterStateRes.ok || !nodeStatusRes.ok || !indicesPlacementRes.ok || !indicesListRes.ok) {
+      if (!clusterStateRes.ok || !nodeStatusRes.ok || !indicesPlacementRes.ok) {
         throw new Error('Failed to retrieve Elasticsearch cluster status and statistics');
       }
 
       const clusterStateData = await clusterStateRes.json();
       const nodeStatusData = await nodeStatusRes.json();
       const indicesPlacementData = await indicesPlacementRes.json();
-      const indicesListData = await indicesListRes.json();
 
       if (clusterStateData) {
         setClusterStatus(clusterStateData);
@@ -95,12 +87,6 @@ export default function ClusterPage() {
         setGridData(indicesPlacementData.data);
       } else {
         throw new Error(indicesPlacementData.message || 'Failed to retrieve indices placement');
-      }
-
-      if (indicesListData.code === '200') {
-        setListData(indicesListData.data.indices);
-      } else {
-        throw new Error(indicesListData.message || 'Failed to retrieve indices list');
       }
     } catch (err: any) {
       console.error(err);
@@ -140,7 +126,7 @@ export default function ClusterPage() {
     indices: gridData.indices.filter(idx => idx.index.toLowerCase().includes(searchTerm.toLowerCase()))
   } : null;
 
-  const filteredListData = listData ? listData.filter(idx => idx.index.toLowerCase().includes(searchTerm.toLowerCase())) : null;
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -488,79 +474,42 @@ export default function ClusterPage() {
         {/* Bottom Section: Shard Allocation Grid & Indices Inventory Map (Full Width 100%) */}
         <div className="space-y-4 pt-6 border-t border-slate-100">
           
-          {/* Refined two-row layout: Title & Controls harmonized in Line 1, right-aligned Filters & borderless Switches in Line 2 */}
-          <div className="flex flex-col gap-4 border-b border-slate-200 pb-4">
+          {/* Unified Shard allocation grid layout: Title & Description on the Left, Legend & Controls on the Right */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
             
-            {/* Line 1: Title & Description (Left) / Shard Legend & View Switcher with expanded gap-8 (Right) */}
-            <div className="flex flex-wrap items-center justify-between gap-4 w-full">
-              
-              {/* Left aligned: Title & Description */}
-              <div className="flex flex-col justify-center">
-                <div className="flex items-center gap-2">
-                  {viewMode === 'grid' ? (
-                    <Grid3x3 className="h-5 w-5 text-indigo-600" />
-                  ) : (
-                    <List className="h-5 w-5 text-indigo-600" />
-                  )}
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    {viewMode === 'grid' ? 'Shard Allocation Grid' : 'Indices Inventory'}
-                  </h2>
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {viewMode === 'grid'
-                    ? 'Interactive shard allocation topology across cluster nodes'
-                    : 'Full index details, sizing, docs, and health states'}
-                </p>
+            {/* Left side: Title & Description */}
+            <div className="flex flex-col justify-center">
+              <div className="flex items-center gap-2">
+                <Grid3x3 className="h-5 w-5 text-indigo-600" />
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Shard Allocation Grid
+                </h2>
               </div>
-
-              {/* Right aligned: Shard Legend & Grid/List Toggle Switcher side by side with expanded gap-8 for readability */}
-              <div className="flex items-center gap-8 select-none flex-wrap">
-                {viewMode === 'grid' && (
-                  <div className="flex items-center gap-3 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mr-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded border border-solid border-green-600 bg-green-100"></div>
-                      <span>Primary</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded border border-dashed border-blue-600 bg-blue-100"></div>
-                      <span>Replica</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded border border-dashed border-amber-500 bg-amber-100"></div>
-                      <span>Unassigned</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Grid / List Switcher Button Group */}
-                <div className="flex items-center gap-1 border border-slate-200 rounded-md p-1 bg-white select-none">
-                  <Button
-                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setViewMode('grid')}
-                    className="gap-2 h-7 px-2.5 text-[11px] font-bold"
-                  >
-                    <Grid3x3 className="h-3.5 w-3.5" />
-                    Grid
-                  </Button>
-                  <Button
-                    variant={viewMode === 'list' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setViewMode('list')}
-                    className="gap-2 h-7 px-2.5 text-[11px] font-bold"
-                  >
-                    <List className="h-3.5 w-3.5" />
-                    List
-                  </Button>
-                </div>
-              </div>
-
+              <p className="text-xs text-slate-500 mt-0.5">
+                Interactive shard allocation topology across cluster nodes
+              </p>
             </div>
 
-            {/* Line 2: All Right-Aligned (justify-end) with generous gap-6 spacing. Order: Include hidden -> Include closed -> Filter */}
-            <div className="flex items-center justify-end gap-6 flex-wrap w-full pt-0.5 select-none">
+            {/* Right side: Legend and Controls aligned in a single line with gap-6 spacing */}
+            <div className="flex items-center gap-6 select-none flex-wrap">
               
-              {/* 1. Include hidden switch */}
+              {/* 1. Shard Legend (placed to the left of include hidden) */}
+              <div className="flex items-center gap-3 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mr-1.5">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded border border-solid border-green-600 bg-green-100"></div>
+                  <span>Primary</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded border border-dashed border-blue-600 bg-blue-100"></div>
+                  <span>Replica</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded border border-dashed border-amber-500 bg-amber-100"></div>
+                  <span>Unassigned</span>
+                </div>
+              </div>
+
+              {/* 2. Include hidden switch */}
               <div className="flex items-center space-x-1.5">
                 <Switch
                   checked={includeHiddenIndex}
@@ -572,7 +521,7 @@ export default function ClusterPage() {
                 </Label>
               </div>
 
-              {/* 2. Include closed switch */}
+              {/* 3. Include closed switch */}
               <div className="flex items-center space-x-1.5">
                 <Switch
                   checked={includeClosedIndex}
@@ -584,7 +533,7 @@ export default function ClusterPage() {
                 </Label>
               </div>
 
-              {/* 3. Search filter input (Rightmost of this group) */}
+              {/* 4. Search Filter Input */}
               <div className="relative w-56 sm:w-64">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                 <Input
@@ -607,12 +556,8 @@ export default function ClusterPage() {
                 <Skeleton className="h-72 w-full rounded-lg" />
               ) : (
                 <div className="transition-all duration-350">
-                  {viewMode === 'grid' && filteredGridData && (
+                  {filteredGridData && (
                     <GridView data={filteredGridData} setSelectedShard={setSelectedShard} />
-                  )}
-
-                  {viewMode === 'list' && filteredListData && (
-                    <ListView data={filteredListData} />
                   )}
                 </div>
               )}

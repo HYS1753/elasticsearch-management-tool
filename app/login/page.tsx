@@ -30,7 +30,7 @@ export default function LoginPage() {
 
       if (res.ok && data.success) {
         toast.success(`Welcome back, ${data.user?.name || userId}!`);
-        router.push('/cluster-information');
+        router.push('/');
         router.refresh();
       } else {
         toast.error(data.error || 'Invalid credentials. Please try again.');
@@ -45,22 +45,21 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel — Branding */}
-      <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900" />
-        
-        {/* Subtle Pattern Overlay */}
-        <div className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-            backgroundSize: '40px 40px',
-          }}
+      <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden bg-slate-950">
+        {/* Branding Background Image */}
+        <Image
+          src="/login_bg.png"
+          alt="Branding Background"
+          fill
+          priority
+          className="object-cover"
         />
-
-        {/* Floating Orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-2/3 left-1/3 w-64 h-64 bg-indigo-500/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        
+        {/* Sleek Dark Contrast Blur Overlay */}
+        <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[1.5px]" />
+        
+        {/* Subtle Vertical Depth Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/20" />
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Activity, FileText, BookOpen, TrendingUp, ArrowRight, Search, Plus, Eye, BarChart3, Database } from 'lucide-react';
+import { Activity, FileText, BookOpen, ArrowRight, Search, Plus, Eye, BarChart3, Database, SearchCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -8,116 +8,124 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-6 py-12 space-y-20">
+        
         {/* Hero Section */}
-        <div className="text-center space-y-6 py-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-xl mb-2">
+        <div className="text-left space-y-6 py-8 max-w-4xl">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-md border border-slate-100 mb-2">
             <Image 
               src="/es_logo.png" 
               alt="Elasticsearch Logo" 
               width={48} 
               height={48}
               className="object-contain"
+              priority
             />
           </div>
-          <h1 className="text-5xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-5xl font-bold text-slate-900 tracking-tight leading-[1.15]">
             Elasticsearch Management
           </h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            간편하고 직관적인 UI로 Elasticsearch 클러스터를 관리하세요
+          <p className="text-xl text-slate-600 max-w-3xl leading-relaxed">
+            간편하고 직관적인 UI로 Elasticsearch 클러스터 헬스 상태를 실시간 탐색하고, 복잡한 인덱스 속성 및 검색 사전을 무중단으로 신속하게 동기화 배포하세요.
           </p>
-          <div className="flex gap-3 justify-center items-center pt-2">
-            <Badge variant="outline" className="text-sm px-4 py-1.5 border-slate-200 text-slate-700">
-              실시간 모니터링
+          <div className="flex gap-3 justify-start items-center pt-2 select-none flex-wrap">
+            <Badge variant="outline" className="text-xs px-4 py-1.5 border-slate-200 text-slate-700 bg-white/80 shadow-sm">
+              실시간 클러스터 & 샤드 토폴로지
             </Badge>
-            <Badge variant="outline" className="text-sm px-4 py-1.5 border-slate-200 text-slate-700">
-              인덱스 관리
+            <Badge variant="outline" className="text-xs px-4 py-1.5 border-slate-200 text-slate-700 bg-white/80 shadow-sm">
+              인덱스 라이프사이클 관리
             </Badge>
-            <Badge variant="outline" className="text-sm px-4 py-1.5 border-slate-200 text-slate-700">
-              문서 검색
+            <Badge variant="outline" className="text-xs px-4 py-1.5 border-slate-200 text-slate-700 bg-white/80 shadow-sm">
+              실시간 검색 사전 노드 배포
+            </Badge>
+            <Badge variant="outline" className="text-xs px-4 py-1.5 border-slate-200 text-slate-700 bg-white/80 shadow-sm">
+              쿼리 실행계획 시각화
             </Badge>
           </div>
         </div>
 
         {/* Quick Start Guide */}
         <div className="space-y-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold text-slate-900">빠른 시작 가이드</h2>
-            <p className="text-slate-600">
-              Elasticsearch Management를 처음 사용하시나요? 아래 단계를 따라해보세요
+          <div className="text-left space-y-2 max-w-2xl">
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">빠른 시작 가이드</h2>
+            <p className="text-slate-600 text-sm">
+              Elasticsearch Management 대시보드를 처음 사용하시나요? 아래 3가지 단계로 기본 분석을 시작해 보세요.
             </p>
           </div>
           
-          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto pt-4">
-            <div className="group relative p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:shadow-blue-500/5 hover:border-blue-200/40 transition-all duration-300">
-              <div className="absolute -top-4 -left-4 flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-200 to-blue-300 text-white text-sm font-bold shadow-lg shadow-blue-400/20">
-                1
-              </div>
-              <Activity className="h-10 w-10 text-blue-600 mb-4 mt-2" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">클러스터 상태 확인</h3>
-              <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                Cluster Info 탭에서 현재 클러스터의 건강 상태, 노드 정보, 리소스 사용량을 실시간으로 확인하세요.
+          <div className="grid gap-8 md:grid-cols-3 max-w-7xl mr-auto pt-4">
+            
+            {/* Step 1 */}
+            <div className="group relative p-7 rounded-2xl border border-slate-200/60 bg-white hover:shadow-lg hover:shadow-blue-500/5 hover:border-blue-200/40 transition-all duration-300 flex flex-col h-full">
+              <Badge className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-0 font-bold text-[10px] w-fit mb-4 rounded-md px-2.5 py-0.5 select-none">
+                STEP 01
+              </Badge>
+              <Activity className="h-8 w-8 text-blue-600 mb-4" />
+              <h3 className="text-lg font-bold text-slate-900 mb-2">클러스터 및 샤드 배정 분석</h3>
+              <p className="text-sm text-slate-600 mb-5 leading-relaxed">
+                Cluster Info 탭에서 전체 클러스터 건강 상태(Health Status), 마스터 노드 여부 식별, 그리고 각 노드별 샤드 배정 그리드를 실시간으로 탐색할 수 있습니다. JVM 힙 할당량과 CPU 부하 지표도 함께 확인하세요.
               </p>
-              <Link href="/cluster-information">
-                <Button variant="outline" size="sm" className="w-full gap-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50">
-                  클러스터 보기 <ArrowRight className="h-3 w-3" />
-                </Button>
+              <Link href="/cluster-information" className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 group/link mt-auto pt-2 select-none">
+                클러스터 정보 바로가기 
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-1" />
               </Link>
             </div>
 
-            <div className="group relative p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:shadow-purple-500/5 hover:border-purple-200/40 transition-all duration-300">
-              <div className="absolute -top-4 -left-4 flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-purple-200 to-purple-300 text-white text-sm font-bold shadow-lg shadow-purple-400/20">
-                2
-              </div>
-              <Database className="h-10 w-10 text-purple-600 mb-4 mt-2" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">인덱스 생성 및 관리</h3>
-              <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                Indices 탭에서 새로운 인덱스를 생성하고, 기존 인덱스의 상태를 확인하며, 샤드 정보를 관리하세요.
+            {/* Step 2 */}
+            <div className="group relative p-7 rounded-2xl border border-slate-200/60 bg-white hover:shadow-lg hover:shadow-purple-500/5 hover:border-purple-200/40 transition-all duration-300 flex flex-col h-full">
+              <Badge className="bg-purple-50 hover:bg-purple-50 text-purple-700 border-0 font-bold text-[10px] w-fit mb-4 rounded-md px-2.5 py-0.5 select-none">
+                STEP 02
+              </Badge>
+              <Database className="h-8 w-8 text-purple-600 mb-4" />
+              <h3 className="text-lg font-bold text-slate-900 mb-2">인덱스 생성 및 템플릿 제어</h3>
+              <p className="text-sm text-slate-600 mb-5 leading-relaxed">
+                Indices Management 탭에서 간편한 UI로 신규 인덱스를 설정하고, 현재 매핑 구조 분석 및 샤드 개수 조정을 효율적으로 관리하세요. 복제본(Replica) 수를 즉시 변경하여 클러스터 백업 가용성을 제어합니다.
               </p>
-              <Link href="/indices-management">
-                <Button variant="outline" size="sm" className="w-full gap-2 border-slate-200 hover:border-purple-300 hover:bg-purple-50">
-                  인덱스 관리 <ArrowRight className="h-3 w-3" />
-                </Button>
+              <Link href="/indices-management" className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:text-purple-700 group/link mt-auto pt-2 select-none">
+                인덱스 관리 바로가기 
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-1" />
               </Link>
             </div>
 
-            <div className="group relative p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:shadow-green-500/5 hover:border-green-200/40 transition-all duration-300">
-              <div className="absolute -top-4 -left-4 flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-green-200 to-green-300 text-white text-sm font-bold shadow-lg shadow-green-400/20">
-                3
-              </div>
-              <FileText className="h-10 w-10 text-green-600 mb-4 mt-2" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">문서 검색 및 편집</h3>
-              <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                Documents 탭에서 저장된 문서를 검색하고, 새 문서를 추가하거나, 기존 문서를 수정 및 삭제하세요.
+            {/* Step 3 */}
+            <div className="group relative p-7 rounded-2xl border border-slate-200/60 bg-white hover:shadow-lg hover:shadow-orange-500/5 hover:border-orange-200/40 transition-all duration-300 flex flex-col h-full">
+              <Badge className="bg-orange-50 hover:bg-orange-50 text-orange-700 border-0 font-bold text-[10px] w-fit mb-4 rounded-md px-2.5 py-0.5 select-none">
+                STEP 03
+              </Badge>
+              <BookOpen className="h-8 w-8 text-orange-600 mb-4" />
+              <h3 className="text-lg font-bold text-slate-900 mb-2">검색 사전 관리 및 실시간 배포</h3>
+              <p className="text-sm text-slate-600 mb-5 leading-relaxed">
+                Dictionary 탭에서 검색 품질 향상을 위한 교정 규칙 및 복합명사 분해 규칙을 체계적으로 등록하고, 가동 중인 노드들에 무중단 실시간 배포하세요. API 정합성 검증으로 배포 전 완벽한 사전자료 검사 규칙을 지원합니다.
               </p>
-              <Link href="/documents">
-                <Button variant="outline" size="sm" className="w-full gap-2 border-slate-200 hover:border-green-300 hover:bg-green-50">
-                  문서 검색 <ArrowRight className="h-3 w-3" />
-                </Button>
+              <Link href="/dictionary" className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 hover:text-orange-700 group/link mt-auto pt-2 select-none">
+                검색 사전 바로가기 
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-1" />
               </Link>
             </div>
+
           </div>
         </div>
 
         {/* Features Section */}
         <div className="space-y-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold text-slate-900">주요 기능</h2>
-            <p className="text-slate-600">
-              Elasticsearch 클러스터 관리를 위한 강력한 기능들
+          <div className="text-left space-y-2 max-w-2xl">
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">주요 기능</h2>
+            <p className="text-slate-600 text-sm">
+              Elasticsearch 분산 환경 모니터링 및 검색 품질 최적화를 수행하기 위한 전문 도구 집합
             </p>
           </div>
           
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto pt-4">
-            {/* Cluster Info */}
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mr-auto pt-4">
+            
+            {/* 1. Cluster Info */}
             <div className="p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:shadow-blue-500/5 hover:border-blue-200/40 transition-all duration-300 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600">
                   <Activity className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">Cluster Info</h3>
+                <h3 className="text-lg font-bold text-slate-900">Cluster Info</h3>
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                클러스터 상태를 한눈에 파악하세요
+              <p className="text-sm text-slate-600 leading-relaxed font-semibold">
+                클러스터 건강 지표 수집 및 실시간 토폴로지 시각화
               </p>
               <div className="space-y-3 pt-2">
                 <div className="flex items-start gap-3">
@@ -125,9 +133,9 @@ export default function Home() {
                     <BarChart3 className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">실시간 헬스 체크</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">실시간 샤드 토폴로지 그리드</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      클러스터의 상태를 실시간으로 모니터링하고, 샤드 분산 현황을 확인할 수 있습니다.
+                      인덱스 패턴 검색 필터와 Hidden/Closed 포함 여부 스위치를 조합하여, 노드별 Primary/Replica/Unassigned 샤드 배치를 실시간 레이아웃 그리드로 즉시 시각화합니다.
                     </p>
                   </div>
                 </div>
@@ -136,25 +144,25 @@ export default function Home() {
                     <Activity className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">노드 리소스 사용량</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">상세 노드 하드웨어 지표</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      각 노드의 CPU, 메모리, 디스크 사용량을 확인하고 성능 병목 지점을 파악하세요.
+                      각 물리 노드의 Master 자격 유무 표시를 비롯해 CPU 로드 비율, 메모리(JVM Heap 사용량) 점유 지표, 물리 디스크 여유량 및 통계 데이터를 모니터링합니다.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Indices Management */}
+            {/* 2. Indices Management */}
             <div className="p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:shadow-purple-500/5 hover:border-purple-200/40 transition-all duration-300 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-purple-50 text-purple-600">
                   <Database className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">Indices Management</h3>
+                <h3 className="text-lg font-bold text-slate-900">Indices Management</h3>
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                인덱스를 효율적으로 관리하세요
+              <p className="text-sm text-slate-600 leading-relaxed font-semibold">
+                스키마 매핑 속성 통제 및 인덱스 생명주기 관리
               </p>
               <div className="space-y-3 pt-2">
                 <div className="flex items-start gap-3">
@@ -162,9 +170,9 @@ export default function Home() {
                     <Plus className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">인덱스 생성 및 설정</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">인덱스 생성 및 동적 구성 변경</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      샤드 개수, 레플리카 설정 등을 지정하여 새로운 인덱스를 쉽게 생성할 수 있습니다.
+                      초기 샤드 수, 레플리카 분제 개수, 인덱스 코덱 종류 등의 파라미터를 맞춤 구성하여 즉석에서 신규 인덱스를 생성하고 관리합니다.
                     </p>
                   </div>
                 </div>
@@ -173,25 +181,25 @@ export default function Home() {
                     <Eye className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">인덱스 상태 모니터링</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">매핑 스키마 및 별칭(Alias) 조회</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      각 인덱스의 건강 상태, 문서 수, 저장 용량, 샤드 분산 정보를 실시간으로 확인하세요.
+                      각 인덱스의 복잡한 JSON 매핑 필드 타입(Text, Keyword 등)과 등록된 모든 Alias 별칭 속성 목록을 안전하게 파싱해 줍니다.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Documents Management */}
+            {/* 3. Documents Explorer */}
             <div className="p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:shadow-green-500/5 hover:border-green-200/40 transition-all duration-300 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-green-50 text-green-600">
                   <FileText className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">Documents Management</h3>
+                <h3 className="text-lg font-bold text-slate-900">Documents</h3>
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                문서를 자유롭게 조회하고 관리하세요
+              <p className="text-sm text-slate-600 leading-relaxed font-semibold">
+                다차원 문서 인덱싱 탐색 및 안전한 CRUD 편집기
               </p>
               <div className="space-y-3 pt-2">
                 <div className="flex items-start gap-3">
@@ -199,9 +207,9 @@ export default function Home() {
                     <Search className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">강력한 문서 검색</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">정밀 텍스트 및 필터 검색</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      인덱스를 선택하고 키워드로 문서를 검색하여 원하는 데이터를 빠르게 찾을 수 있습니다.
+                      특정 인덱스를 지정하여 실시간 조건 검색 및 키워드 매칭 조회를 구동하고, 해당하는 원본 JSON 데이터 문서를 초고속으로 브라우징합니다.
                     </p>
                   </div>
                 </div>
@@ -210,25 +218,25 @@ export default function Home() {
                     <Plus className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">문서 추가 및 수정</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">실시간 JSON 문서 CRUD</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      JSON 형식으로 새로운 문서를 추가하거나, 기존 문서를 수정 및 삭제할 수 있습니다.
+                      구조화된 JSON 템플릿 양식을 바탕으로 인덱스 내부에 신규 문서를 안전하게 삽입하거나, 기존 문서 데이터를 실시간 업데이트 및 삭제 통제할 수 있습니다.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Dictionary Management */}
+            {/* 4. Dictionary Management */}
             <div className="p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:shadow-orange-500/5 hover:border-orange-200/40 transition-all duration-300 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-orange-50 text-orange-600">
                   <BookOpen className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">Dictionary Management</h3>
+                <h3 className="text-lg font-bold text-slate-900">Dictionary</h3>
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                검색 사전을 관리하여 검색 품질을 향상하세요
+              <p className="text-sm text-slate-600 leading-relaxed font-semibold">
+                검색 교정/복합명사 분해 사전 및 원클릭 무중단 배포
               </p>
               <div className="space-y-3 pt-2">
                 <div className="flex items-start gap-3">
@@ -236,65 +244,67 @@ export default function Home() {
                     <BookOpen className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">동의어 사전 관리</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">교정 & 복합어 다차원 사전 관리</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      동의어 사전을 추가하고 관리하여 다양한 표현의 검색어를 처리할 수 있습니다.
+                      단어 교정 규칙(Correction 배열)과 복합어 분해(Decompound 단일 토큰 배열) 규칙의 등록/유효성 체크 단계를 웹 콘솔에서 체계적으로 관리합니다.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex-shrink-0 mt-0.5">
-                    <FileText className="h-4 w-4" />
+                    <Activity className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">불용어 사전 관리</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">무중단 실시간 노드 동기화 배포</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      검색에서 제외할 불용어를 설정하여 검색 결과의 품질을 높일 수 있습니다.
+                      사전 정보를 갱신한 직후, 인스턴스 노드를 다시 기동할 필요 없이 실행 중인 모든 노드에 원클릭 명령으로 사전을 실시간 라이브 적용합니다.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Category Boosting */}
-            <div className="p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:shadow-pink-500/5 hover:border-pink-200/40 transition-all duration-300 space-y-4">
+            {/* 5. Query Explain */}
+            <div className="p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/30 hover:shadow-lg hover:shadow-indigo-500/5 hover:border-indigo-200/40 transition-all duration-300 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-pink-50 text-pink-600">
-                  <TrendingUp className="h-6 w-6" />
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600">
+                  <SearchCode className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">Category Boosting</h3>
+                <h3 className="text-lg font-bold text-slate-900">Query Explain</h3>
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                카테고리별 가중치를 설정하세요
+              <p className="text-sm text-slate-600 leading-relaxed font-semibold">
+                검색 매칭 스코어 연산 상세 트리 해석기
               </p>
               <div className="space-y-3 pt-2">
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex-shrink-0 mt-0.5">
-                    <TrendingUp className="h-4 w-4" />
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex-shrink-0 mt-0.5">
+                    <SearchCode className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">검색 우선순위 설정</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">검색 쿼리 유사도 가중치 역추적</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      특정 카테고리의 검색 결과에 가중치를 부여하여 검색 정확도를 높이세요.
+                      작성한 Elasticsearch 검색 쿼리가 구동하여 특정 문서를 매칭했을 때 점수(Score)가 부과되는 전체 수학적 연산 과정을 구조화 트리 형태로 파싱해 줍니다.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex-shrink-0 mt-0.5">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex-shrink-0 mt-0.5">
                     <BarChart3 className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">부스팅 효과 분석</h4>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">검색 노이즈 및 가중치 버그 디버깅</h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      설정한 부스팅의 효과를 분석하고 최적의 가중치 값을 찾을 수 있습니다.
+                      원치 않는 노이즈 필터링이 발생했거나 가중치가 잘못된 경우, 명확한 트리 룰 근거를 시각적으로 추적하여 쿼리 필터를 고도화할 수 있습니다.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
+
       </div>
-     </div> 
+    </div>
   );
 }
