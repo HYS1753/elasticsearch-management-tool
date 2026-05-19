@@ -72,9 +72,9 @@ function SectionHeading({
     <div className="mb-6">
       <div className="flex items-center gap-2">
         <Icon className="h-5 w-5 text-indigo-600" />
-        <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">{title}</h2>
       </div>
-      <p className="mt-1 ml-7 text-sm text-slate-600">{description}</p>
+      <p className="mt-1 ml-7 text-sm text-slate-600 dark:text-slate-400">{description}</p>
     </div>
   );
 }
@@ -94,11 +94,11 @@ function LogItem({ log, idx }: { log: LogStep; idx: number }) {
 
   return (
     <div
-      className="flex flex-col gap-2 py-3 border-b border-slate-100 last:border-0 transition-all duration-300 animate-in fade-in slide-in-from-top-3 duration-500 ease-out"
+      className="flex flex-col gap-2 py-3 border-b border-slate-100 dark:border-slate-800 last:border-0 transition-all duration-300 animate-in fade-in slide-in-from-top-3 duration-500 ease-out"
       style={{ animationDelay: `${Math.min(idx * 40, 200)}ms` }}
     >
       <div
-        className={`flex items-center gap-3 cursor-pointer group rounded-lg p-2 -m-2 transition-colors duration-200 ${log.details ? 'hover:bg-slate-50/80' : 'cursor-default'
+        className={`flex items-center gap-3 cursor-pointer group rounded-lg p-2 -m-2 transition-colors duration-200 ${log.details ? 'hover:bg-slate-50/80 dark:bg-slate-900/80' : 'cursor-default'
           }`}
         onClick={() => log.details && setIsOpen(!isOpen)}
       >
@@ -118,7 +118,7 @@ function LogItem({ log, idx }: { log: LogStep; idx: number }) {
 
         <div className="flex-1 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <p className={`text-sm font-semibold ${isRunningStep ? 'text-indigo-600 animate-pulse' : isSuccessStep ? 'text-slate-800 font-medium' : 'text-rose-600'
+            <p className={`text-sm font-semibold ${isRunningStep ? 'text-indigo-600 animate-pulse' : isSuccessStep ? 'text-slate-800 dark:text-slate-200 font-medium' : 'text-rose-600'
               }`}>
               {log.message}
             </p>
@@ -144,7 +144,7 @@ function LogItem({ log, idx }: { log: LogStep; idx: number }) {
       {/* Accordion detail view */}
       {log.details && isOpen && (
         <div className="pl-8 mt-1.5 animate-in fade-in slide-in-from-top-1.5 duration-200">
-          <pre className="text-[11px] text-slate-600 bg-slate-50/70 border border-slate-200/50 p-3.5 rounded-lg max-w-full overflow-x-auto font-mono shadow-inner leading-relaxed">
+          <pre className="text-[11px] text-slate-600 dark:text-slate-400 bg-slate-50/70 dark:bg-slate-900/70 border border-slate-200/50 p-3.5 rounded-lg max-w-full overflow-x-auto font-mono shadow-inner leading-relaxed">
             {JSON.stringify(log.details, null, 2)}
           </pre>
         </div>
@@ -241,7 +241,7 @@ export default function DictionaryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-slate-950">
       <div className="container mx-auto px-6 py-8 space-y-8">
         <PageHeader
           title="Dictionary Management"
@@ -261,7 +261,7 @@ export default function DictionaryPage() {
         />
 
         {/* Dictionary Workflow Description */}
-        <Card className="border-blue-100 bg-blue-50/30 shadow-none">
+        <Card className="border-blue-100 bg-blue-50/30 dark:border-blue-500/20 dark:bg-blue-500/10 shadow-none">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-start gap-3">
@@ -269,20 +269,20 @@ export default function DictionaryPage() {
                   <Shield className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">Dictionary Approval Workflow</h3>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    <span className="font-medium text-slate-700">Viewer:</span> View only |
-                    <span className="font-medium text-slate-700 ml-2">Writer:</span> Add & Edit entries |
-                    <span className="font-medium text-slate-700 ml-2">Admin:</span> Approve/Reject & Apply
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Dictionary Approval Workflow</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                    <span className="font-medium text-slate-700 dark:text-slate-300">Viewer:</span> View only |
+                    <span className="font-medium text-slate-700 dark:text-slate-300 ml-2">Writer:</span> Add & Edit entries |
+                    <span className="font-medium text-slate-700 dark:text-slate-300 ml-2">Admin:</span> Approve/Reject & Apply
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 text-[10px] font-bold">DRAFT</div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[10px] font-bold">DRAFT</div>
                 <ArrowRight className="h-3 w-3 text-slate-400" />
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-700 border border-green-200 text-[10px] font-bold">APPROVED / REJECTED</div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-700 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 border border-green-200 text-[10px] font-bold">APPROVED / REJECTED</div>
                 <ArrowRight className="h-3 w-3 text-slate-400" />
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 border border-sky-200 text-[10px] font-bold">APPLIED</div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 border border-sky-200 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20 text-[10px] font-bold">APPLIED</div>
                 <div className="ml-2 text-[10px] text-slate-400 italic">* Only Admin can process stages beyond DRAFT</div>
               </div>
             </div>
@@ -294,14 +294,14 @@ export default function DictionaryPage() {
           onValueChange={(val) => setActiveTab(val as DictionaryType)}
           className="w-full space-y-8"
         >
-          <TabsList className="bg-slate-100/80 p-1 flex-wrap h-auto w-full justify-start gap-2">
+          <TabsList className="bg-slate-100/80 dark:bg-slate-900/80 p-1 flex-wrap h-auto w-full justify-start gap-2">
             {Object.entries(DICTIONARY_INFO).map(([key, info]) => {
               const Icon = info.icon;
               return (
                 <TabsTrigger
                   key={key}
                   value={key}
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2 flex items-center gap-2"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm px-4 py-2 flex items-center gap-2"
                 >
                   <Icon className="h-4 w-4" />
                   {info.title}
@@ -357,14 +357,14 @@ export default function DictionaryPage() {
 
         {/* Sync & Deploy Center Popup Layer Dialog */}
         <Dialog open={isDeployDialogOpen} onOpenChange={handleCloseDialog}>
-          <DialogContent className="sm:max-w-[950px] sm:min-w-[950px] sm:h-[680px] sm:min-h-[680px] overflow-hidden bg-white border border-slate-200/80 rounded-2xl shadow-2xl p-7 flex flex-col justify-between">
-            <DialogHeader className="space-y-2 shrink-0 border-b border-slate-100 pb-4">
+          <DialogContent className="sm:max-w-[950px] sm:min-w-[950px] sm:h-[680px] sm:min-h-[680px] overflow-hidden bg-white dark:bg-slate-950 border border-slate-200/80 rounded-2xl shadow-2xl p-7 flex flex-col justify-between">
+            <DialogHeader className="space-y-2 shrink-0 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-inner shrink-0 animate-in spin-in-12 duration-500">
                   <CloudLightning className="h-4 w-4 animate-pulse" />
                 </div>
                 <div>
-                  <DialogTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                  <DialogTitle className="text-xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                     사전 동기화 및 원격 검증 프로세스
                     <span className="text-[9px] font-black bg-indigo-50 text-indigo-600 border border-indigo-100/50 px-1.5 py-0 rounded-sm uppercase tracking-wide inline-flex items-center justify-center h-4.5 shrink-0 ml-2">ADMIN ONLY</span>
                   </DialogTitle>
@@ -377,8 +377,8 @@ export default function DictionaryPage() {
 
             <div className="flex-1 flex flex-col justify-between gap-5 mt-5 overflow-hidden">
               {/* Top Action Control Box */}
-              <div className="p-4 bg-slate-50/70 border border-slate-200/50 rounded-xl flex items-center justify-between gap-6 shrink-0 shadow-sm/subtle">
-                <p className="text-xs md:text-sm text-slate-500 font-semibold leading-relaxed flex-1">
+              <div className="p-4 bg-slate-50/70 dark:bg-slate-900/70 border border-slate-200/50 rounded-xl flex items-center justify-between gap-6 shrink-0 shadow-sm/subtle">
+                <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-semibold leading-relaxed flex-1">
                   승인(APPROVED)된 사전 항목들을 Elasticsearch 원격 서버 노드들에 동기화하거나
                   <br />
                   원본 훼손 없이 형태소 분석기를 가상 시뮬레이션하여 실시간 검증합니다.
@@ -387,7 +387,7 @@ export default function DictionaryPage() {
                   <button
                     onClick={() => startStream('validate')}
                     disabled={isRunning}
-                    className="h-[72px] w-[140px] rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 text-sm font-semibold transition-all duration-150 shadow-sm flex flex-col items-center justify-center gap-0.5 active:scale-[0.98] cursor-pointer"
+                    className="h-[72px] w-[140px] rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900 disabled:opacity-50 text-sm font-semibold transition-all duration-150 shadow-sm flex flex-col items-center justify-center gap-0.5 active:scale-[0.98] cursor-pointer"
                   >
                     <span className="flex items-center gap-1.5 leading-none">
                       {isRunning && currentAction === 'validate' ? (
@@ -423,10 +423,10 @@ export default function DictionaryPage() {
               </div>
 
               {/* Progress & Live Log Panel inside modal */}
-              <div className="border border-slate-200/50 rounded-xl bg-slate-50/40 p-5 flex flex-col flex-1 h-[370px] min-h-[370px] max-h-[370px] overflow-hidden justify-between space-y-4 shadow-sm/subtle">
+              <div className="border border-slate-200/50 rounded-xl bg-slate-50/40 dark:bg-slate-900/40 p-5 flex flex-col flex-1 h-[370px] min-h-[370px] max-h-[370px] overflow-hidden justify-between space-y-4 shadow-sm/subtle">
                 <div className="flex items-center justify-between shrink-0">
-                  <div className="flex items-center gap-2.5 text-sm font-bold text-slate-700">
-                    <Terminal className="h-4 w-4 text-slate-500" />
+                  <div className="flex items-center gap-2.5 text-sm font-bold text-slate-700 dark:text-slate-300">
+                    <Terminal className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                     <span>실시간 동기화 상태:</span>
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${errorMsg
                       ? 'bg-rose-50 text-rose-600 border border-rose-100'
@@ -434,7 +434,7 @@ export default function DictionaryPage() {
                         ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                         : logs.length > 0
                           ? 'bg-indigo-50 text-indigo-600 border border-indigo-100 animate-pulse'
-                          : 'bg-slate-100 text-slate-500 border border-slate-200'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
                       }`}>
                       {errorMsg
                         ? '실패 (Failed)'
@@ -446,14 +446,14 @@ export default function DictionaryPage() {
                     </span>
                   </div>
                   {logs.length > 0 && (
-                    <div className="text-xs font-semibold text-slate-500">
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                       진행 상황: <span className="font-bold text-indigo-600">{progress}%</span>
                     </div>
                   )}
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full h-1.5 bg-slate-100 border border-slate-200/20 rounded-full overflow-hidden shrink-0">
+                <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200/20 dark:border-slate-800/40 rounded-full overflow-hidden shrink-0">
                   <div
                     className={`h-full transition-all duration-500 ease-out ${errorMsg ? 'bg-rose-500' : 'bg-gradient-to-r from-indigo-500 to-blue-500'
                       }`}
@@ -464,15 +464,15 @@ export default function DictionaryPage() {
                 {/* Log View Box */}
                 <div className="flex-1 min-h-[220px] h-[220px] max-h-[220px] overflow-hidden flex flex-col justify-between">
                   {logs.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 rounded-xl bg-white p-6 text-slate-400 text-center gap-2">
+                    <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 p-6 text-slate-400 text-center gap-2">
                       <Terminal className="h-8 w-8 text-slate-300 animate-pulse" />
-                      <p className="text-xs font-bold text-slate-600 mt-1">실시간 로그 모니터링 콘솔 대기 중</p>
+                      <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mt-1">실시간 로그 모니터링 콘솔 대기 중</p>
                       <p className="text-[10px] text-slate-400 max-w-sm leading-relaxed">
                         상단의 검증 또는 반영하기 버튼을 누르면 동기화 프로세스 및 분석 결과가 여기에 실시간 출력됩니다.
                       </p>
                     </div>
                   ) : (
-                    <div className="flex-1 bg-white border border-slate-200/50 rounded-xl p-4.5 space-y-3.5 max-h-[220px] overflow-y-auto shadow-inner/sm">
+                    <div className="flex-1 bg-white dark:bg-slate-950 border border-slate-200/50 rounded-xl p-4.5 space-y-3.5 max-h-[220px] overflow-y-auto shadow-inner/sm">
                       {logs.slice().reverse().map((log, idx) => (
                         <LogItem key={log.step || idx} log={log} idx={idx} />
                       ))}
@@ -496,16 +496,16 @@ export default function DictionaryPage() {
 
         {/* Publish Confirmation Dialog */}
         <AlertDialog open={showPublishConfirm} onOpenChange={setShowPublishConfirm}>
-          <AlertDialogContent className="max-w-md bg-white border border-slate-200/80 rounded-xl shadow-xl p-6">
+          <AlertDialogContent className="max-w-md bg-white dark:bg-slate-950 border border-slate-200/80 rounded-xl shadow-xl p-6">
             <AlertDialogHeader className="space-y-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-50 border border-rose-100 text-rose-600 shadow-inner shrink-0 mb-1">
                 <CloudLightning className="h-6 w-6 animate-pulse" />
               </div>
-              <AlertDialogTitle className="text-lg font-bold text-slate-900">
+              <AlertDialogTitle className="text-lg font-bold text-slate-900 dark:text-slate-50">
                 운영 서버 사전 반영 확인
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-sm text-slate-500 leading-relaxed space-y-2">
-                <p className="font-semibold text-slate-800">
+              <AlertDialogDescription className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed space-y-2">
+                <p className="font-semibold text-slate-800 dark:text-slate-200">
                   승인된 사전을 원격 Elasticsearch 클러스터 노드들에 영구 배포 및 반영하시겠습니까?
                 </p>
                 <p>
@@ -514,7 +514,7 @@ export default function DictionaryPage() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="mt-6 flex items-center gap-3">
-              <AlertDialogCancel className="w-full sm:w-auto px-4 py-2 text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-lg text-sm font-medium cursor-pointer transition-colors">
+              <AlertDialogCancel className="w-full sm:w-auto px-4 py-2 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900 rounded-lg text-sm font-medium cursor-pointer transition-colors">
                 취소하기
               </AlertDialogCancel>
               <AlertDialogAction

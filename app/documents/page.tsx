@@ -5,7 +5,7 @@ import { DocumentExplorer } from '@/components/documents/document-explorer';
 
 export default function DocumentsPage() {
   return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white dark:bg-slate-950">
           <div className="container mx-auto px-6 py-8 space-y-8">
             <PageHeader
               title="Documents"

@@ -109,13 +109,13 @@ function formatStorageSize(value?: string | null) {
 function getHealthBadgeClass(health?: string) {
   switch (health) {
     case 'green':
-      return 'border-green-200 bg-green-50 text-green-700';
+      return 'border-green-200 bg-green-50 text-green-700 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20';
     case 'yellow':
-      return 'border-yellow-200 bg-yellow-50 text-yellow-700';
+      return 'border-yellow-200 bg-yellow-50 text-yellow-700 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20';
     case 'red':
-      return 'border-red-200 bg-red-50 text-red-700';
+      return 'border-red-200 bg-red-50 text-red-700 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20';
     default:
-      return 'border-slate-200 bg-slate-50 text-slate-700';
+      return 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300';
   }
 }
 
@@ -124,11 +124,11 @@ function getStatusBadgeClass(status?: string) {
 
   switch (normalized) {
     case 'open':
-      return 'border-sky-200 bg-sky-50 text-sky-700';
+      return 'border-sky-200 bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20';
     case 'closed':
-      return 'border-slate-200 bg-slate-100 text-slate-700';
+      return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-700 dark:text-slate-300';
     default:
-      return 'border-slate-200 bg-slate-50 text-slate-700';
+      return 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300';
   }
 }
 
@@ -144,12 +144,12 @@ function SummaryCard({ title, value, description, icon: Icon }: SummaryCardProps
     <Card>
       <CardContent className="flex items-start justify-between p-5">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="text-2xl font-semibold text-slate-900">{value}</p>
-          <p className="text-xs text-slate-500">{description}</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+          <p className="text-2xl font-semibold text-slate-900 dark:text-slate-50">{value}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{description}</p>
         </div>
-        <div className="rounded-2xl bg-slate-100 p-3">
-          <Icon className="h-5 w-5 text-slate-700" />
+        <div className="rounded-2xl bg-slate-100 dark:bg-slate-900 p-3">
+          <Icon className="h-5 w-5 text-slate-700 dark:text-slate-300" />
         </div>
       </CardContent>
     </Card>
@@ -164,9 +164,9 @@ function MiniStat({
   value: string | number;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
-      <span className="text-sm text-slate-500">{label}: </span>
-      <span className="text-sm font-semibold text-slate-900">{value}</span>
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 text-center">
+      <span className="text-sm text-slate-500 dark:text-slate-400">{label}: </span>
+      <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">{value}</span>
     </div>
   );
 }
@@ -539,7 +539,7 @@ export function IndicesManagementList() {
             <CardHeader className="space-y-4">
               <div className="flex flex-wrap items-end gap-4">
                 <div className="flex-1 min-w-[260px]">
-                  <Label htmlFor="indices-search" className="mb-2 block text-sm text-slate-600">
+                  <Label htmlFor="indices-search" className="mb-2 block text-sm text-slate-600 dark:text-slate-400">
                     Search
                   </Label>
                   <div className="relative">
@@ -549,20 +549,20 @@ export function IndicesManagementList() {
                       value={searchKeyword}
                       onChange={(e) => setSearchKeyword(e.target.value)}
                       placeholder="index name 또는 uuid 검색"
-                      className="flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                      className="flex h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 pl-10 pr-4 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                     />
                   </div>
                 </div>
 
                 <div className="w-[180px]">
-                  <Label htmlFor="health-filter" className="mb-2 block text-sm text-slate-600">
+                  <Label htmlFor="health-filter" className="mb-2 block text-sm text-slate-600 dark:text-slate-400">
                     Health
                   </Label>
                   <select
                     id="health-filter"
                     value={healthFilter}
                     onChange={(e) => setHealthFilter(e.target.value as HealthFilter)}
-                    className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                    className="flex h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                   >
                     <option value="all">All health</option>
                     <option value="green">Green</option>
@@ -573,14 +573,14 @@ export function IndicesManagementList() {
                 </div>
 
                 <div className="w-[180px]">
-                  <Label htmlFor="status-filter" className="mb-2 block text-sm text-slate-600">
+                  <Label htmlFor="status-filter" className="mb-2 block text-sm text-slate-600 dark:text-slate-400">
                     Status
                   </Label>
                   <select
                     id="status-filter"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                    className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                    className="flex h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                   >
                     <option value="all">All status</option>
                     <option value="open">Open</option>
@@ -602,7 +602,7 @@ export function IndicesManagementList() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4 xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex flex-wrap items-center gap-6">
                   <div className="flex items-center gap-3">
                     <Switch
@@ -624,7 +624,7 @@ export function IndicesManagementList() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="mr-1 flex items-center gap-2 text-sm text-slate-500">
+                  <div className="mr-1 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                     <ListFilter className="h-4 w-4" />
                     <span>Sort</span>
                   </div>
@@ -671,11 +671,11 @@ export function IndicesManagementList() {
             </CardHeader>
 
             <CardContent>
-              <div className="overflow-hidden rounded-2xl border border-slate-200">
+              <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
                 <div className="max-h-[560px] overflow-auto">
                   <table className="min-w-full text-sm">
-                    <thead className="sticky top-0 z-10 bg-slate-50">
-                      <tr className="border-b border-slate-200">
+                    <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">
+                      <tr className="border-b border-slate-200 dark:border-slate-800">
                         <th className="w-[52px] px-4 py-3 text-center">
                           <Checkbox
                             checked={allVisibleSelected}
@@ -683,20 +683,20 @@ export function IndicesManagementList() {
                             aria-label="select all visible indices"
                           />
                         </th>
-                        <th className="px-4 py-3 text-left font-medium text-slate-600">Index</th>
-                        <th className="px-4 py-3 text-left font-medium text-slate-600">Health</th>
-                        <th className="px-4 py-3 text-left font-medium text-slate-600">Status</th>
-                        <th className="px-4 py-3 text-right font-medium text-slate-600">Primaries</th>
-                        <th className="px-4 py-3 text-right font-medium text-slate-600">Replicas</th>
-                        <th className="px-4 py-3 text-right font-medium text-slate-600">Documents</th>
-                        <th className="px-4 py-3 text-right font-medium text-slate-600">Storage</th>
-                        <th className="px-4 py-3 text-left font-medium text-slate-600">UUID</th>
+                        <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">Index</th>
+                        <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">Health</th>
+                        <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">Status</th>
+                        <th className="px-4 py-3 text-right font-medium text-slate-600 dark:text-slate-400">Primaries</th>
+                        <th className="px-4 py-3 text-right font-medium text-slate-600 dark:text-slate-400">Replicas</th>
+                        <th className="px-4 py-3 text-right font-medium text-slate-600 dark:text-slate-400">Documents</th>
+                        <th className="px-4 py-3 text-right font-medium text-slate-600 dark:text-slate-400">Storage</th>
+                        <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">UUID</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white">
+                    <tbody className="bg-white dark:bg-slate-950">
                       {pagedIndices.length === 0 ? (
                         <tr>
-                          <td colSpan={9} className="px-4 py-16 text-center text-slate-500">
+                          <td colSpan={9} className="px-4 py-16 text-center text-slate-500 dark:text-slate-400">
                             조건에 맞는 인덱스가 없습니다.
                           </td>
                         </tr>
@@ -704,8 +704,8 @@ export function IndicesManagementList() {
                         pagedIndices.map((item) => (
                           <tr
                             key={`${item.index}-${item.uuid}`}
-                            className={`border-b border-slate-100 transition hover:bg-slate-50/80 ${
-                              selectedIndexNames.includes(item.index) ? 'bg-sky-50/40' : ''
+                            className={`border-b border-slate-100 dark:border-slate-800 transition hover:bg-slate-50/80 dark:bg-slate-900/80 ${
+                              selectedIndexNames.includes(item.index) ? 'bg-sky-50/40 dark:bg-sky-500/10' : ''
                             }`}
                           >
                             <td className="px-4 py-3 text-center align-middle">
@@ -721,7 +721,7 @@ export function IndicesManagementList() {
                             <td className="px-4 py-3 align-middle">
                               <Link
                                 href={`/indices-management/${encodeURIComponent(item.index)}`}
-                                className="inline-flex items-center gap-2 font-medium text-slate-900 transition hover:text-sky-700"
+                                className="inline-flex items-center gap-2 font-medium text-slate-900 dark:text-slate-50 transition hover:text-sky-700"
                               >
                                 <span>{item.index}</span>
                                 <ExternalLink className="h-4 w-4" />
@@ -740,23 +740,23 @@ export function IndicesManagementList() {
                               </Badge>
                             </td>
 
-                            <td className="px-4 py-3 text-right align-middle text-slate-700">
+                            <td className="px-4 py-3 text-right align-middle text-slate-700 dark:text-slate-300">
                               {item.pri || '-'}
                             </td>
 
-                            <td className="px-4 py-3 text-right align-middle text-slate-700">
+                            <td className="px-4 py-3 text-right align-middle text-slate-700 dark:text-slate-300">
                               {item.rep || '-'}
                             </td>
 
-                            <td className="px-4 py-3 text-right align-middle text-slate-700">
+                            <td className="px-4 py-3 text-right align-middle text-slate-700 dark:text-slate-300">
                               {formatDocsCount(item.docs_count)}
                             </td>
 
-                            <td className="px-4 py-3 text-right align-middle text-slate-700">
+                            <td className="px-4 py-3 text-right align-middle text-slate-700 dark:text-slate-300">
                               {formatStorageSize(item.store_size)}
                             </td>
 
-                            <td className="px-4 py-3 align-middle text-xs text-slate-500">
+                            <td className="px-4 py-3 align-middle text-xs text-slate-500 dark:text-slate-400">
                               <span className="line-clamp-1 break-all">{item.uuid}</span>
                             </td>
                           </tr>
@@ -767,12 +767,12 @@ export function IndicesManagementList() {
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-col gap-4 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+              <div className="mt-4 flex flex-col gap-4 text-sm text-slate-500 dark:text-slate-400 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-4">
                   <p className="text-xs">
                     {filteredAndSortedIndices.length.toLocaleString()} / {indices.length.toLocaleString()} indices
                   </p>
-                  <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
+                  <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-800 pl-4">
                     <span className="text-xs">Page size:</span>
                     <select
                       value={pageSize}
@@ -882,11 +882,11 @@ export function IndicesManagementList() {
             </div>
 
             {bulkActionResult.successTargets.length > 0 && (
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="mb-2 text-sm font-semibold text-slate-900">성공한 인덱스</div>
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4">
+                <div className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-50">성공한 인덱스</div>
                 <div className="max-h-40 overflow-y-auto space-y-1">
                   {bulkActionResult.successTargets.map((name) => (
-                    <div key={name} className="text-sm text-slate-600">
+                    <div key={name} className="text-sm text-slate-600 dark:text-slate-400">
                       • {name}
                     </div>
                   ))}
@@ -899,7 +899,7 @@ export function IndicesManagementList() {
                 <div className="mb-2 text-sm font-semibold text-red-900">실패한 인덱스</div>
                 <div className="max-h-56 overflow-y-auto space-y-3">
                   {bulkActionResult.failedTargets.map((item) => (
-                    <div key={item.name} className="rounded-xl bg-white/80 p-3">
+                    <div key={item.name} className="rounded-xl bg-white dark:bg-slate-950/80 p-3">
                       <div className="font-medium text-red-900">{item.name}</div>
                       <div className="mt-1 whitespace-pre-wrap break-words text-xs text-red-700">
                         {item.message}

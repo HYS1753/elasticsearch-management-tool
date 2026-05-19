@@ -80,7 +80,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
     const isSorted = sortBy === field;
     return (
       <TableHead 
-        className={`px-4 py-3 font-medium text-slate-600 cursor-pointer select-none hover:text-slate-900 transition-colors ${className}`}
+        className={`px-4 py-3 font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none hover:text-slate-900 dark:text-slate-50 transition-colors ${className}`}
         onClick={() => handleSort(field)}
       >
         <div className="flex items-center gap-1">
@@ -103,7 +103,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
     const isSorted = sortBy === field;
     return (
       <TableHead 
-        className={`px-4 py-3 font-medium text-slate-600 cursor-pointer select-none hover:text-slate-900 transition-colors ${className}`}
+        className={`px-4 py-3 font-medium text-slate-600 dark:text-slate-400 cursor-pointer select-none hover:text-slate-900 dark:text-slate-50 transition-colors ${className}`}
         onClick={() => handleSort(field)}
       >
         <div className="flex items-center justify-center gap-1">
@@ -181,11 +181,11 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'APPROVED': return 'border-green-200 bg-green-50 text-green-700';
+      case 'APPROVED': return 'border-green-200 bg-green-50 text-green-700 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20';
       case 'APPLIED': return 'border-sky-200 bg-sky-50 text-sky-700';
-      case 'REJECTED': return 'border-red-200 bg-red-50 text-red-700';
+      case 'REJECTED': return 'border-red-200 bg-red-50 text-red-700 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20';
       case 'DRAFT': return 'border-amber-200 bg-amber-50 text-amber-700';
-      default: return 'border-slate-200 bg-slate-100 text-slate-600';
+      default: return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400';
     }
   };
 
@@ -193,14 +193,14 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
     switch (type) {
       case 'user':
       case 'stopword':
-        return <TableCell className="px-4 py-3 font-medium text-slate-900">{item.word}</TableCell>;
+        return <TableCell className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">{item.word}</TableCell>;
       case 'decompound':
         return (
           <>
-            <TableCell className="px-4 py-3 font-medium text-slate-900">{item.compound_word}</TableCell>
+            <TableCell className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">{item.compound_word}</TableCell>
             <TableCell className="px-4 py-3">
               <div className="flex gap-1 flex-wrap">
-                {item.components?.map((c: string, i: number) => <Badge key={i} variant="outline" className="bg-slate-50 text-slate-700">{c}</Badge>)}
+                {item.components?.map((c: string, i: number) => <Badge key={i} variant="outline" className="bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300">{c}</Badge>)}
               </div>
             </TableCell>
           </>
@@ -209,7 +209,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
         return (
           <TableCell className="px-4 py-3">
             <div className="flex gap-1 flex-wrap">
-              {item.synonyms?.map((s: string, i: number) => <Badge key={i} variant="secondary" className="bg-slate-100 hover:bg-slate-200 text-slate-700">{s}</Badge>)}
+              {item.synonyms?.map((s: string, i: number) => <Badge key={i} variant="secondary" className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:text-slate-300">{s}</Badge>)}
             </div>
           </TableCell>
         );
@@ -238,7 +238,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
         return (
           <>
             {renderSortableHeader('Compound Word', 'compound_word')}
-            <TableHead className="px-4 py-3 font-medium text-slate-600">Components</TableHead>
+            <TableHead className="px-4 py-3 font-medium text-slate-600 dark:text-slate-400">Components</TableHead>
           </>
         );
       case 'synonym':
@@ -247,7 +247,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
         return (
           <>
             {renderSortableHeader('Incorrect', 'incorrect')}
-            <TableHead className="px-4 py-3 font-medium text-slate-600">Corrected</TableHead>
+            <TableHead className="px-4 py-3 font-medium text-slate-600 dark:text-slate-400">Corrected</TableHead>
           </>
         );
       default:
@@ -265,7 +265,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   placeholder="Search keyword..."
-                  className="flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  className="flex h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 pl-10 pr-4 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                 />
@@ -286,42 +286,42 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
         </CardHeader>
 
         <CardContent>
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
             <div className="max-h-[720px] overflow-auto">
               <Table className="min-w-full text-sm">
-                <TableHeader className="sticky top-0 z-10 bg-slate-50">
-                  <TableRow className="border-b border-slate-200">
-                    <TableHead className="w-[60px] px-4 py-3 font-medium text-slate-600 text-center">No</TableHead>
+                <TableHeader className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">
+                  <TableRow className="border-b border-slate-200 dark:border-slate-800">
+                    <TableHead className="w-[60px] px-4 py-3 font-medium text-slate-600 dark:text-slate-400 text-center">No</TableHead>
               {renderHeaders()}
               {renderSortableHeaderWithCenter('Status', 'status', 'w-[120px]')}
               {renderSortableHeader('Author', 'author', 'w-[120px]')}
               {renderSortableHeader('Created At', 'created_at', 'w-[180px]')}
               {renderSortableHeader('Updated At', 'updated_at', 'w-[180px]')}
-              <TableHead className="w-[140px] px-4 py-3 font-medium text-slate-600 text-right">Actions</TableHead>
+              <TableHead className="w-[140px] px-4 py-3 font-medium text-slate-600 dark:text-slate-400 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-32 text-center text-slate-500">Loading...</TableCell>
+                <TableCell colSpan={8} className="h-32 text-center text-slate-500 dark:text-slate-400">Loading...</TableCell>
               </TableRow>
             ) : data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-32 text-center text-slate-500">No entries found.</TableCell>
+                <TableCell colSpan={8} className="h-32 text-center text-slate-500 dark:text-slate-400">No entries found.</TableCell>
               </TableRow>
             ) : (
               data.map((item: any, i: number) => (
-                <TableRow key={item.index} className="border-b border-slate-100 transition hover:bg-slate-50/80">
-                  <TableCell className="px-4 py-3 text-center text-slate-500">{skip + i + 1}</TableCell>
+                <TableRow key={item.index} className="border-b border-slate-100 dark:border-slate-800 transition hover:bg-slate-50/80 dark:bg-slate-900/80">
+                  <TableCell className="px-4 py-3 text-center text-slate-500 dark:text-slate-400">{skip + i + 1}</TableCell>
                   {renderCells(item)}
                   <TableCell className="px-4 py-3 text-center">
                     <Badge variant="outline" className={getStatusBadgeClass(item.status)}>
                       {item.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-slate-600 text-sm">{item.author || '-'}</TableCell>
-                  <TableCell className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">{item.created_at_kst}</TableCell>
-                  <TableCell className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">{item.updated_at_kst}</TableCell>
+                  <TableCell className="px-4 py-3 text-slate-600 dark:text-slate-400 text-sm">{item.author || '-'}</TableCell>
+                  <TableCell className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">{item.created_at_kst}</TableCell>
+                  <TableCell className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">{item.updated_at_kst}</TableCell>
                   <TableCell className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
                       {/* ADMIN: Approve/Reject buttons for DRAFT items */}
@@ -349,10 +349,10 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
                       )}
                       {canWrite && (
                         <>
-                          <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(item)} className="h-8 w-8 text-slate-500 hover:text-sky-700 hover:bg-sky-50 transition-colors">
+                          <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(item)} className="h-8 w-8 text-slate-500 dark:text-slate-400 hover:text-sky-700 hover:bg-sky-50 transition-colors">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => setDeleteItem(item)} className="h-8 w-8 text-slate-500 hover:text-red-700 hover:bg-red-50 transition-colors">
+                          <Button variant="ghost" size="icon" onClick={() => setDeleteItem(item)} className="h-8 w-8 text-slate-500 dark:text-slate-400 hover:text-red-700 hover:bg-red-50 transition-colors">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </>
@@ -368,16 +368,16 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
           </div>
 
           {/* Pagination Controls */}
-          <div className="mt-6 flex flex-col gap-4 items-center justify-between border-t border-slate-100 pt-4">
-            <div className="flex w-full flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+          <div className="mt-6 flex flex-col gap-4 items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+            <div className="flex w-full flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
               <p>
-                Showing <span className="font-semibold text-slate-700">{total > 0 ? skip + 1 : 0}</span> to <span className="font-semibold text-slate-700">{Math.min(skip + limit, total)}</span> of <span className="font-semibold text-slate-700">{total}</span> entries
+                Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{total > 0 ? skip + 1 : 0}</span> to <span className="font-semibold text-slate-700 dark:text-slate-300">{Math.min(skip + limit, total)}</span> of <span className="font-semibold text-slate-700 dark:text-slate-300">{total}</span> entries
               </p>
               
               <div className="flex items-center gap-2">
-                <span className="text-slate-500 font-medium">Page Size:</span>
+                <span className="text-slate-500 dark:text-slate-400 font-medium">Page Size:</span>
                 <select
-                  className="h-8 w-18 rounded-lg border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 cursor-pointer"
+                  className="h-8 w-18 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-2 text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 cursor-pointer"
                   value={limit}
                   onChange={(e) => {
                     const newLimit = Number(e.target.value);
@@ -398,7 +398,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 rounded-lg border-slate-200 cursor-pointer"
+                  className="h-8 w-8 rounded-lg border-slate-200 dark:border-slate-800 cursor-pointer"
                   disabled={currentPage === 1 || loading}
                   onClick={() => setSkip(0)}
                   title="First Page"
@@ -409,7 +409,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 rounded-lg border-slate-200 cursor-pointer"
+                  className="h-8 w-8 rounded-lg border-slate-200 dark:border-slate-800 cursor-pointer"
                   disabled={currentPage === 1 || loading}
                   onClick={() => setSkip(Math.max(0, (currentPage - 2) * limit))}
                   title="Previous Page"
@@ -438,7 +438,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
                       className={`h-8 min-w-8 px-2 rounded-lg font-semibold cursor-pointer ${
                         currentPage === pageNum
                           ? "bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600"
-                          : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                          : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900"
                       }`}
                       disabled={loading}
                       onClick={() => setSkip((pageNum - 1) * limit)}
@@ -451,7 +451,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 rounded-lg border-slate-200 cursor-pointer"
+                  className="h-8 w-8 rounded-lg border-slate-200 dark:border-slate-800 cursor-pointer"
                   disabled={currentPage === totalPages || loading}
                   onClick={() => setSkip(currentPage * limit)}
                   title="Next Page"
@@ -462,7 +462,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 rounded-lg border-slate-200 cursor-pointer"
+                  className="h-8 w-8 rounded-lg border-slate-200 dark:border-slate-800 cursor-pointer"
                   disabled={currentPage === totalPages || loading}
                   onClick={() => setSkip((totalPages - 1) * limit)}
                   title="Last Page"
@@ -472,7 +472,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-medium">Go to page:</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Go to page:</span>
                 <input
                   type="number"
                   min={1}
@@ -490,13 +490,13 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
                     }
                   }}
                   placeholder={`${currentPage}`}
-                  className="h-8 w-14 rounded-lg border border-slate-200 bg-white text-center text-xs font-semibold text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  className="h-8 w-14 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-center text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                 />
                 <span className="text-xs text-slate-400 font-medium">/ {totalPages}</span>
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-8 px-2.5 rounded-lg text-xs font-semibold text-slate-600 border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer"
+                  className="h-8 px-2.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   onClick={() => {
                     const page = parseInt(jumpPageInput, 10);
                     if (page >= 1 && page <= totalPages) {

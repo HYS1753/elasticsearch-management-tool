@@ -8,7 +8,7 @@ interface Props {
 
 function getStepTone(step: QueryExplainScoreTimelineStep) {
   if (step.key === 'query') {
-    return 'border-slate-200 bg-white';
+    return 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950';
   }
 
   if (step.key === 'total') {
@@ -21,7 +21,7 @@ function getStepTone(step: QueryExplainScoreTimelineStep) {
 export function QueryExplainScoreTimeline({ steps }: Props) {
   if (!steps.length) {
     return (
-      <div className="rounded-xl border border-dashed p-6 text-sm text-slate-500">
+      <div className="rounded-xl border border-dashed p-6 text-sm text-slate-500 dark:text-slate-400">
         점수 타임라인 정보가 없습니다.
       </div>
     );
@@ -33,16 +33,16 @@ export function QueryExplainScoreTimeline({ steps }: Props) {
         {steps.map((step, idx) => (
           <div key={`${step.key}-${idx}`} className="flex items-center gap-3">
             <div className={`min-w-[220px] rounded-2xl border p-4 shadow-sm ${getStepTone(step)}`}>
-              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 {step.label}
               </div>
 
-              <div className="mt-2 font-mono text-2xl font-semibold text-slate-900">
+              <div className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-slate-50">
                 {typeof step.value === 'number' ? step.value.toFixed(4) : 'N/A'}
               </div>
 
               {step.description && (
-                <div className="mt-2 text-sm leading-6 text-slate-600">
+                <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
                   {step.description}
                 </div>
               )}

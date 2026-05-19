@@ -119,10 +119,10 @@ export function IndexActionsToolbar({
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 xl:flex-row xl:items-center xl:justify-between">
-      <div className="text-sm text-slate-600">
+    <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-4 py-4 xl:flex-row xl:items-center xl:justify-between">
+      <div className="text-sm text-slate-600 dark:text-slate-400">
         선택된 인덱스{' '}
-        <span className="font-semibold text-slate-900">{selectedCount}</span>개
+        <span className="font-semibold text-slate-900 dark:text-slate-50">{selectedCount}</span>개
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2">

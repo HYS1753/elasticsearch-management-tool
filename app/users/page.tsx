@@ -14,14 +14,14 @@ import { toast } from 'sonner';
 import { PageHeader } from '@/components/common/page-header';
 
 const ROLE_OPTIONS = [
-  { value: 'ADMIN', label: 'Admin', icon: Shield, color: 'border-red-200 bg-red-50 text-red-700' },
-  { value: 'WRITER', label: 'Writer', icon: Pencil, color: 'border-blue-200 bg-blue-50 text-blue-700' },
-  { value: 'VIEWER', label: 'Viewer', icon: Eye, color: 'border-slate-200 bg-slate-100 text-slate-600' },
+  { value: 'ADMIN', label: 'Admin', icon: Shield, color: 'border-red-200 bg-red-50 text-red-700 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20' },
+  { value: 'WRITER', label: 'Writer', icon: Pencil, color: 'border-blue-200 bg-blue-50 text-blue-700 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20' },
+  { value: 'VIEWER', label: 'Viewer', icon: Eye, color: 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400' },
 ];
 
 function getRoleBadge(role: string) {
   const opt = ROLE_OPTIONS.find(r => r.value === role);
-  return opt ? opt.color : 'border-slate-200 bg-slate-100 text-slate-600';
+  return opt ? opt.color : 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400';
 }
 
 export default function UsersPage() {
@@ -164,7 +164,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-slate-950">
       <div className="container mx-auto px-6 py-8 space-y-8">
         <PageHeader
           title="User Management"
@@ -174,7 +174,7 @@ export default function UsersPage() {
         <Card className="border-slate-200/60 shadow-sm">
           <CardHeader className="space-y-4 pb-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-800 font-medium">
+              <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-medium">
                 <Users className="h-5 w-5 text-blue-600" />
                 <span>Admin Users ({total})</span>
               </div>
@@ -184,45 +184,45 @@ export default function UsersPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="overflow-hidden rounded-2xl border border-slate-200">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
               <Table className="min-w-full text-sm">
-                <TableHeader className="bg-slate-50">
+                <TableHeader className="bg-slate-50 dark:bg-slate-900">
                   <TableRow>
-                    <TableHead className="w-[60px] px-4 py-3 text-slate-600 text-center">No</TableHead>
-                    <TableHead className="px-4 py-3 text-slate-600">User ID</TableHead>
-                    <TableHead className="px-4 py-3 text-slate-600">Name</TableHead>
-                    <TableHead className="px-4 py-3 text-slate-600 text-center">Role</TableHead>
-                    <TableHead className="px-4 py-3 text-slate-600">Created At</TableHead>
-                    <TableHead className="px-4 py-3 text-slate-600">Updated At</TableHead>
-                    <TableHead className="w-[100px] px-4 py-3 text-slate-600 text-right">Actions</TableHead>
+                    <TableHead className="w-[60px] px-4 py-3 text-slate-600 dark:text-slate-400 text-center">No</TableHead>
+                    <TableHead className="px-4 py-3 text-slate-600 dark:text-slate-400">User ID</TableHead>
+                    <TableHead className="px-4 py-3 text-slate-600 dark:text-slate-400">Name</TableHead>
+                    <TableHead className="px-4 py-3 text-slate-600 dark:text-slate-400 text-center">Role</TableHead>
+                    <TableHead className="px-4 py-3 text-slate-600 dark:text-slate-400">Created At</TableHead>
+                    <TableHead className="px-4 py-3 text-slate-600 dark:text-slate-400">Updated At</TableHead>
+                    <TableHead className="w-[100px] px-4 py-3 text-slate-600 dark:text-slate-400 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="h-32 text-center text-slate-500">Loading...</TableCell>
+                      <TableCell colSpan={7} className="h-32 text-center text-slate-500 dark:text-slate-400">Loading...</TableCell>
                     </TableRow>
                   ) : users.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="h-32 text-center text-slate-500">No users found.</TableCell>
+                      <TableCell colSpan={7} className="h-32 text-center text-slate-500 dark:text-slate-400">No users found.</TableCell>
                     </TableRow>
                   ) : (
                     users.map((u, i) => (
-                      <TableRow key={u.user_id} className="hover:bg-slate-50/50">
-                        <TableCell className="px-4 py-3 text-center text-slate-500">{i + 1}</TableCell>
-                        <TableCell className="px-4 py-3 font-medium text-slate-900">{u.user_id}</TableCell>
-                        <TableCell className="px-4 py-3 text-slate-700">{u.name}</TableCell>
+                      <TableRow key={u.user_id} className="hover:bg-slate-50/50 dark:bg-slate-900/50">
+                        <TableCell className="px-4 py-3 text-center text-slate-500 dark:text-slate-400">{i + 1}</TableCell>
+                        <TableCell className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">{u.user_id}</TableCell>
+                        <TableCell className="px-4 py-3 text-slate-700 dark:text-slate-300">{u.name}</TableCell>
                         <TableCell className="px-4 py-3 text-center">
                           <Badge variant="outline" className={getRoleBadge(u.role)}>{u.role}</Badge>
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-slate-500 text-xs">{u.created_at_kst}</TableCell>
-                        <TableCell className="px-4 py-3 text-slate-500 text-xs">{u.updated_at_kst}</TableCell>
+                        <TableCell className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">{u.created_at_kst}</TableCell>
+                        <TableCell className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">{u.updated_at_kst}</TableCell>
                         <TableCell className="px-4 py-3 text-right">
                           <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(u)} className="h-8 w-8 text-slate-500 hover:text-sky-700 hover:bg-sky-50">
+                            <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(u)} className="h-8 w-8 text-slate-500 dark:text-slate-400 hover:text-sky-700 hover:bg-sky-50">
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => setDeleteUser(u)} className="h-8 w-8 text-slate-500 hover:text-red-700 hover:bg-red-50">
+                            <Button variant="ghost" size="icon" onClick={() => setDeleteUser(u)} className="h-8 w-8 text-slate-500 dark:text-slate-400 hover:text-red-700 hover:bg-red-50">
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -266,8 +266,8 @@ export default function UsersPage() {
                       onClick={() => setNewRole(r.value)}
                       className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
                         newRole === r.value
-                          ? 'border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-100'
-                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                          ? 'border-blue-400 bg-blue-50 text-blue-700 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20 ring-2 ring-blue-100'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900'
                       }`}
                     >
                       <r.icon className="h-3.5 w-3.5" />
@@ -312,8 +312,8 @@ export default function UsersPage() {
                       onClick={() => setEditRole(r.value)}
                       className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
                         editRole === r.value
-                          ? 'border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-100'
-                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                          ? 'border-blue-400 bg-blue-50 text-blue-700 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20 ring-2 ring-blue-100'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900'
                       }`}
                     >
                       <r.icon className="h-3.5 w-3.5" />

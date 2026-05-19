@@ -77,13 +77,13 @@ function getPreviewEntries(source: Record<string, unknown>, limit: number = 8) {
 function getHealthBadgeClass(health?: string) {
   switch (health) {
     case 'green':
-      return 'border-green-200 bg-green-50 text-green-700';
+      return 'border-green-200 bg-green-50 text-green-700 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20';
     case 'yellow':
-      return 'border-yellow-200 bg-yellow-50 text-yellow-700';
+      return 'border-yellow-200 bg-yellow-50 text-yellow-700 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20';
     case 'red':
-      return 'border-red-200 bg-red-50 text-red-700';
+      return 'border-red-200 bg-red-50 text-red-700 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20';
     default:
-      return 'border-slate-200 bg-slate-50 text-slate-700';
+      return 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300';
   }
 }
 
@@ -92,11 +92,11 @@ function getStatusBadgeClass(status?: string) {
 
   switch (normalized) {
     case 'open':
-      return 'border-sky-200 bg-sky-50 text-sky-700';
+      return 'border-sky-200 bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20';
     case 'closed':
-      return 'border-slate-200 bg-slate-100 text-slate-700';
+      return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-700 dark:text-slate-300';
     default:
-      return 'border-slate-200 bg-slate-50 text-slate-700';
+      return 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300';
   }
 }
 
@@ -113,9 +113,9 @@ function SectionHeading({
     <div>
       <div className="flex items-center gap-2">
         <Icon className="h-5 w-5 text-blue-600" />
-        <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">{title}</h2>
       </div>
-      <p className="mt-1 ml-7 text-sm text-slate-600">{description}</p>
+      <p className="mt-1 ml-7 text-sm text-slate-600 dark:text-slate-400">{description}</p>
     </div>
   );
 }
@@ -138,11 +138,11 @@ function IndexListPanel({
       <CardContent className="p-0">
         <div className="max-h-[720px] overflow-auto">
           {indices.length === 0 ? (
-            <div className="px-6 py-10 text-center text-sm text-slate-500">
+            <div className="px-6 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
               탐색 가능한 인덱스가 없습니다.
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {indices.map((item) => {
                 const active = selectedIndex === item.index;
 
@@ -152,11 +152,11 @@ function IndexListPanel({
                     type="button"
                     onClick={() => onSelect(item.index)}
                     className={`flex w-full flex-col gap-2 px-5 py-4 text-left transition ${
-                      active ? 'bg-sky-50' : 'bg-white hover:bg-slate-50'
+                      active ? 'bg-sky-50 dark:bg-sky-500/10' : 'bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <div className="truncate text-sm font-semibold text-slate-900">
+                      <div className="truncate text-sm font-semibold text-slate-900 dark:text-slate-50">
                         {item.index}
                       </div>
                       <div className="flex items-center gap-2">
@@ -169,7 +169,7 @@ function IndexListPanel({
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 text-xs text-slate-500">
+                    <div className="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-400">
                       <span>docs: {item.docs_count ?? '-'}</span>
                       <span>store: {item.store_size ?? '-'}</span>
                     </div>
@@ -197,21 +197,21 @@ function ResultSummaryCards({
 }) {
   return (
     <div className="grid min-w-[280px] grid-cols-2 gap-3 lg:grid-cols-4">
-      <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-        <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Total</div>
-        <div className="mt-1 text-base font-semibold text-slate-900">{formatNumber(total)}</div>
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3">
+        <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Total</div>
+        <div className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-50">{formatNumber(total)}</div>
       </div>
-      <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-        <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Took</div>
-        <div className="mt-1 text-base font-semibold text-slate-900">{formatNumber(took)} ms</div>
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3">
+        <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Took</div>
+        <div className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-50">{formatNumber(took)} ms</div>
       </div>
-      <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-        <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Page</div>
-        <div className="mt-1 text-base font-semibold text-slate-900">{page}</div>
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3">
+        <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Page</div>
+        <div className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-50">{page}</div>
       </div>
-      <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-        <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Pages</div>
-        <div className="mt-1 text-base font-semibold text-slate-900">{totalPages}</div>
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3">
+        <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Pages</div>
+        <div className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-50">{totalPages}</div>
       </div>
     </div>
   );
@@ -227,14 +227,14 @@ function DocumentListItem({
   const previewEntries = getPreviewEntries(doc._source, 8);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex flex-col gap-4 border-b border-slate-100 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-slate-100 dark:border-slate-800 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 space-y-3">
           <div className="text-xs font-medium uppercase tracking-wide text-slate-400">
             Document
           </div>
 
-          <div className="break-all text-base font-semibold text-slate-900">{doc._id}</div>
+          <div className="break-all text-base font-semibold text-slate-900 dark:text-slate-50">{doc._id}</div>
 
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="rounded-lg">
@@ -262,24 +262,24 @@ function DocumentListItem({
           {previewEntries.map(([key, value]) => (
             <div
               key={key}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3"
+              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-3"
             >
-              <div className="truncate text-xs font-medium uppercase tracking-wide text-slate-500">
+              <div className="truncate text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 {key}
               </div>
-              <div className="mt-1 break-all text-sm leading-6 text-slate-800">
+              <div className="mt-1 break-all text-sm leading-6 text-slate-800 dark:text-slate-200">
                 {formatPreviewValue(value)}
               </div>
             </div>
           ))}
         </div> */}
 
-        <div className="rounded-xl border border-slate-200 bg-slate-50">
-          <div className="border-b border-slate-200 px-3 py-2 text-xs font-medium uppercase tracking-wide text-slate-500">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+          <div className="border-b border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
             Raw JSON Preview
           </div>
           <div className="max-h-[260px] overflow-auto p-3">
-            <pre className="whitespace-pre-wrap break-all text-xs leading-6 text-slate-800">
+            <pre className="whitespace-pre-wrap break-all text-xs leading-6 text-slate-800 dark:text-slate-200">
               {JSON.stringify(doc._source, null, 2)}
             </pre>
           </div>
@@ -313,35 +313,35 @@ function DocumentTableView({
   const columns = useMemo(() => getTableColumns(documents, 8), [documents]);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
       <div className="max-h-[calc(94vh-240px)] overflow-auto">
         <table className="min-w-full text-sm">
-          <thead className="sticky top-0 z-10 bg-slate-50">
-            <tr className="border-b border-slate-200">
-              <th className="px-4 py-3 text-left font-medium text-slate-600">_id</th>
-              <th className="px-4 py-3 text-left font-medium text-slate-600">_score</th>
+          <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">
+            <tr className="border-b border-slate-200 dark:border-slate-800">
+              <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">_id</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">_score</th>
               {columns.map((column) => (
-                <th key={column} className="px-4 py-3 text-left font-medium text-slate-600">
+                <th key={column} className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">
                   {column}
                 </th>
               ))}
-              <th className="px-4 py-3 text-right font-medium text-slate-600">Action</th>
+              <th className="px-4 py-3 text-right font-medium text-slate-600 dark:text-slate-400">Action</th>
             </tr>
           </thead>
 
-          <tbody className="bg-white">
+          <tbody className="bg-white dark:bg-slate-950">
             {documents.map((doc) => (
               <tr
                 key={`${doc._index}-${doc._id}`}
-                className="border-b border-slate-100 align-top transition hover:bg-slate-50"
+                className="border-b border-slate-100 dark:border-slate-800 align-top transition hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900"
               >
-                <td className="max-w-[320px] px-4 py-3 font-medium text-slate-900">
+                <td className="max-w-[320px] px-4 py-3 font-medium text-slate-900 dark:text-slate-50">
                   <div className="break-all">{doc._id}</div>
                 </td>
-                <td className="px-4 py-3 text-slate-700">{doc._score ?? '-'}</td>
+                <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{doc._score ?? '-'}</td>
 
                 {columns.map((column) => (
-                  <td key={column} className="max-w-[240px] px-4 py-3 text-slate-700">
+                  <td key={column} className="max-w-[240px] px-4 py-3 text-slate-700 dark:text-slate-300">
                     <div className="line-clamp-3 break-all">{formatPreviewValue(doc._source?.[column])}</div>
                   </td>
                 ))}
@@ -549,8 +549,8 @@ export function DocumentExplorer() {
                           ? 'closed'
                           : selectedIndexInfo.status ?? 'unknown'}
                       </Badge>
-                      <span className="text-sm text-slate-600">
-                        index: <span className="font-medium text-slate-900">{selectedIndexInfo.index}</span>
+                      <span className="text-sm text-slate-600 dark:text-slate-400">
+                        index: <span className="font-medium text-slate-900 dark:text-slate-50">{selectedIndexInfo.index}</span>
                       </span>
                     </div>
                   )}
@@ -563,7 +563,7 @@ export function DocumentExplorer() {
                       <textarea
                         value={queryText}
                         onChange={(e) => setQueryText(e.target.value)}
-                        className="min-h-[640px] w-full rounded-2xl border border-slate-200 bg-white p-4 font-mono text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                        className="min-h-[640px] w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 font-mono text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                         spellCheck={false}
                       />
                     </div>
@@ -574,7 +574,7 @@ export function DocumentExplorer() {
                         <select
                           value={size}
                           onChange={(e) => setSize(Number(e.target.value))}
-                          className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                          className="flex h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                         >
                           <option value={10}>10</option>
                           <option value={20}>20</option>
@@ -583,22 +583,22 @@ export function DocumentExplorer() {
                         </select>
                       </div>
 
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                        <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4">
+                        <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                           Result Summary
                         </div>
-                        <div className="mt-3 space-y-2 text-sm text-slate-600">
+                        <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-400">
                           <div>
-                            total: <span className="font-medium text-slate-900">{formatNumber(total)}</span>
+                            total: <span className="font-medium text-slate-900 dark:text-slate-50">{formatNumber(total)}</span>
                           </div>
                           <div>
-                            took: <span className="font-medium text-slate-900">{formatNumber(took)} ms</span>
+                            took: <span className="font-medium text-slate-900 dark:text-slate-50">{formatNumber(took)} ms</span>
                           </div>
                           <div>
-                            page: <span className="font-medium text-slate-900">{page}</span>
+                            page: <span className="font-medium text-slate-900 dark:text-slate-50">{page}</span>
                           </div>
                           <div>
-                            pages: <span className="font-medium text-slate-900">{totalPages}</span>
+                            pages: <span className="font-medium text-slate-900 dark:text-slate-50">{totalPages}</span>
                           </div>
                         </div>
                       </div>
@@ -619,14 +619,14 @@ export function DocumentExplorer() {
 
       <Dialog open={isResultsDialogOpen} onOpenChange={setIsResultsDialogOpen}>
         <DialogContent className="!w-[96vw] !max-w-[1600px] h-[94vh] overflow-hidden p-0">
-          <div className="flex h-full min-h-0 flex-col bg-white">
-            <DialogHeader className="border-b border-slate-200 bg-slate-50/70 px-6 py-5">
+          <div className="flex h-full min-h-0 flex-col bg-white dark:bg-slate-950">
+            <DialogHeader className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70 px-6 py-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <DialogTitle className="text-xl font-semibold text-slate-900">
+                  <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-slate-50">
                     Documents
                   </DialogTitle>
-                  <DialogDescription className="mt-1 text-sm text-slate-600">
+                  <DialogDescription className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                     검색 결과 문서를 탐색하고 상세 원문을 확인합니다.
                   </DialogDescription>
                 </div>
@@ -640,13 +640,13 @@ export function DocumentExplorer() {
               </div>
             </DialogHeader>
 
-            <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
-              <div className="text-sm text-slate-600">
-                page <span className="font-semibold text-slate-900">{page}</span> / {totalPages}
+            <div className="flex items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 px-6 py-4">
+              <div className="text-sm text-slate-600 dark:text-slate-400">
+                page <span className="font-semibold text-slate-900 dark:text-slate-50">{page}</span> / {totalPages}
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <div className="mr-2 inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+                <div className="mr-2 inline-flex items-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-1">
                   <Button
                     type="button"
                     variant={resultsViewMode === 'list' ? 'default' : 'ghost'}
@@ -707,10 +707,10 @@ export function DocumentExplorer() {
                   ))}
                 </div>
               ) : documents.length === 0 ? (
-                <div className="flex h-full items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-6 py-16 text-center">
+                <div className="flex h-full items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-6 py-16 text-center">
                   <div>
                     <FileJson className="mx-auto mb-4 h-10 w-10 text-slate-400" />
-                    <div className="text-sm text-slate-600">조회된 문서가 없습니다.</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400">조회된 문서가 없습니다.</div>
                   </div>
                 </div>
               ) : resultsViewMode === 'list' ? (
@@ -754,28 +754,28 @@ export function DocumentExplorer() {
           {selectedDocument && (
             <div className="space-y-4">
               <div className="grid gap-3 md:grid-cols-3">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm">
-                  <div className="text-slate-500">Index</div>
-                  <div className="mt-1 break-all font-medium text-slate-900">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-3 text-sm">
+                  <div className="text-slate-500 dark:text-slate-400">Index</div>
+                  <div className="mt-1 break-all font-medium text-slate-900 dark:text-slate-50">
                     {selectedDocument._index}
                   </div>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm">
-                  <div className="text-slate-500">Document ID</div>
-                  <div className="mt-1 break-all font-medium text-slate-900">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-3 text-sm">
+                  <div className="text-slate-500 dark:text-slate-400">Document ID</div>
+                  <div className="mt-1 break-all font-medium text-slate-900 dark:text-slate-50">
                     {selectedDocument._id}
                   </div>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm">
-                  <div className="text-slate-500">Score</div>
-                  <div className="mt-1 font-medium text-slate-900">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-3 text-sm">
+                  <div className="text-slate-500 dark:text-slate-400">Score</div>
+                  <div className="mt-1 font-medium text-slate-900 dark:text-slate-50">
                     {selectedDocument._score ?? '-'}
                   </div>
                 </div>
               </div>
 
-              <div className="max-h-[70vh] overflow-auto rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <pre className="whitespace-pre-wrap break-all text-sm leading-6 text-slate-800">
+              <div className="max-h-[70vh] overflow-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4">
+                <pre className="whitespace-pre-wrap break-all text-sm leading-6 text-slate-800 dark:text-slate-200">
                   {JSON.stringify(selectedDocument._source, null, 2)}
                 </pre>
               </div>

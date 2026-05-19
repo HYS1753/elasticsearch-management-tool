@@ -65,7 +65,7 @@ export default function LoginPage() {
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm border border-white/10">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white dark:bg-slate-950/10 backdrop-blur-sm border border-white/10">
               <Image
                 src="/es_logo.png"
                 alt="Elasticsearch Logo"
@@ -95,7 +95,7 @@ export default function LoginPage() {
               {['Cluster Monitoring', 'Index Management', 'Dictionary Config', 'Document Explorer'].map((feature) => (
                 <span
                   key={feature}
-                  className="px-4 py-2 rounded-full text-sm font-medium text-white/70 bg-white/5 border border-white/10 backdrop-blur-sm"
+                  className="px-4 py-2 rounded-full text-sm font-medium text-white/70 bg-white dark:bg-slate-950/5 border border-white/10 backdrop-blur-sm"
                 >
                   {feature}
                 </span>
@@ -104,18 +104,18 @@ export default function LoginPage() {
           </div>
 
           {/* Bottom */}
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             © {new Date().getFullYear()} Elasticsearch Management Tool
           </p>
         </div>
       </div>
 
       {/* Right Panel — Login Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-slate-50/50">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-slate-50/50 dark:bg-slate-900/50">
         <div className="w-full max-w-[420px]">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-3 mb-10">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white dark:bg-slate-950 shadow-lg">
               <Image
                 src="/es_logo.png"
                 alt="Elasticsearch Logo"
@@ -124,7 +124,7 @@ export default function LoginPage() {
                 className="object-contain"
               />
             </div>
-            <span className="text-slate-900 text-lg font-semibold">Elasticsearch Management</span>
+            <span className="text-slate-900 dark:text-slate-50 text-lg font-semibold">Elasticsearch Management</span>
           </div>
 
           {/* Header */}
@@ -133,15 +133,15 @@ export default function LoginPage() {
               <Shield className="h-3.5 w-3.5 text-blue-600" />
               <span className="text-xs font-medium text-blue-700">Admin Console</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Welcome back</h1>
-            <p className="mt-1.5 text-sm text-slate-500">Sign in to your account to continue</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">Welcome back</h1>
+            <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Sign in to your account to continue</p>
           </div>
 
           {/* Form Card */}
-          <div className="rounded-2xl border border-slate-200/60 bg-white shadow-sm shadow-slate-200/50 p-7">
+          <div className="rounded-2xl border border-slate-200/60 bg-white dark:bg-slate-950 shadow-sm shadow-slate-200/50 p-7">
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-1.5">
-                <label htmlFor="userId" className="block text-sm font-medium text-slate-700">
+                <label htmlFor="userId" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                   User ID
                 </label>
                 <div className="relative">
@@ -150,7 +150,7 @@ export default function LoginPage() {
                     id="userId"
                     type="text"
                     placeholder="Enter your user ID"
-                    className="flex h-12 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-11 pr-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                    className="flex h-12 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 pl-11 pr-4 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 outline-none transition-all focus:border-blue-400 focus:bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-100"
                     value={userId}
                     onChange={(e) => setUserId(e.target.value)}
                     disabled={loading}
@@ -160,7 +160,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Password
                 </label>
                 <div className="relative">
@@ -169,7 +169,7 @@ export default function LoginPage() {
                     id="password"
                     type="password"
                     placeholder="••••••••"
-                    className="flex h-12 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-11 pr-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                    className="flex h-12 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 pl-11 pr-4 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 outline-none transition-all focus:border-blue-400 focus:bg-white dark:bg-slate-950 focus:ring-2 focus:ring-blue-100"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading}

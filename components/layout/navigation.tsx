@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Network, Layers, Settings2, FileText, BookOpen, TrendingUp, SearchCode } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { Network, Settings2, FileText, SearchCode, BookOpen } from 'lucide-react';
 
 const navItems = [
   { href: '/cluster-information', label: 'Cluster Info', icon: Network },
@@ -16,6 +16,7 @@ const navItems = [
 
 export function Navigation() {
   const pathname = usePathname();
+  
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -68,44 +69,26 @@ export function Navigation() {
   return (
     <>
       <nav
-        className={`border-b bg-slate-50/95 backdrop-blur-lg shadow-sm fixed top-[73px] left-0 right-0 z-40 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
+        className={`border-b dark:border-slate-800/80 bg-slate-50/95 dark:bg-slate-950/90 backdrop-blur-lg shadow-sm fixed top-[73px] left-0 right-0 z-40 transition-all duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
           }`}
       >
         <div className="w-full px-6">
           <div className="relative flex items-center gap-2 py-3">
             {/* Sliding liquid crystal indicator */}
             <div
-              className="absolute pointer-events-none rounded-2xl transition-all duration-500 ease-out"
+              className="absolute pointer-events-none rounded-2xl transition-all duration-500 ease-out h-[44px] top-[12px] bg-gradient-to-br from-white/80 to-slate-50/90 dark:from-slate-800/80 dark:to-slate-900/90 shadow-[0_2px_12px_rgba(148,163,184,0.12),0_1px_3px_rgba(148,163,184,0.18),inset_0_1px_2px_rgba(255,255,255,0.9)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] backdrop-blur-md border border-slate-400/25 dark:border-slate-800"
               style={{
                 width: indicatorStyle.width,
                 left: indicatorStyle.left,
                 opacity: indicatorStyle.opacity,
-                height: '44px',
-                top: '12px',
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%)',
-                boxShadow: '0 2px 12px rgba(148, 163, 184, 0.12), 0 1px 3px rgba(148, 163, 184, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(20px)',
-                border: '1.5px solid rgba(148, 163, 184, 0.25)',
               }}
             >
               {/* Liquid droplet inner glow */}
               <div
-                className="absolute inset-0 rounded-2xl pointer-events-none"
-                style={{
-                  background: 'radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.3) 40%, transparent 70%)',
-                }}
+                className="absolute inset-0 rounded-2xl pointer-events-none bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.3)_40%,transparent_70%)] dark:bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.1)_0%,transparent_70%)]"
               />
               <div
-                className="absolute inset-0 rounded-2xl pointer-events-none"
-                style={{
-                  background: 'radial-gradient(ellipse at 70% 80%, rgba(148, 163, 184, 0.06) 0%, transparent 50%)',
-                }}
-              />
-              <div
-                className="absolute inset-0 rounded-2xl pointer-events-none"
-                style={{
-                  background: 'linear-gradient(to top, rgba(148, 163, 184, 0.08) 0%, transparent 100%)',
-                }}
+                className="absolute inset-0 rounded-2xl pointer-events-none bg-[radial-gradient(ellipse_at_70%_80%,rgba(148,163,184,0.06)_0%,transparent_50%)] dark:bg-[radial-gradient(ellipse_at_70%_80%,rgba(255,255,255,0.03)_0%,transparent_50%)]"
               />
             </div>
 
@@ -123,20 +106,15 @@ export function Navigation() {
                   className={`
                   group relative flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all duration-300
                   ${active
-                      ? 'text-slate-900'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'text-slate-900 dark:text-slate-50'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:text-slate-50 dark:text-slate-400 dark:hover:text-slate-200'
                     }
                 `}
                 >
                   {/* Hover effect for non-active items */}
                   {!active && (
                     <div
-                      className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(148, 163, 184, 0.04) 0%, rgba(148, 163, 184, 0.08) 100%)',
-                        backdropFilter: 'blur(8px)',
-                        border: '1px solid rgba(148, 163, 184, 0.1)',
-                      }}
+                      className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 bg-gradient-to-br from-slate-400/[0.04] to-slate-400/[0.08] dark:from-white/[0.03] dark:to-white/[0.05] transition-opacity duration-300 pointer-events-none"
                     />
                   )}
 

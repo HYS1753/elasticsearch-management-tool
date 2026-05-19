@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
 import { Header, Navigation } from '@/components/layout';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const inter = localFont({
   src: [
@@ -35,23 +36,30 @@ export default function RootLayout({
   const isLoginPage = pathname === '/login';
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>Elasticsearch Management</title>
         <meta name="description" content="Manage your Elasticsearch cluster with ease" />
         <link rel="icon" href="/es_logo.png" />
       </head>
       <body className={inter.className}>
-        {!isLoginPage && (
-          <>
-            <Header />
-            <Navigation />
-          </>
-        )}
-        <div className={isLoginPage ? '' : 'pt-[133px]'}>
-          {children}
-        </div>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {!isLoginPage && (
+            <>
+              <Header />
+              <Navigation />
+            </>
+          )}
+          <div className={isLoginPage ? '' : 'pt-[133px]'}>
+            {children}
+          </div>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

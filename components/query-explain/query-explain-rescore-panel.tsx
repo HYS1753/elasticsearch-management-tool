@@ -32,11 +32,11 @@ export function QueryExplainRescorePanel({ items }: Props) {
   if (!items.length) {
     return (
       <Card className="border-slate-200/70 shadow-sm">
-        <CardHeader className="border-b bg-slate-50/70">
+        <CardHeader className="border-b bg-slate-50/70 dark:bg-slate-900/70">
           <CardTitle className="text-base">Rescore</CardTitle>
         </CardHeader>
         <CardContent className="p-5">
-          <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500">
+          <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500 dark:text-slate-400">
             rescore 단계가 없습니다.
           </div>
         </CardContent>
@@ -46,7 +46,7 @@ export function QueryExplainRescorePanel({ items }: Props) {
 
   return (
     <Card className="border-slate-200/70 shadow-sm">
-      <CardHeader className="border-b bg-slate-50/70">
+      <CardHeader className="border-b bg-slate-50/70 dark:bg-slate-900/70">
         <CardTitle className="text-base">Rescore</CardTitle>
       </CardHeader>
 
@@ -54,44 +54,44 @@ export function QueryExplainRescorePanel({ items }: Props) {
         {items.map((item) => (
           <div
             key={`${item.order}-${item.type}`}
-            className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+            className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm"
           >
-            <div className="border-b bg-slate-50 px-4 py-4">
+            <div className="border-b bg-slate-50 dark:bg-slate-900 px-4 py-4">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Step {item.order}
                   </div>
 
-                  <div className="mt-1 text-base font-semibold text-slate-900">
+                  <div className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-50">
                     {item.title}
                   </div>
 
                   {item.description && (
-                    <div className="mt-2 text-sm leading-6 text-slate-600">
+                    <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
                       {item.description}
                     </div>
                   )}
 
                   {(item.score_mode || item.boost_mode) && (
-                    <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
+                    <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-400">
                       {item.score_mode && (
-                        <span className="rounded bg-white px-2 py-1 border border-slate-200">
+                        <span className="rounded bg-white dark:bg-slate-950 px-2 py-1 border border-slate-200 dark:border-slate-800">
                           score_mode: {item.score_mode}
                         </span>
                       )}
                       {item.boost_mode && (
-                        <span className="rounded bg-white px-2 py-1 border border-slate-200">
+                        <span className="rounded bg-white dark:bg-slate-950 px-2 py-1 border border-slate-200 dark:border-slate-800">
                           boost_mode: {item.boost_mode}
                         </span>
                       )}
                       {typeof item.query_weight === 'number' && (
-                        <span className="rounded bg-white px-2 py-1 border border-slate-200">
+                        <span className="rounded bg-white dark:bg-slate-950 px-2 py-1 border border-slate-200 dark:border-slate-800">
                           query_weight: {item.query_weight}
                         </span>
                       )}
                       {typeof item.rescore_query_weight === 'number' && (
-                        <span className="rounded bg-white px-2 py-1 border border-slate-200">
+                        <span className="rounded bg-white dark:bg-slate-950 px-2 py-1 border border-slate-200 dark:border-slate-800">
                           rescore_query_weight: {item.rescore_query_weight}
                         </span>
                       )}
@@ -116,13 +116,13 @@ export function QueryExplainRescorePanel({ items }: Props) {
                       className={
                         isCombined
                           ? 'rounded-xl border border-blue-200 bg-blue-50 p-4'
-                          : 'rounded-xl border border-slate-200 p-4'
+                          : 'rounded-xl border border-slate-200 dark:border-slate-800 p-4'
                       }
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <div className="font-medium text-slate-900">{detail.label}</div>
+                            <div className="font-medium text-slate-900 dark:text-slate-50">{detail.label}</div>
 
                             {detail.matched === true && !isCombined && (
                               <span className="rounded bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700">
@@ -131,33 +131,33 @@ export function QueryExplainRescorePanel({ items }: Props) {
                             )}
 
                             {detail.matched === false && !isCombined && (
-                              <span className="rounded bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500">
+                              <span className="rounded bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
                                 not matched
                               </span>
                             )}
                           </div>
 
                           {detail.filter_label && (
-                            <div className="mt-2 text-sm text-slate-700">
+                            <div className="mt-2 text-sm text-slate-700 dark:text-slate-300">
                               <span className="font-medium">조건</span>: {detail.filter_label}
                             </div>
                           )}
 
                           {detail.field && (
-                            <div className="mt-1 text-sm text-slate-600">
+                            <div className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                               <span className="font-medium">필드</span>: <span className="font-mono">{detail.field}</span>
                             </div>
                           )}
 
                           {detail.operation && (
-                            <div className="mt-1 text-xs text-slate-500">
+                            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                               {detail.operation}
                             </div>
                           )}
 
                           {detail.source_value !== undefined && detail.source_value !== null && (
-                            <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
-                              <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                            <div className="mt-3 rounded-lg bg-slate-50 dark:bg-slate-900 p-3 text-sm text-slate-700 dark:text-slate-300">
+                              <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                 Source Value
                               </div>
                               {renderSourceValue(detail.source_value)}
@@ -165,20 +165,20 @@ export function QueryExplainRescorePanel({ items }: Props) {
                           )}
 
                           {detail.params && (
-                            <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                            <div className="mt-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-600 dark:text-slate-400">
                               <span className="font-medium">params:</span> {renderParams(detail.params)}
                             </div>
                           )}
 
                           {detail.description && (
-                            <div className="mt-3 text-xs leading-5 text-slate-500">
+                            <div className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
                               {detail.description}
                             </div>
                           )}
                         </div>
 
-                        <div className="shrink-0 rounded bg-white px-3 py-2 text-right shadow-sm">
-                          <div className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+                        <div className="shrink-0 rounded bg-white dark:bg-slate-950 px-3 py-2 text-right shadow-sm">
+                          <div className="text-[10px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                             Score
                           </div>
                           <div className="font-mono text-sm font-semibold text-blue-700">
@@ -190,7 +190,7 @@ export function QueryExplainRescorePanel({ items }: Props) {
                   );
                 })
               ) : (
-                <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500">
+                <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500 dark:text-slate-400">
                   추가 상세 정보가 없습니다.
                 </div>
               )}

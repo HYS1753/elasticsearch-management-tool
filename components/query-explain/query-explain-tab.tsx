@@ -249,7 +249,7 @@ export function QueryExplainTab() {
                     onChange={(e) => setDocTitleFieldsText(e.target.value)}
                     placeholder="field1, field2"
                 />
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                     쉼표로 구분하세요. 비어 있으면 doc_id가 제목으로 내려옵니다.
                 </p>
                 </div>
@@ -257,7 +257,7 @@ export function QueryExplainTab() {
                 <div className="flex items-center justify-between rounded-lg border p-3">
                 <div>
                     <Label htmlFor="includeSourceFields">Include Source</Label>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     summary/detail 응답에 source 포함
                     </p>
                 </div>

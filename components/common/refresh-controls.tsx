@@ -32,7 +32,7 @@ export function RefreshControls({
       {/* Interval Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="border-slate-200 min-w-[110px]">
+          <Button variant="outline" className="border-slate-200 dark:border-slate-800 min-w-[110px]">
             {refreshInterval === 'manual' ? 'Manual' : `${refreshInterval}s`}
           </Button>
         </DropdownMenuTrigger>
@@ -54,7 +54,7 @@ export function RefreshControls({
       <Button 
         onClick={onRefresh} 
         variant="outline" 
-        className="gap-2 border-slate-200 relative overflow-hidden" 
+        className="gap-2 border-slate-200 dark:border-slate-800 relative overflow-hidden" 
         disabled={isAutoRefreshing}
       >
         {/* Progress background */}

@@ -34,15 +34,15 @@ export function ShardDialog({ shard, onClose }: ShardDialogProps) {
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-sm font-medium text-slate-600">Index</div>
-                <div className="text-sm font-semibold text-slate-900">{shard.index}</div>
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-400">Index</div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">{shard.index}</div>
               </div>
               <div>
-                <div className="text-sm font-medium text-slate-600">Shard Number</div>
-                <div className="text-sm font-semibold text-slate-900">{shard.shard}</div>
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-400">Shard Number</div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">{shard.shard}</div>
               </div>
               <div>
-                <div className="text-sm font-medium text-slate-600">Type</div>
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-400">Type</div>
                 <div>
                   <Badge variant={shard.prirep === 'p' ? 'default' : 'secondary'}>
                     {shard.prirep === 'p' ? 'Primary' : 'Replica'}
@@ -50,7 +50,7 @@ export function ShardDialog({ shard, onClose }: ShardDialogProps) {
                 </div>
               </div>
               <div>
-                <div className="text-sm font-medium text-slate-600">State</div>
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-400">State</div>
                 <div>
                   <Badge variant={shard.state === 'STARTED' ? 'default' : 'secondary'}>
                     {shard.state}
@@ -58,12 +58,12 @@ export function ShardDialog({ shard, onClose }: ShardDialogProps) {
                 </div>
               </div>
               <div>
-                <div className="text-sm font-medium text-slate-600">Node</div>
-                <div className="text-sm font-semibold text-slate-900">{shard.node}</div>
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-400">Node</div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">{shard.node}</div>
               </div>
               <div>
-                <div className="text-sm font-medium text-slate-600">Documents</div>
-                <div className="text-sm font-semibold text-slate-900">{shard.docs || 'N/A'}</div>
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-400">Documents</div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">{shard.docs || 'N/A'}</div>
               </div>
             </CardContent>
           </Card>
@@ -74,18 +74,18 @@ export function ShardDialog({ shard, onClose }: ShardDialogProps) {
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-sm font-medium text-slate-600">Store Size</div>
-                <div className="text-sm font-semibold text-slate-900">{shard.store || 'N/A'}</div>
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-400">Store Size</div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">{shard.store || 'N/A'}</div>
               </div>
               <div>
-                <div className="text-sm font-medium text-slate-600">IP Address</div>
-                <div className="text-sm font-semibold text-slate-900">{shard.ip || 'N/A'}</div>
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-400">IP Address</div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">{shard.ip || 'N/A'}</div>
               </div>
             </CardContent>
           </Card>
 
           {(shard.unassigned_reason || shard.unassigned_details) && (
-            <Card className="border-amber-200 bg-amber-50/50">
+            <Card className="border-amber-200 bg-amber-50/50 dark:border-amber-500/20 dark:bg-amber-500/10">
               <CardHeader>
                 <CardTitle className="text-base text-amber-900">Unassigned Information</CardTitle>
               </CardHeader>

@@ -36,7 +36,7 @@ function renderParams(params?: Record<string, unknown> | null) {
 function FilterList({ items }: { items: ExplainFilter[] }) {
   if (!items.length) {
     return (
-      <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500">
+      <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500 dark:text-slate-400">
         필터 조건이 없습니다.
       </div>
     );
@@ -45,22 +45,22 @@ function FilterList({ items }: { items: ExplainFilter[] }) {
   return (
     <div className="grid gap-3 md:grid-cols-2">
       {items.map((item, idx) => (
-        <div key={`${item.label}-${idx}`} className="rounded-xl border border-slate-200 bg-white p-4">
+        <div key={`${item.label}-${idx}`} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
           <div className="flex items-center justify-between gap-3">
-            <div className="font-medium text-slate-900">{item.label}</div>
+            <div className="font-medium text-slate-900 dark:text-slate-50">{item.label}</div>
             <span className="rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
               matched
             </span>
           </div>
 
           {item.source_value !== undefined && item.source_value !== null && (
-            <div className="mt-2 text-sm text-slate-600">
+            <div className="mt-2 text-sm text-slate-600 dark:text-slate-400">
               source: <span className="font-mono">{renderSourceValue(item.source_value)}</span>
             </div>
           )}
 
           {item.description && (
-            <div className="mt-2 text-xs text-slate-500">{item.description}</div>
+            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">{item.description}</div>
           )}
         </div>
       ))}
@@ -71,7 +71,7 @@ function FilterList({ items }: { items: ExplainFilter[] }) {
 function FieldGroups({ items }: { items: ExplainFieldScoreGroup[] }) {
   if (!items.length) {
     return (
-      <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500">
+      <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500 dark:text-slate-400">
         BM25 매칭 정보가 없습니다.
       </div>
     );
@@ -82,20 +82,20 @@ function FieldGroups({ items }: { items: ExplainFieldScoreGroup[] }) {
       {items.map((group, idx) => (
         <div
           key={`${group.field}-${idx}`}
-          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+          className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 shadow-sm"
         >
           <div className="grid gap-3 md:grid-cols-[minmax(0,9fr)_minmax(110px,1fr)] md:items-stretch">
             <div className="min-w-0">
-              <div className="text-lg font-bold tracking-tight text-slate-900">
+              <div className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50">
                 {group.field}
               </div>
 
-              <div className="mt-3 rounded-xl bg-slate-50 px-3 py-3">
-                <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              <div className="mt-3 rounded-xl bg-slate-50 dark:bg-slate-900 px-3 py-3">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Source Text
                 </div>
                 <div
-                  className="mt-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm leading-6 text-slate-900"
+                  className="mt-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm leading-6 text-slate-900 dark:text-slate-50"
                   title={renderSourceValue(group.source_value)}
                 >
                   {renderSourceValue(group.source_value)}
@@ -114,7 +114,7 @@ function FieldGroups({ items }: { items: ExplainFieldScoreGroup[] }) {
           </div>
 
           <div className="mt-4">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Matched Tokens
             </div>
 
@@ -122,13 +122,13 @@ function FieldGroups({ items }: { items: ExplainFieldScoreGroup[] }) {
               {group.matched_tokens.map((token, tokenIdx) => (
                 <div
                   key={`${group.field}-${token.token}-${tokenIdx}`}
-                  className="flex items-center gap-3 rounded-lg border border-slate-200 px-3 py-2"
+                  className="flex items-center gap-3 rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2"
                 >
-                  <span className="shrink-0 rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-800">
+                  <span className="shrink-0 rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-800 dark:text-slate-200">
                     {token.token}
                   </span>
 
-                  <div className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-slate-500">
+                  <div className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-slate-500 dark:text-slate-400">
                     {typeof token.boost === 'number' && <span>boost {token.boost.toFixed(2)}</span>}
                     {typeof token.idf === 'number' && (
                       <span>{typeof token.boost === 'number' ? ' | ' : ''}idf {token.idf.toFixed(2)}</span>
@@ -157,7 +157,7 @@ function FieldGroups({ items }: { items: ExplainFieldScoreGroup[] }) {
 function FunctionScores({ items }: { items: ExplainFunctionScore[] }) {
   if (!items.length) {
     return (
-      <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500">
+      <div className="rounded-xl border border-dashed p-4 text-sm text-slate-500 dark:text-slate-400">
         query 내부 function score 정보가 없습니다.
       </div>
     );
@@ -166,11 +166,11 @@ function FunctionScores({ items }: { items: ExplainFunctionScore[] }) {
   return (
     <div className="space-y-3">
       {items.map((item, idx) => (
-        <div key={`${item.label}-${idx}`} className="rounded-xl border border-slate-200 bg-white p-4">
+        <div key={`${item.label}-${idx}`} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="font-medium text-slate-900">{item.label}</div>
+                <div className="font-medium text-slate-900 dark:text-slate-50">{item.label}</div>
 
                 {item.matched === true && (
                   <span className="rounded bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700">
@@ -179,33 +179,33 @@ function FunctionScores({ items }: { items: ExplainFunctionScore[] }) {
                 )}
 
                 {item.matched === false && (
-                  <span className="rounded bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500">
+                  <span className="rounded bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
                     not matched
                   </span>
                 )}
               </div>
 
               {item.filter_label && (
-                <div className="mt-2 text-sm text-slate-700">
+                <div className="mt-2 text-sm text-slate-700 dark:text-slate-300">
                   <span className="font-medium">조건</span>: {item.filter_label}
                 </div>
               )}
 
               {item.field && (
-                <div className="mt-1 text-sm text-slate-600">
+                <div className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   <span className="font-medium">필드</span>: <span className="font-mono">{item.field}</span>
                 </div>
               )}
 
               {item.operation && (
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                   {item.operation}
                 </div>
               )}
 
               {item.source_value !== undefined && item.source_value !== null && (
-                <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
-                  <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                <div className="mt-3 rounded-lg bg-slate-50 dark:bg-slate-900 p-3 text-sm text-slate-700 dark:text-slate-300">
+                  <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Source Value
                   </div>
                   {renderSourceValue(item.source_value)}
@@ -213,13 +213,13 @@ function FunctionScores({ items }: { items: ExplainFunctionScore[] }) {
               )}
 
               {item.params && (
-                <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                <div className="mt-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-600 dark:text-slate-400">
                   <span className="font-medium">params:</span> {renderParams(item.params)}
                 </div>
               )}
 
               {item.description && (
-                <div className="mt-3 text-xs leading-5 text-slate-500">
+                <div className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
                   {item.description}
                 </div>
               )}
@@ -244,31 +244,31 @@ export function QueryExplainQueryPanel({ query }: Props) {
   return (
     <div className="space-y-6">
       <Card className="border-slate-200/70 shadow-sm">
-        <CardHeader className="border-b bg-slate-50/70">
+        <CardHeader className="border-b bg-slate-50/70 dark:bg-slate-900/70">
           <CardTitle className="text-base">Query Overview</CardTitle>
         </CardHeader>
         <CardContent className="p-5">
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Original Text Score
               </div>
-              <div className="mt-2 font-mono text-2xl font-semibold text-slate-900">
+              <div className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-slate-50">
                 {formatNumber(query.original_score)}
               </div>
-              <div className="mt-2 text-xs text-slate-500">
+              <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                 BM25 및 텍스트 relevance 기반 원점수
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Function Score Combined
               </div>
-              <div className="mt-2 font-mono text-2xl font-semibold text-slate-900">
+              <div className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-slate-50">
                 {formatNumber(query.function_score_combined)}
               </div>
-              <div className="mt-2 text-xs text-slate-500">
+              <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                 score_mode={query.function_score_mode ?? 'N/A'} / boost_mode={query.function_boost_mode ?? 'N/A'}
               </div>
             </div>
@@ -289,7 +289,7 @@ export function QueryExplainQueryPanel({ query }: Props) {
       </Card>
 
       <Card className="border-slate-200/70 shadow-sm">
-        <CardHeader className="border-b bg-slate-50/70">
+        <CardHeader className="border-b bg-slate-50/70 dark:bg-slate-900/70">
           <CardTitle className="text-base">필터 조건</CardTitle>
         </CardHeader>
         <CardContent className="p-5">
@@ -298,7 +298,7 @@ export function QueryExplainQueryPanel({ query }: Props) {
       </Card>
 
       <Card className="border-slate-200/70 shadow-sm">
-        <CardHeader className="border-b bg-slate-50/70">
+        <CardHeader className="border-b bg-slate-50/70 dark:bg-slate-900/70">
           <CardTitle className="text-base">BM25 점수 기여</CardTitle>
         </CardHeader>
         <CardContent className="p-5">
@@ -307,7 +307,7 @@ export function QueryExplainQueryPanel({ query }: Props) {
       </Card>
 
       <Card className="border-slate-200/70 shadow-sm">
-        <CardHeader className="border-b bg-slate-50/70">
+        <CardHeader className="border-b bg-slate-50/70 dark:bg-slate-900/70">
           <CardTitle className="text-base">Query 내부 추가 점수</CardTitle>
         </CardHeader>
         <CardContent className="p-5">

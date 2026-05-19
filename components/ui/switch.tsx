@@ -38,7 +38,7 @@ function Switch({
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
         className={cn(
-          "bg-white pointer-events-none block h-[16px] w-[16px] rounded-full shadow-lg ring-0 data-[state=checked]:translate-x-[24px] data-[state=unchecked]:translate-x-[2px]",
+          "bg-white dark:bg-slate-950 pointer-events-none block h-[16px] w-[16px] rounded-full shadow-lg ring-0 data-[state=checked]:translate-x-[24px] data-[state=unchecked]:translate-x-[2px]",
         )}
         style={{
           border: props.checked ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid #d4d4d8',

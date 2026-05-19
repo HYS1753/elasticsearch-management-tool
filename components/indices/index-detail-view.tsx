@@ -79,13 +79,13 @@ function formatBytes(bytes?: number | null) {
 function getHealthBadgeClass(health?: string) {
   switch (health) {
     case 'green':
-      return 'border-green-200 bg-green-50 text-green-700';
+      return 'border-green-200 bg-green-50 text-green-700 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20';
     case 'yellow':
-      return 'border-yellow-200 bg-yellow-50 text-yellow-700';
+      return 'border-yellow-200 bg-yellow-50 text-yellow-700 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20';
     case 'red':
-      return 'border-red-200 bg-red-50 text-red-700';
+      return 'border-red-200 bg-red-50 text-red-700 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20';
     default:
-      return 'border-slate-200 bg-slate-50 text-slate-700';
+      return 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300';
   }
 }
 
@@ -94,11 +94,11 @@ function getStatusBadgeClass(status?: string) {
 
   switch (normalized) {
     case 'open':
-      return 'border-sky-200 bg-sky-50 text-sky-700';
+      return 'border-sky-200 bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20';
     case 'closed':
-      return 'border-slate-200 bg-slate-100 text-slate-700';
+      return 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-700 dark:text-slate-300';
     default:
-      return 'border-slate-200 bg-slate-50 text-slate-700';
+      return 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300';
   }
 }
 
@@ -110,9 +110,9 @@ function SummaryItem({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-2 break-all text-sm font-medium text-slate-900">{value}</p>
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mt-2 break-all text-sm font-medium text-slate-900 dark:text-slate-50">{value}</p>
     </div>
   );
 }
@@ -132,12 +132,12 @@ function StatsCard({
     <Card>
       <CardContent className="flex items-start justify-between p-5">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="text-2xl font-semibold text-slate-900">{value}</p>
-          <p className="text-xs text-slate-500">{description}</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+          <p className="text-2xl font-semibold text-slate-900 dark:text-slate-50">{value}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{description}</p>
         </div>
-        <div className="rounded-2xl bg-slate-100 p-3">
-          <Icon className="h-5 w-5 text-slate-700" />
+        <div className="rounded-2xl bg-slate-100 dark:bg-slate-900 p-3">
+          <Icon className="h-5 w-5 text-slate-700 dark:text-slate-300" />
         </div>
       </CardContent>
     </Card>
@@ -152,30 +152,30 @@ function AliasTable({ aliases }: { aliases: IndexAliasItem[] }) {
         <CardDescription>인덱스에 연결된 alias 정보입니다.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="overflow-hidden rounded-2xl border border-slate-200">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr className="border-b border-slate-200">
-                  <th className="px-4 py-3 text-left font-medium text-slate-600">Alias</th>
-                  <th className="px-4 py-3 text-left font-medium text-slate-600">Write Index</th>
-                  <th className="px-4 py-3 text-left font-medium text-slate-600">Index Routing</th>
-                  <th className="px-4 py-3 text-left font-medium text-slate-600">Search Routing</th>
-                  <th className="px-4 py-3 text-left font-medium text-slate-600">Filter</th>
+              <thead className="bg-slate-50 dark:bg-slate-900">
+                <tr className="border-b border-slate-200 dark:border-slate-800">
+                  <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">Alias</th>
+                  <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">Write Index</th>
+                  <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">Index Routing</th>
+                  <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">Search Routing</th>
+                  <th className="px-4 py-3 text-left font-medium text-slate-600 dark:text-slate-400">Filter</th>
                 </tr>
               </thead>
-              <tbody className="bg-white">
+              <tbody className="bg-white dark:bg-slate-950">
                 {aliases.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-12 text-center text-slate-500">
+                    <td colSpan={5} className="px-4 py-12 text-center text-slate-500 dark:text-slate-400">
                       alias가 없습니다.
                     </td>
                   </tr>
                 ) : (
                   aliases.map((alias) => (
-                    <tr key={alias.name} className="border-b border-slate-100">
-                      <td className="px-4 py-3 font-medium text-slate-900">{alias.name}</td>
-                      <td className="px-4 py-3 text-slate-700">
+                    <tr key={alias.name} className="border-b border-slate-100 dark:border-slate-800">
+                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">{alias.name}</td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-300">
                         {alias.is_write_index ? (
                           <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
                             true
@@ -184,10 +184,10 @@ function AliasTable({ aliases }: { aliases: IndexAliasItem[] }) {
                           <Badge variant="secondary">false</Badge>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-slate-700">{alias.routing_index || '-'}</td>
-                      <td className="px-4 py-3 text-slate-700">{alias.routing_search || '-'}</td>
-                      <td className="px-4 py-3 text-xs text-slate-600">
-                        <div className="max-w-[420px] whitespace-pre-wrap break-all rounded-xl bg-slate-50 p-3">
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{alias.routing_index || '-'}</td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{alias.routing_search || '-'}</td>
+                      <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-400">
+                        <div className="max-w-[420px] whitespace-pre-wrap break-all rounded-xl bg-slate-50 dark:bg-slate-900 p-3">
                           {alias.filter || '-'}
                         </div>
                       </td>
@@ -228,21 +228,21 @@ function SettingsSection({ settings }: { settings: IndexSettingItem[] }) {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="setting key/value 검색"
-            className="flex h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            className="flex h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 pl-10 pr-4 text-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
           />
         </div>
 
-        <div className="max-h-[520px] overflow-auto rounded-2xl border border-slate-200">
-          <div className="divide-y divide-slate-100 bg-white">
+        <div className="max-h-[520px] overflow-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div className="divide-y divide-slate-100 bg-white dark:bg-slate-950">
             {filtered.length === 0 ? (
-              <div className="px-4 py-10 text-center text-sm text-slate-500">
+              <div className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
                 조건에 맞는 setting이 없습니다.
               </div>
             ) : (
               filtered.map((item) => (
                 <div key={item.key} className="grid gap-2 px-4 py-3 lg:grid-cols-[320px_minmax(0,1fr)]">
-                  <div className="text-sm break-all font-medium text-slate-900">{item.key}</div>
-                  <div className="text-sm break-all text-slate-600">{item.value}</div>
+                  <div className="text-sm break-all font-medium text-slate-900 dark:text-slate-50">{item.key}</div>
+                  <div className="text-sm break-all text-slate-600 dark:text-slate-400">{item.value}</div>
                 </div>
               ))
             )}
@@ -268,11 +268,11 @@ function MappingNode({
       <button
         type="button"
         onClick={() => hasChildren && setOpen((prev) => !prev)}
-        className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition hover:bg-slate-50 ${
+        className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900 ${
           level > 0 ? 'ml-4' : ''
         }`}
       >
-        <div className="flex h-5 w-5 items-center justify-center text-slate-500">
+        <div className="flex h-5 w-5 items-center justify-center text-slate-500 dark:text-slate-400">
           {hasChildren ? (
             open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
           ) : (
@@ -281,7 +281,7 @@ function MappingNode({
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-medium text-slate-900">{field.name}</div>
+          <div className="truncate text-sm font-medium text-slate-900 dark:text-slate-50">{field.name}</div>
         </div>
 
         <Badge variant="outline" className="shrink-0">
@@ -308,9 +308,9 @@ function MappingsSection({ mappings }: { mappings: IndexMappingField[] }) {
         <CardDescription>필드 구조를 트리 형태로 확인합니다.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="max-h-[640px] overflow-auto rounded-2xl border border-slate-200 bg-white p-3">
+        <div className="max-h-[640px] overflow-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3">
           {mappings.length === 0 ? (
-            <div className="px-4 py-10 text-center text-sm text-slate-500">
+            <div className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
               mapping field가 없습니다.
             </div>
           ) : (
@@ -552,7 +552,7 @@ export function IndexDetailView({ indexName }: { indexName: string }) {
   return (
     <>
       <div className="space-y-6">
-        <Card className="border-sky-200/60 bg-gradient-to-r from-sky-50 to-white">
+        <Card className="border-sky-200/60 dark:border-sky-500/20 bg-gradient-to-r from-sky-50 to-white dark:from-slate-900 dark:to-slate-950">
           <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-4">
               <Link
@@ -565,7 +565,7 @@ export function IndexDetailView({ indexName }: { indexName: string }) {
 
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-2xl font-semibold text-slate-900">{summary.index}</h1>
+                  <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-50">{summary.index}</h1>
                   <Badge variant="outline" className={getHealthBadgeClass(summary.health)}>
                     {summary.health || 'unknown'}
                   </Badge>

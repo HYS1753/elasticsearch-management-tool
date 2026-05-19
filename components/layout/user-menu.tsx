@@ -8,10 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
+import { SettingsDialog } from './settings-dialog';
+
 const ROLE_CONFIG: Record<string, { icon: any; color: string }> = {
-  ADMIN: { icon: Shield, color: 'border-red-200 bg-red-50 text-red-700' },
-  WRITER: { icon: Pencil, color: 'border-blue-200 bg-blue-50 text-blue-700' },
-  VIEWER: { icon: Eye, color: 'border-slate-200 bg-slate-100 text-slate-600' },
+  ADMIN: { icon: Shield, color: 'border-red-200 bg-red-50 text-red-700 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400' },
+  WRITER: { icon: Pencil, color: 'border-blue-200 bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400' },
+  VIEWER: { icon: Eye, color: 'border-slate-200 dark:border-slate-800 bg-slate-100 text-slate-600 dark:text-slate-400 dark:bg-slate-800/50 dark:border-slate-700 dark:text-slate-300' },
 };
 
 export function UserMenu() {
@@ -52,25 +54,29 @@ export function UserMenu() {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
-        <div className="bg-blue-100 text-blue-700 p-1 rounded-full">
+      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 dark:bg-slate-800/50 dark:border-slate-700 dark:text-slate-300">
+        <div className="bg-blue-100 text-blue-700 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20 p-1 rounded-full dark:bg-blue-500/10 dark:text-blue-400">
           <UserIcon className="h-4 w-4" />
         </div>
-        <span className="font-medium text-slate-900">{user.name}</span>
+        <span className="font-medium text-slate-900 dark:text-slate-50 dark:text-slate-100">{user.name}</span>
         <Badge variant="outline" className={`text-[10px] px-1.5 py-0 h-5 ${roleConf.color}`}>
           <RoleIcon className="h-3 w-3 mr-0.5" />
           {user.role}
         </Badge>
       </div>
+
+      {/* Global Settings Dialog */}
+      <SettingsDialog />
+
       {user.role === 'ADMIN' && (
         <Link href="/users">
-          <Button variant="ghost" size="sm" className="gap-2 text-slate-600 hover:text-blue-600">
+          <Button variant="ghost" size="sm" className="gap-2 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400">
             <Settings className="h-4 w-4" />
             Users
           </Button>
         </Link>
       )}
-      <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
+      <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
         <LogOut className="h-4 w-4" />
         Logout
       </Button>

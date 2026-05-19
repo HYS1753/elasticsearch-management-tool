@@ -8,7 +8,7 @@ interface ErrorDisplayProps {
 
 export function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white dark:bg-slate-950 p-6">
       <div className="container mx-auto">
         <Card className="border-red-200 bg-red-50/50">
           <CardHeader>
