@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/common/page-header';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DictionaryTable } from '@/components/dictionary/dictionary-table';
 import { DictionaryType } from '@/types/dictionary';
@@ -245,6 +246,18 @@ export default function DictionaryPage() {
         <PageHeader
           title="Dictionary Management"
           description="Manage analyzers, stopwords, synonyms, and custom dictionary entries"
+          actions={
+            isAdmin && (
+              <Button
+                onClick={() => setIsDeployDialogOpen(true)}
+                variant="outline"
+                className="border-indigo-200 text-indigo-600 hover:bg-indigo-50/50 hover:text-indigo-700 h-11 px-5 rounded-xl font-semibold shadow-sm hover:shadow transition-all duration-200 cursor-pointer"
+              >
+                <CloudLightning className="h-4 w-4 mr-2 text-indigo-500 animate-pulse" />
+                Sync & Deploy (배포 및 검증)
+              </Button>
+            )
+          }
         />
 
         {/* Dictionary Workflow Description */}
@@ -309,7 +322,6 @@ export default function DictionaryPage() {
                 key={`user_${refreshKey}`}
                 type="user"
                 isAdmin={isAdmin}
-                onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
             </TabsContent>
             <TabsContent value="decompound" className="m-0 border-none p-0 outline-none">
@@ -317,7 +329,6 @@ export default function DictionaryPage() {
                 key={`decompound_${refreshKey}`}
                 type="decompound"
                 isAdmin={isAdmin}
-                onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
             </TabsContent>
             <TabsContent value="synonym" className="m-0 border-none p-0 outline-none">
@@ -325,7 +336,6 @@ export default function DictionaryPage() {
                 key={`synonym_${refreshKey}`}
                 type="synonym"
                 isAdmin={isAdmin}
-                onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
             </TabsContent>
             <TabsContent value="correction" className="m-0 border-none p-0 outline-none">
@@ -333,7 +343,6 @@ export default function DictionaryPage() {
                 key={`correction_${refreshKey}`}
                 type="correction"
                 isAdmin={isAdmin}
-                onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
             </TabsContent>
             <TabsContent value="stopword" className="m-0 border-none p-0 outline-none">
@@ -341,7 +350,6 @@ export default function DictionaryPage() {
                 key={`stopword_${refreshKey}`}
                 type="stopword"
                 isAdmin={isAdmin}
-                onDeployOpen={() => setIsDeployDialogOpen(true)}
               />
             </TabsContent>
           </div>

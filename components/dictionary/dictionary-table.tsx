@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Trash2, Edit, CheckCircle, XCircle, CloudLightning } from 'lucide-react';
+import { Search, Plus, Trash2, Edit, CheckCircle, XCircle, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { DictionaryDialog } from './dictionary-dialog';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -15,11 +15,10 @@ import type { DictionaryType, DictionaryEntity } from '@/types/dictionary';
 
 interface DictionaryTableProps {
   type: DictionaryType;
-  onDeployOpen?: () => void;
   isAdmin?: boolean;
 }
 
-export function DictionaryTable({ type, onDeployOpen, isAdmin }: DictionaryTableProps) {
+export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
   const [data, setData] = useState<DictionaryEntity[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -29,7 +28,17 @@ export function DictionaryTable({ type, onDeployOpen, isAdmin }: DictionaryTable
   const [keyword, setKeyword] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [skip, setSkip] = useState(0);
-  const limit = 10;
+  const [limit, setLimit] = useState<number>(10);
+  const [sortBy, setSortBy] = useState<string>('updated_at');
+  const [sortOrder, setSortOrder] = useState<number>(-1);
+  const [jumpPageInput, setJumpPageInput] = useState<string>('1');
+
+  const totalPages = Math.ceil(total / limit) || 1;
+  const currentPage = Math.floor(skip / limit) + 1;
+
+  useEffect(() => {
+    setJumpPageInput(currentPage.toString());
+  }, [currentPage]);
 
   // Dialog states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -47,7 +56,7 @@ export function DictionaryTable({ type, onDeployOpen, isAdmin }: DictionaryTable
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await searchDictionary(type, { keyword, skip, limit, sort_by: 'index', sort_order: -1 });
+      const res = await searchDictionary(type, { keyword, skip, limit, sort_by: sortBy, sort_order: sortOrder });
       setData(res.items);
       setTotal(res.total_count);
     } catch (err) {
@@ -55,7 +64,63 @@ export function DictionaryTable({ type, onDeployOpen, isAdmin }: DictionaryTable
     } finally {
       setLoading(false);
     }
-  }, [type, keyword, skip]);
+  }, [type, keyword, skip, limit, sortBy, sortOrder]);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(prev => (prev === -1 ? 1 : -1));
+    } else {
+      setSortBy(field);
+      setSortOrder(-1);
+    }
+    setSkip(0);
+  };
+
+  const renderSortableHeader = (label: string, field: string, className = '') => {
+    const isSorted = sortBy === field;
+    return (
+      <TableHead 
+        className={`px-4 py-3 font-medium text-slate-600 cursor-pointer select-none hover:text-slate-900 transition-colors ${className}`}
+        onClick={() => handleSort(field)}
+      >
+        <div className="flex items-center gap-1">
+          {label}
+          {isSorted ? (
+            sortOrder === 1 ? (
+              <ArrowUp className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+            ) : (
+              <ArrowDown className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+            )
+          ) : (
+            <ArrowUpDown className="h-3.5 w-3.5 text-slate-300 hover:text-slate-400 shrink-0" />
+          )}
+        </div>
+      </TableHead>
+    );
+  };
+
+  const renderSortableHeaderWithCenter = (label: string, field: string, className = '') => {
+    const isSorted = sortBy === field;
+    return (
+      <TableHead 
+        className={`px-4 py-3 font-medium text-slate-600 cursor-pointer select-none hover:text-slate-900 transition-colors ${className}`}
+        onClick={() => handleSort(field)}
+      >
+        <div className="flex items-center justify-center gap-1">
+          {label}
+          {isSorted ? (
+            sortOrder === 1 ? (
+              <ArrowUp className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+            ) : (
+              <ArrowDown className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+            )
+          ) : (
+            <ArrowUpDown className="h-3.5 w-3.5 text-slate-300 hover:text-slate-400 shrink-0" />
+          )}
+        </div>
+      </TableHead>
+    );
+  };
 
   useEffect(() => {
     fetchData();
@@ -168,20 +233,20 @@ export function DictionaryTable({ type, onDeployOpen, isAdmin }: DictionaryTable
     switch (type) {
       case 'user':
       case 'stopword':
-        return <TableHead className="px-4 py-3 font-medium text-slate-600">Word</TableHead>;
+        return renderSortableHeader('Word', 'word');
       case 'decompound':
         return (
           <>
-            <TableHead className="w-[200px] px-4 py-3 font-medium text-slate-600">Compound Word</TableHead>
+            {renderSortableHeader('Compound Word', 'compound_word')}
             <TableHead className="px-4 py-3 font-medium text-slate-600">Components</TableHead>
           </>
         );
       case 'synonym':
-        return <TableHead className="px-4 py-3 font-medium text-slate-600">Synonyms</TableHead>;
+        return renderSortableHeader('Synonyms', 'synonyms');
       case 'correction':
         return (
           <>
-            <TableHead className="w-[200px] px-4 py-3 font-medium text-slate-600">Incorrect</TableHead>
+            {renderSortableHeader('Incorrect', 'incorrect')}
             <TableHead className="px-4 py-3 font-medium text-slate-600">Corrected</TableHead>
           </>
         );
@@ -212,17 +277,7 @@ export function DictionaryTable({ type, onDeployOpen, isAdmin }: DictionaryTable
             
             {canWrite && (
               <div className="flex items-center gap-3">
-                {isAdmin && onDeployOpen && (
-                  <Button 
-                    onClick={onDeployOpen} 
-                    variant="outline" 
-                    className="border-indigo-200 text-indigo-600 hover:bg-indigo-50/50 hover:text-indigo-700 h-11 px-5 rounded-xl font-semibold shadow-sm hover:shadow transition-all duration-200"
-                  >
-                    <CloudLightning className="h-4 w-4 mr-2 text-indigo-500 animate-pulse" />
-                    Sync & Deploy (배포 및 검증)
-                  </Button>
-                )}
-                <Button onClick={handleOpenAdd} className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl font-semibold">
+                <Button onClick={handleOpenAdd} className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl font-semibold cursor-pointer">
                   <Plus className="h-4 w-4 mr-2" /> Add Entry
                 </Button>
               </div>
@@ -232,16 +287,16 @@ export function DictionaryTable({ type, onDeployOpen, isAdmin }: DictionaryTable
 
         <CardContent>
           <div className="overflow-hidden rounded-2xl border border-slate-200">
-            <div className="max-h-[560px] overflow-auto">
+            <div className="max-h-[720px] overflow-auto">
               <Table className="min-w-full text-sm">
                 <TableHeader className="sticky top-0 z-10 bg-slate-50">
                   <TableRow className="border-b border-slate-200">
                     <TableHead className="w-[60px] px-4 py-3 font-medium text-slate-600 text-center">No</TableHead>
               {renderHeaders()}
-              <TableHead className="w-[100px] px-4 py-3 font-medium text-slate-600 text-center">Status</TableHead>
-              <TableHead className="w-[120px] px-4 py-3 font-medium text-slate-600">Author</TableHead>
-              <TableHead className="w-[160px] px-4 py-3 font-medium text-slate-600">Created At</TableHead>
-              <TableHead className="w-[160px] px-4 py-3 font-medium text-slate-600">Updated At</TableHead>
+              {renderSortableHeaderWithCenter('Status', 'status', 'w-[120px]')}
+              {renderSortableHeader('Author', 'author', 'w-[120px]')}
+              {renderSortableHeader('Created At', 'created_at', 'w-[180px]')}
+              {renderSortableHeader('Updated At', 'updated_at', 'w-[180px]')}
               <TableHead className="w-[140px] px-4 py-3 font-medium text-slate-600 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -313,27 +368,147 @@ export function DictionaryTable({ type, onDeployOpen, isAdmin }: DictionaryTable
           </div>
 
           {/* Pagination Controls */}
-          <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-xs text-slate-500">
-            <p>
-              Showing {skip + 1} to {Math.min(skip + limit, total)} of {total} entries
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={skip === 0 || loading}
-                onClick={() => setSkip(Math.max(0, skip - limit))}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={skip + limit >= total || loading}
-                onClick={() => setSkip(skip + limit)}
-              >
-                Next
-              </Button>
+          <div className="mt-6 flex flex-col gap-4 items-center justify-between border-t border-slate-100 pt-4">
+            <div className="flex w-full flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+              <p>
+                Showing <span className="font-semibold text-slate-700">{total > 0 ? skip + 1 : 0}</span> to <span className="font-semibold text-slate-700">{Math.min(skip + limit, total)}</span> of <span className="font-semibold text-slate-700">{total}</span> entries
+              </p>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500 font-medium">Page Size:</span>
+                <select
+                  className="h-8 w-18 rounded-lg border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 cursor-pointer"
+                  value={limit}
+                  onChange={(e) => {
+                    const newLimit = Number(e.target.value);
+                    setLimit(newLimit);
+                    setSkip(0);
+                  }}
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+              <div className="flex items-center gap-1.5 justify-center">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg border-slate-200 cursor-pointer"
+                  disabled={currentPage === 1 || loading}
+                  onClick={() => setSkip(0)}
+                  title="First Page"
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg border-slate-200 cursor-pointer"
+                  disabled={currentPage === 1 || loading}
+                  onClick={() => setSkip(Math.max(0, (currentPage - 2) * limit))}
+                  title="Previous Page"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+
+                {(() => {
+                  const pageNumbers = [];
+                  const maxVisiblePages = 5;
+                  let startPage = Math.max(1, currentPage - 2);
+                  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                  
+                  if (endPage - startPage + 1 < maxVisiblePages) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                  }
+                  
+                  for (let i = startPage; i <= endPage; i++) {
+                    pageNumbers.push(i);
+                  }
+                  return pageNumbers.map((pageNum) => (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      className={`h-8 min-w-8 px-2 rounded-lg font-semibold cursor-pointer ${
+                        currentPage === pageNum
+                          ? "bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600"
+                          : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                      disabled={loading}
+                      onClick={() => setSkip((pageNum - 1) * limit)}
+                    >
+                      {pageNum}
+                    </Button>
+                  ));
+                })()}
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg border-slate-200 cursor-pointer"
+                  disabled={currentPage === totalPages || loading}
+                  onClick={() => setSkip(currentPage * limit)}
+                  title="Next Page"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg border-slate-200 cursor-pointer"
+                  disabled={currentPage === totalPages || loading}
+                  onClick={() => setSkip((totalPages - 1) * limit)}
+                  title="Last Page"
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500 font-medium">Go to page:</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={jumpPageInput}
+                  onChange={(e) => setJumpPageInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const page = parseInt(jumpPageInput, 10);
+                      if (page >= 1 && page <= totalPages) {
+                        setSkip((page - 1) * limit);
+                      } else {
+                        toast.error(`Invalid page number. Please enter a page between 1 and ${totalPages}`);
+                      }
+                    }
+                  }}
+                  placeholder={`${currentPage}`}
+                  className="h-8 w-14 rounded-lg border border-slate-200 bg-white text-center text-xs font-semibold text-slate-700 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                />
+                <span className="text-xs text-slate-400 font-medium">/ {totalPages}</span>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-8 px-2.5 rounded-lg text-xs font-semibold text-slate-600 border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer"
+                  onClick={() => {
+                    const page = parseInt(jumpPageInput, 10);
+                    if (page >= 1 && page <= totalPages) {
+                      setSkip((page - 1) * limit);
+                    } else {
+                      toast.error(`Invalid page number. Please enter a page between 1 and ${totalPages}`);
+                    }
+                  }}
+                >
+                  Go
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
