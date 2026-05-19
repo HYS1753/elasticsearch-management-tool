@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { Network, Settings2, FileText, SearchCode, BookOpen } from 'lucide-react';
+import { Network, Settings2, FileText, SearchCode, BookOpen, BarChart3 } from 'lucide-react';
 
 const navItems = [
   { href: '/cluster-information', label: 'Cluster Info', icon: Network },
+  { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { href: '/indices-management', label: 'Indices Management', icon: Settings2 },
   { href: '/documents', label: 'Documents', icon: FileText },
   //{ href: '/boosting', label: 'Category Boosting', icon: TrendingUp },
