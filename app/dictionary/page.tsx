@@ -128,6 +128,9 @@ function LogItem({ log, idx }: { log: LogStep; idx: number }) {
             {isRunningStep && (
               <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100/60 animate-pulse">진행중</span>
             )}
+            {isFailedStep && (
+              <span className="text-[10px] font-bold bg-rose-50 text-rose-700 px-2 py-0.5 rounded border border-rose-100/60 shadow-sm/subtle animate-bounce">실패</span>
+            )}
           </div>
 
           {log.details && (
