@@ -168,14 +168,6 @@ export default function DashboardPage() {
           description="Elasticsearch cluster metrics powered by Prometheus — real-time and historical views"
           actions={
             <div className="flex items-center gap-3">
-              {/* Health status indicator */}
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-                <span className={`w-2.5 h-2.5 rounded-full ${healthColor} animate-pulse`} />
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
-                  {healthStatus}
-                </span>
-              </div>
-
               <TimeRangeSelector
                 value={timeRange}
                 onChange={handleTimeRangeChange}
@@ -215,7 +207,7 @@ export default function DashboardPage() {
         />
 
         {/* ── KPI Summary Cards ── */}
-        <KpiSummaryCards data={clusterOverview?.health || null} loading={loading} />
+        <KpiSummaryCards data={clusterOverview?.health || null} searchPerformance={searchPerformance} loading={loading} />
 
         {/* ── Node Resources ── */}
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800">

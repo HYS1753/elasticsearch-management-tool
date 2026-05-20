@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface MetricChartCardProps {
   title: string;
   subtitle?: string;
+  subtitleKo?: string;
   icon?: ReactNode;
   loading?: boolean;
   children: ReactNode;
@@ -16,6 +17,7 @@ interface MetricChartCardProps {
 export function MetricChartCard({
   title,
   subtitle,
+  subtitleKo,
   icon,
   loading = false,
   children,
@@ -30,6 +32,9 @@ export function MetricChartCard({
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{title}</h3>
             {subtitle && (
               <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">{subtitle}</p>
+            )}
+            {subtitleKo && (
+              <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal truncate">{subtitleKo}</p>
             )}
           </div>
         </div>

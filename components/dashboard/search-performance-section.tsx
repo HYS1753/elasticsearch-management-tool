@@ -106,15 +106,19 @@ interface SearchPerformanceSectionProps {
 export function SearchPerformanceSection({ data, loading }: SearchPerformanceSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Search className="h-5 w-5 text-emerald-500" />
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Search Performance</h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 ml-1">Query rate and latency over time</p>
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-2">
+          <Search className="h-5 w-5 text-emerald-500" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Search Performance</h2>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-100 dark:border-emerald-500/20">검색 성능 지표</span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 ml-7">Query rate and latency over time</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <MetricChartCard
           title="Search Query Rate"
           subtitle="Queries per second (5m rate)"
+          subtitleKo="초당 검색 쿼리 요청 수 (5분 평균)"
           icon={<Search className="h-4 w-4" />}
           loading={loading}
         >
@@ -123,6 +127,7 @@ export function SearchPerformanceSection({ data, loading }: SearchPerformanceSec
         <MetricChartCard
           title="Search Query Latency"
           subtitle="Average query time in seconds (5m rate)"
+          subtitleKo="평균 검색 쿼리 응답 지연 시간 (5분 평균)"
           icon={<Clock className="h-4 w-4" />}
           loading={loading}
         >
@@ -131,6 +136,7 @@ export function SearchPerformanceSection({ data, loading }: SearchPerformanceSec
         <MetricChartCard
           title="Fetch Rate"
           subtitle="Fetch operations per second (5m rate)"
+          subtitleKo="초당 문서 Fetch 작업 수 (5분 평균)"
           icon={<Search className="h-4 w-4" />}
           loading={loading}
         >
@@ -139,6 +145,7 @@ export function SearchPerformanceSection({ data, loading }: SearchPerformanceSec
         <MetricChartCard
           title="Fetch Latency"
           subtitle="Average fetch time in seconds (5m rate)"
+          subtitleKo="평균 문서 Fetch 지연 시간 (5분 평균)"
           icon={<Clock className="h-4 w-4" />}
           loading={loading}
         >

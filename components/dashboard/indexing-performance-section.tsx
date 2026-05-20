@@ -106,15 +106,19 @@ interface IndexingPerformanceSectionProps {
 export function IndexingPerformanceSection({ data, loading }: IndexingPerformanceSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <ArrowUpDown className="h-5 w-5 text-amber-500" />
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Indexing Performance</h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 ml-1">Index rate, latency, and delete operations</p>
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="h-5 w-5 text-amber-500" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Indexing Performance</h2>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded border border-amber-100 dark:border-amber-500/20">인덱싱(색인) 성능 지표</span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 ml-7">Index rate, latency, and delete operations</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <MetricChartCard
           title="Indexing Rate"
           subtitle="Documents indexed per second (5m rate)"
+          subtitleKo="초당 인덱싱(색인) 문서 수 (5분 평균)"
           icon={<ArrowUpDown className="h-4 w-4" />}
           loading={loading}
         >
@@ -123,6 +127,7 @@ export function IndexingPerformanceSection({ data, loading }: IndexingPerformanc
         <MetricChartCard
           title="Indexing Latency"
           subtitle="Average indexing time (5m rate)"
+          subtitleKo="평균 문서 색인 지연 시간 (5분 평균)"
           icon={<Clock className="h-4 w-4" />}
           loading={loading}
         >
@@ -131,6 +136,7 @@ export function IndexingPerformanceSection({ data, loading }: IndexingPerformanc
         <MetricChartCard
           title="Delete Rate"
           subtitle="Documents deleted per second (5m rate)"
+          subtitleKo="초당 문서 삭제 작업 수 (5분 평균)"
           icon={<Trash2 className="h-4 w-4" />}
           loading={loading}
         >

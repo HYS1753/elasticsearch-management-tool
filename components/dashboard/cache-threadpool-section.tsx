@@ -110,15 +110,19 @@ interface CacheThreadPoolSectionProps {
 export function CacheThreadPoolSection({ data, loading }: CacheThreadPoolSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Database className="h-5 w-5 text-violet-500" />
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Cache & Thread Pool</h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 ml-1">Query cache efficiency and thread pool pressure</p>
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-2">
+          <Database className="h-5 w-5 text-violet-500" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Cache & Thread Pool</h2>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold bg-violet-50 dark:bg-violet-500/10 px-2 py-0.5 rounded border border-violet-100 dark:border-violet-500/20">캐시 및 스레드풀 지표</span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 ml-7">Query cache efficiency and thread pool pressure</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <MetricChartCard
           title="Query Cache Size"
           subtitle="Memory used by query cache per node"
+          subtitleKo="쿼리 캐시 사용 메모리 크기"
           icon={<Database className="h-4 w-4" />}
           loading={loading}
         >
@@ -127,6 +131,7 @@ export function CacheThreadPoolSection({ data, loading }: CacheThreadPoolSection
         <MetricChartCard
           title="Cache Eviction Rate"
           subtitle="Query cache evictions per second (5m rate)"
+          subtitleKo="초당 쿼리 캐시 제거(Evictions) 빈도 (5분 평균)"
           icon={<AlertCircle className="h-4 w-4" />}
           loading={loading}
         >
@@ -135,6 +140,7 @@ export function CacheThreadPoolSection({ data, loading }: CacheThreadPoolSection
         <MetricChartCard
           title="Thread Pool Active"
           subtitle="Active threads (search, write, index)"
+          subtitleKo="현재 활성화된 스레드 수 (검색, 쓰기, 색인)"
           icon={<Layers className="h-4 w-4" />}
           loading={loading}
         >
@@ -143,6 +149,7 @@ export function CacheThreadPoolSection({ data, loading }: CacheThreadPoolSection
         <MetricChartCard
           title="Thread Pool Rejected"
           subtitle="Rejected operations per second (5m rate)"
+          subtitleKo="초당 거부된 스레드 작업 수 (5분 평균)"
           icon={<AlertCircle className="h-4 w-4" />}
           loading={loading}
         >

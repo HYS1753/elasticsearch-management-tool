@@ -21,10 +21,13 @@ interface StorageOverviewSectionProps {
 export function StorageOverviewSection({ data, loading }: StorageOverviewSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <HardDrive className="h-5 w-5 text-sky-500" />
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Storage Overview</h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 ml-1">Disk utilization per node</p>
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-2">
+          <HardDrive className="h-5 w-5 text-amber-500" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Storage Overview</h2>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded border border-amber-100 dark:border-amber-500/20">디스크 저장소 현황</span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 ml-7">노드별 디스크 저장소 사용률 및 잔여 용량 (Disk utilization per node)</p>
       </div>
       <Card className="border-slate-200/60 dark:border-slate-800/60 shadow-sm bg-white dark:bg-slate-950">
         <CardContent className="p-5">

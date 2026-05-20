@@ -170,15 +170,19 @@ interface NodeResourcesSectionProps {
 export function NodeResourcesSection({ data, loading }: NodeResourcesSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Cpu className="h-5 w-5 text-indigo-500" />
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Node Resources</h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 ml-1">CPU, Memory, JVM Heap, Garbage Collection</p>
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-2">
+          <Cpu className="h-5 w-5 text-indigo-500" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Node Resources</h2>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-100 dark:border-indigo-500/20">노드 리소스 지표</span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 ml-7">CPU, Memory, JVM Heap, Garbage Collection</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <MetricChartCard
           title="CPU Usage"
           subtitle="OS-level CPU utilization per node"
+          subtitleKo="노드별 운영체제(OS) 기준 CPU 사용률"
           icon={<Cpu className="h-4 w-4" />}
           loading={loading}
         >
@@ -187,6 +191,7 @@ export function NodeResourcesSection({ data, loading }: NodeResourcesSectionProp
         <MetricChartCard
           title="JVM Heap Usage"
           subtitle="JVM heap memory used per node"
+          subtitleKo="노드별 JVM 힙 메모리 사용량"
           icon={<Container className="h-4 w-4" />}
           loading={loading}
         >
@@ -195,6 +200,7 @@ export function NodeResourcesSection({ data, loading }: NodeResourcesSectionProp
         <MetricChartCard
           title="OS Memory Usage"
           subtitle="System memory used per node"
+          subtitleKo="노드별 시스템 물리 메모리 사용량"
           icon={<MemoryStick className="h-4 w-4" />}
           loading={loading}
         >
@@ -203,6 +209,7 @@ export function NodeResourcesSection({ data, loading }: NodeResourcesSectionProp
         <MetricChartCard
           title="GC Collection Rate"
           subtitle="Garbage collection frequency (per second)"
+          subtitleKo="초당 가비지 컬렉션(GC) 발생 빈도"
           icon={<Timer className="h-4 w-4" />}
           loading={loading}
         >
