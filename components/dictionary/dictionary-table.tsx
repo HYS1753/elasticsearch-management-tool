@@ -148,7 +148,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
     let key = '';
     if (type === 'user' || type === 'stopword') key = deleteItem.word;
     else if (type === 'decompound') key = deleteItem.compound_word;
-    else if (type === 'synonym') key = deleteItem.synonyms[0];
+    else if (type === 'synonym') key = deleteItem.synonyms?.join(',') ?? '';
     else if (type === 'correction') key = deleteItem.incorrect;
 
     try {
@@ -167,7 +167,7 @@ export function DictionaryTable({ type, isAdmin }: DictionaryTableProps) {
     let key = '';
     if (type === 'user' || type === 'stopword') key = item.word;
     else if (type === 'decompound') key = item.compound_word;
-    else if (type === 'synonym') key = item.synonyms[0];
+    else if (type === 'synonym') key = item.synonyms?.join(',') ?? '';
     else if (type === 'correction') key = item.incorrect;
 
     try {
