@@ -6,6 +6,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = await authService.login(body);
 
+    // 백엔드 JWT 만료 시간과 동기화 (NEXT_PUBLIC_AUTH_TOKEN_EXPIRE_HOURS, 기본값: 24시간)
+    const expireHours = parseInt(process.env.NEXT_PUBLIC_AUTH_TOKEN_EXPIRE_HOURS || '24', 10);
+    const maxAgeSeconds = expireHours * 60 * 60;
+
     // Set cookie
     const response = NextResponse.json({ success: true, user: data });
     
@@ -19,7 +23,7 @@ export async function POST(request: NextRequest) {
       secure: isSecure,
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24, // 24 hours to match backend token expiry
+      maxAge: maxAgeSeconds,
     });
 
     // Also set a user info cookie (not httponly) so the UI can display the username
@@ -30,7 +34,7 @@ export async function POST(request: NextRequest) {
       secure: isSecure,
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24,
+      maxAge: maxAgeSeconds,
     });
 
     return response;
