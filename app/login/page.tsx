@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { Lock, User, ArrowRight, Shield } from 'lucide-react';
+import { EnvironmentBadge } from '@/components/layout/environment-badge';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -75,6 +76,7 @@ export default function LoginPage() {
               />
             </div>
             <span className="text-white/90 text-lg font-semibold tracking-tight">Elasticsearch Management</span>
+            <EnvironmentBadge />
           </div>
 
           {/* Center Text */}
@@ -125,6 +127,7 @@ export default function LoginPage() {
               />
             </div>
             <span className="text-slate-900 dark:text-slate-50 text-lg font-semibold">Elasticsearch Management</span>
+            <EnvironmentBadge />
           </div>
 
           {/* Header */}
