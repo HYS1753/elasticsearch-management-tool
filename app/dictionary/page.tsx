@@ -241,7 +241,7 @@ export default function DictionaryPage() {
             nextLogs.push(data);
           }
 
-          const totalSteps = action === 'validate' ? 8 : 6;
+          const totalSteps = action === 'validate' ? 8 : 13;
           const successCount = nextLogs.filter(item => item.status === 'SUCCESS').length;
           const calculatedProgress = Math.min(Math.round((successCount / totalSteps) * 100), 100);
           setProgress(calculatedProgress);
