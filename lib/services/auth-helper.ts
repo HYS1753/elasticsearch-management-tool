@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 
-export async function getAuthHeaders() {
+export async function getAuthHeaders(): Promise<Record<string, string>> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
@@ -13,3 +13,4 @@ export async function getAuthHeaders() {
   }
   return {};
 }
+

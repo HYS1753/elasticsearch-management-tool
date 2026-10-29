@@ -189,7 +189,7 @@ export function QueryExplainTab() {
         index: indexName.trim(),
         body: validation.parsed!,
         doc_id: hit.id,
-        include_raw_explain: false,
+        include_raw_explain: true,
         include_source_fields: includeSourceFields,
         doc_title_fields: docTitleFields,
       };

@@ -3,6 +3,8 @@ export interface ExplainScoreStep {
   label: string;
   value?: number | null;
   formula_label?: string | null;
+  operator?: string | null;
+  operator_value?: number | null;
 }
 
 export interface QueryExplainSummaryHit {
@@ -29,6 +31,13 @@ export interface ExplainMatchedToken {
   boost?: number | null;
   idf?: number | null;
   tf?: number | null;
+  freq?: number | null;
+  dl?: number | null;
+  avgdl?: number | null;
+  n_val?: number | null;
+  N_val?: number | null;
+  k1?: number | null;
+  b?: number | null;
   description?: string | null;
 }
 
@@ -71,6 +80,19 @@ export interface ExplainRescoreDetail {
   boost_mode?: string | null;
   query_weight?: number | null;
   rescore_query_weight?: number | null;
+  rescore_query_score?: number | null;
+  rescore_query_structure?: QueryStructureNode | null;
+}
+
+
+export interface QueryStructureNode {
+  type: 'sum_of' | 'max_of' | 'knn' | 'bm25' | 'function_score' | 'constant_score' | 'weight' | 'unknown';
+  description: string;
+  value: number;
+  field?: string | null;
+  term?: string | null;
+  tie_breaker?: number | null;
+  details: QueryStructureNode[];
 }
 
 export interface ExplainQueryDetail {
@@ -83,6 +105,15 @@ export interface ExplainQueryDetail {
   function_boost_mode?: string | null;
   function_score_combined?: number | null;
   final_query_score?: number | null;
+  query_structure?: QueryStructureNode | null;
+}
+
+export interface ScoreSubDetail {
+  field?: string | null;
+  score?: number | null;
+  tokens: string[];
+  clause_type?: string | null;
+  description?: string | null;
 }
 
 export interface QueryExplainScoreTimelineStep {
@@ -90,6 +121,9 @@ export interface QueryExplainScoreTimelineStep {
   label: string;
   value?: number | null;
   description?: string | null;
+  operator?: string | null;
+  operator_value?: number | null;
+  sub_details?: ScoreSubDetail[];
 }
 
 export interface QueryExplainDetailResponse {
